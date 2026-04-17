@@ -1,0 +1,33 @@
+[
+  {
+    "id": 12,
+    "title": "_k0t1k Project",
+    "slug": "project",
+    "date": "2026-04-14",
+    "thumbnail": "/images/k0t1k/4.jpg",
+    "gallery": [
+      "/images/k0t1k/1.jpg",
+      "/images/k0t1k/2.jpg",
+      "/images/k0t1k/3.jpg",
+      "/images/k0t1k/4.jpg",
+      "/images/k0t1k/5.jpg",
+      "/images/k0t1k/6.jpg",
+      "/images/k0t1k/7.jpg",
+      "/images/k0t1k/8.jpg",
+      "/images/k0t1k/9.jpg",
+      "/images/k0t1k/10.jpg"
+    ],
+    "tech_stack": [
+      "FastAPI",
+      "React",
+      "TailwindCSS",
+      "LightGBM",
+      "Pandas"
+    ],
+    "tags": [],
+    "github_url": "",
+    "presentation_url": "https://hhhhhffd.github.io/hacaton-_k0t1k-project/preza/",
+    "youtube_pitch_url": "https://youtu.be/yAVp_S-rzCY",
+    "content": "**First-come-first-served — мёртв**. Мы создали AI-систему, которая распределяет госсубсидии фермерам на основе реальной эффективности.\n\n## Проблема\nВ Казахстане субсидии для сельхозпроизводителей уходят тем, кто быстрее подал документы. Реальная эффективность хозяйства, история использования средств и потенциал роста — не учитываются. Это несправедливо и неэффективно.\n\n## Что мы сделали\n**_k0t1k Project** — интеллектуальная скоринговая система для хакатона Decentrathon 5.0 (трек AI inDrive Gov), которая ранжирует заявки через ML и объясняет каждое решение.\n\n## Архитектура под капотом\n- **LightGBM** — 20 признаков, двустадийный скоринг (hard filters + ML), 5-fold CV\n- **SHAP** — локальное объяснение влияния каждого фактора на оценку\n- **Qwen 3.5 LLM** — генерирует текстовые объяснения на русском и казахском\n- **Anti-fraud** — детекция сговоров, ночных подач, аномальных сумм\n\n## Стек\n- **Backend:** FastAPI + PostgreSQL + Redis\n- **Frontend:** React + TailwindCSS\n- **DevOps:** Docker Compose + Nginx + Cloudflare Tunnel\n- **ML:** LightGBM, SHAP, scikit-learn, pandas\n\n## Фишка реализации\n**AI только рекомендует — финальное решение за комиссией.**\nКаждый фермер получает объяснение, почему заявка одобрена или отклонена.\n\n## Результат\nПереход от «кто первый встал — того и тапки» к data-driven распределению бюджета с визуальным сравнением FIFO vs Merit-подхода."
+  }
+]
