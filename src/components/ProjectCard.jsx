@@ -1,9 +1,24 @@
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import ImageCarousel from './ImageCarousel'
 import { resolveAssetUrl } from '../utils/assetUrl'
+
+function stripMarkdown(text) {
+  if (!text) return ''
+  return text
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`]*`/g, '')
+    .replace(/#{1,6}\s+/g, '')
+    .replace(/[*_]{1,3}([^*_\n]+)[*_]{1,3}/g, '$1')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/^>\s*/gm, '')
+    .replace(/\n{2,}/g, '\n')
+    .trim()
+}
 
 export function SkeletonCard() {
   return (
@@ -29,9 +44,10 @@ export function SkeletonCard() {
 function ProjectCard({ project, index }) {
   const { title, content, thumbnail, tech_stack, tags, github_url, presentation_url, youtube_pitch_url, slug, gallery } = project
 
-  const allImages = [thumbnail, ...(gallery || [])]
-    .filter(Boolean)
-    .map((image) => resolveAssetUrl(image))
+  const allImages = useMemo(
+    () => [thumbnail, ...(gallery || [])].filter(Boolean).map((image) => resolveAssetUrl(image)),
+    [thumbnail, gallery],
+  )
 
   return (
     <motion.article 
@@ -53,11 +69,9 @@ function ProjectCard({ project, index }) {
           </h2>
         </Link>
         
-        <div className="text-gray-600 dark:text-white/60 text-sm leading-relaxed mb-4 flex-grow prose prose-sm dark:prose-invert max-w-none line-clamp-4 overflow-hidden prose-p:mt-0">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {content}
-          </ReactMarkdown>
-        </div>
+        <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed mb-4 flex-grow line-clamp-4 overflow-hidden">
+          {stripMarkdown(content)}
+        </p>
 
         {/* Tech Stack Tags */}
         {(tech_stack?.length > 0 || tags?.length > 0) && (

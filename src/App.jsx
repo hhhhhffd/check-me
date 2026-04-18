@@ -1,15 +1,19 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
-import Home from './pages/Home'
-import ProjectDetails from './pages/ProjectDetails'
+
+const Home = lazy(() => import('./pages/Home'))
+const ProjectDetails = lazy(() => import('./pages/ProjectDetails'))
 
 function App() {
   return (
     <ThemeProvider>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/project/:slug" element={<ProjectDetails />} />
-      </Routes>
+      <Suspense>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/project/:slug" element={<ProjectDetails />} />
+        </Routes>
+      </Suspense>
     </ThemeProvider>
   )
 }
