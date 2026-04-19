@@ -69,6 +69,16 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 }
 
+const centeredCardStartsByCount = {
+  1: ['lg:col-start-3'],
+  2: ['lg:col-start-2', 'lg:col-start-4'],
+  3: ['lg:col-start-2', 'lg:col-start-4', 'lg:col-start-3'],
+  4: ['lg:col-start-2', 'lg:col-start-4', 'lg:col-start-2', 'lg:col-start-4'],
+  5: ['lg:col-start-1', 'lg:col-start-3', 'lg:col-start-5', 'lg:col-start-2', 'lg:col-start-4'],
+}
+
+const getCardPositionClass = (cardsCount, index) => centeredCardStartsByCount[cardsCount]?.[index] || ''
+
 function Home() {
   const [visibleProjectsCount, setVisibleProjectsCount] = useState(PROJECTS_PER_PAGE)
   const [visibleAchievementsCount, setVisibleAchievementsCount] = useState(ACHIEVEMENTS_PER_PAGE)
@@ -236,10 +246,15 @@ function Home() {
                 <div className="h-px bg-gradient-to-r from-indigo-300 dark:from-indigo-500/50 to-transparent flex-grow" />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
                 <AnimatePresence>
                   {visibleAchievements.map((achievement, index) => (
-                    <AchievementCard key={achievement.id} achievement={achievement} index={index % 6} />
+                    <div
+                      key={achievement.id}
+                      className={`lg:col-span-2 ${getCardPositionClass(visibleAchievements.length, index)}`}
+                    >
+                      <AchievementCard achievement={achievement} index={index % 6} />
+                    </div>
                   ))}
                 </AnimatePresence>
               </div>
@@ -273,13 +288,18 @@ function Home() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                  <AnimatePresence>
-                    {visibleProjects.map((project, index) => (
-                      <ProjectCard key={project.id || project.slug} project={project} index={index % 6} />
-                    ))}
-                  </AnimatePresence>
-                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
+                   <AnimatePresence>
+                     {visibleProjects.map((project, index) => (
+                       <div
+                         key={project.id || project.slug}
+                         className={`lg:col-span-2 ${getCardPositionClass(visibleProjects.length, index)}`}
+                       >
+                         <ProjectCard project={project} index={index % 6} />
+                       </div>
+                     ))}
+                   </AnimatePresence>
+                 </div>
 
                 {hasMoreProjects && (
                   <div className="text-center mt-12">
