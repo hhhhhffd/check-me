@@ -42,7 +42,7 @@ export function SkeletonCard() {
 }
 
 function ProjectCard({ project, index }) {
-  const { title, content, thumbnail, tech_stack, tags, github_url, presentation_url, youtube_pitch_url, slug, gallery } = project
+  const { title, 'content-on-card': contentOnCard, thumbnail, tech_stack, tags, github_url, presentation_url, youtube_pitch_url, slug, gallery } = project
 
   const allImages = useMemo(
     () => [thumbnail, ...(gallery || [])].filter(Boolean).map((image) => resolveAssetUrl(image)),
@@ -69,8 +69,8 @@ function ProjectCard({ project, index }) {
           </h2>
         </Link>
         
-        <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed mb-4 flex-grow line-clamp-4 overflow-hidden">
-          {stripMarkdown(content)}
+        <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed mb-4 flex-grow">
+          {stripMarkdown(contentOnCard)}
         </p>
 
         {/* Tech Stack Tags */}

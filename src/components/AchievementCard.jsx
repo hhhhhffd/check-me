@@ -60,7 +60,7 @@ function AchievementCard({ achievement, index }) {
         )}
 
         {description && (
-          <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed mb-4 flex-grow line-clamp-4">
+          <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed mb-4 flex-grow">
             {description}
           </p>
         )}
