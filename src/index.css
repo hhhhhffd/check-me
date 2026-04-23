@@ -15,75 +15,69 @@
 }
 
 @layer components {
-  /* Dark Mode Glass */
-  .dark .glass-panel {
-    background: rgba(26, 26, 46, 0.6);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 
-      0 8px 32px 0 rgba(0, 0, 0, 0.37),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-
-  .dark .glass-card {
-    background: rgba(18, 18, 26, 0.7);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 
-      0 4px 24px 0 rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .dark .glass-card:hover {
-    background: rgba(26, 26, 46, 0.8);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 
-      0 12px 48px 0 rgba(99, 102, 241, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    transform: translateY(-4px);
-  }
-
-  .dark .glass-button {
-    background: rgba(99, 102, 241, 0.2);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(99, 102, 241, 0.4);
-    transition: all 0.2s ease;
-  }
-
-  .dark .glass-button:hover {
-    background: rgba(99, 102, 241, 0.4);
-    border-color: rgba(99, 102, 241, 0.6);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-  }
-
-  /* Light Mode Glass */
+  /* Performance optimizations for mobile devices */
   .glass-panel {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(255, 255, 255, 1);
     box-shadow: 
       0 8px 32px 0 rgba(31, 38, 135, 0.07),
       inset 0 1px 0 rgba(255, 255, 255, 0.5);
   }
 
+  .dark .glass-panel {
+    background: rgba(26, 26, 46, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 
+      0 8px 32px 0 rgba(0, 0, 0, 0.37),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
   .glass-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(255, 255, 255, 1);
     box-shadow: 
       0 4px 24px 0 rgba(31, 38, 135, 0.05),
       inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+    will-change: transform;
+  }
+
+  .dark .glass-card {
+    background: rgba(18, 18, 26, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 4px 24px 0 rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  /* Desktop Glass Effects */
+  @media (min-width: 768px) {
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+    }
+    
+    .dark .glass-panel {
+      background: rgba(26, 26, 46, 0.6);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+    }
+
+    .dark .glass-card {
+      background: rgba(18, 18, 26, 0.7);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+    }
   }
 
   .glass-card:hover {
-    background: rgba(255, 255, 255, 1);
     border-color: rgba(99, 102, 241, 0.3);
     box-shadow: 
       0 12px 48px 0 rgba(99, 102, 241, 0.15),
@@ -91,16 +85,24 @@
     transform: translateY(-4px);
   }
 
+  .dark .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 
+      0 12px 48px 0 rgba(99, 102, 241, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  /* Buttons shouldn't need heavy blur anyway */
   .glass-button {
     background: rgba(99, 102, 241, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(99, 102, 241, 0.2);
-    color: #4f46e5; /* text-indigo-600 */
+    color: #4f46e5;
     transition: all 0.2s ease;
   }
 
   .dark .glass-button {
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.4);
     color: white;
   }
 

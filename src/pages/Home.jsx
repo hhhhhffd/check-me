@@ -149,8 +149,8 @@ function Home() {
   return (
     <>
       {/* Background blobs — outside any overflow container so they truly stay fixed */}
-      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-400/20 dark:bg-indigo-600/20 rounded-full blur-[80px] pointer-events-none -z-10" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-400/20 dark:bg-purple-600/20 rounded-full blur-[80px] pointer-events-none -z-10" />
+      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-400/20 dark:bg-indigo-600/20 rounded-full blur-[40px] md:blur-[80px] pointer-events-none -z-10 transform-gpu" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-400/20 dark:bg-purple-600/20 rounded-full blur-[40px] md:blur-[80px] pointer-events-none -z-10 transform-gpu" />
 
       {/* Theme toggle — always fixed to viewport */}
       <div className="fixed top-6 right-6 z-50">
