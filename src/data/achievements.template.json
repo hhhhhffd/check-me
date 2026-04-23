@@ -1,0 +1,24 @@
+[
+  {
+    "title": "Название достижения",
+    "event": "Хакатон / Олимпиада / Конкурс",
+    "place": "1 место / Победитель",
+    "description": "Краткое описание того, что было сделано и почему это важно.",
+    "thumbnail": "/images/achievements/cover.jpg",
+    "gallery": [
+      "/images/achievements/1.jpg",
+      "/images/achievements/2.jpg"
+    ],
+    "tech_stack": [
+      "React",
+      "Python"
+    ],
+    "tags": [
+      "Хакатон",
+      "AI"
+    ],
+    "github_url": "https://github.com/username/repo",
+    "presentation_url": "https://example.com/demo",
+    "youtube_pitch_url": "https://youtu.be/xxxxx"
+  }
+]
