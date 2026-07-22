@@ -3,118 +3,249 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color: #ede9f5;
+    background: #0d0b14;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-[#0a0a0f] dark:text-white transition-colors duration-500;
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    min-width: 320px;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(96, 61, 165, 0.14), transparent 32rem),
+      radial-gradient(circle at 88% 100%, rgba(94, 234, 212, 0.06), transparent 34rem),
+      #0d0b14;
+    color: #ede9f5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid #5eead4;
+    outline-offset: 3px;
   }
 }
 
 @layer components {
-  /* Performance optimizations for mobile devices */
-  .glass-panel {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(255, 255, 255, 1);
-    box-shadow: 
-      0 8px 32px 0 rgba(31, 38, 135, 0.07),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  .terminal-card,
+  .terminal-dialog {
+    border: 1px solid #2a2340;
+    border-radius: 8px;
+    background: rgba(23, 19, 31, 0.88);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.22);
   }
 
-  .dark .glass-panel {
-    background: rgba(26, 26, 46, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 
-      0 8px 32px 0 rgba(0, 0, 0, 0.37),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  .terminal-card {
+    padding: 1.25rem;
   }
 
+  .terminal-prompt {
+    margin: 0;
+    color: #8f88a8;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.72rem;
+    line-height: 1.35;
+    letter-spacing: 0.015em;
+  }
+
+  .terminal-prompt::first-letter {
+    color: #5eead4;
+  }
+
+  .terminal-button,
+  .terminal-button-muted,
+  .terminal-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid #3b3157;
+    border-radius: 6px;
+    background: #1a1624;
+    color: #ede9f5;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.75rem;
+    line-height: 1;
+    text-decoration: none;
+    transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, transform 160ms ease;
+  }
+
+  .terminal-button {
+    padding: 0.72rem 0.85rem;
+  }
+
+  .terminal-button:hover,
+  .terminal-button-muted:hover,
+  .terminal-icon-button:hover {
+    border-color: #8b5cf6;
+    background: #221b32;
+    color: #ffffff;
+  }
+
+  .terminal-button:hover {
+    transform: translateY(-1px);
+  }
+
+  .terminal-button-muted {
+    padding: 0.72rem 0.85rem;
+    color: #b8b1ca;
+  }
+
+  .terminal-icon-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: none;
+  }
+
+  .terminal-tag {
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 999px;
+    background: rgba(139, 92, 246, 0.11);
+    padding: 0.35rem 0.55rem;
+    color: #c4b5fd;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.69rem;
+    line-height: 1;
+  }
+
+  .terminal-tag-muted {
+    border-color: #3b3157;
+    background: transparent;
+    color: #a39bb6;
+  }
+
+  .terminal-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.75rem;
+    border-top: 1px solid rgba(42, 35, 64, 0.82);
+    padding: 0.8rem 0;
+    color: #dcd7e7;
+    text-align: left;
+    transition: color 160ms ease, background-color 160ms ease;
+  }
+
+  .terminal-row:first-of-type {
+    margin-top: 0.55rem;
+  }
+
+  .terminal-row:hover {
+    background: rgba(139, 92, 246, 0.06);
+    color: #ffffff;
+  }
+
+  .terminal-row-number {
+    color: #5eead4;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.72rem;
+  }
+
+  .terminal-inline-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #b8b1ca;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.72rem;
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .terminal-inline-link:hover {
+    color: #5eead4;
+  }
+
+  .terminal-prose {
+    color: #c7c1d4;
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .terminal-prose h1,
+  .terminal-prose h2,
+  .terminal-prose h3 {
+    margin-top: 2rem;
+    color: #ede9f5;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .terminal-prose h1:first-child,
+  .terminal-prose h2:first-child,
+  .terminal-prose h3:first-child {
+    margin-top: 0;
+  }
+
+  .terminal-prose a {
+    color: #a78bfa;
+  }
+
+  .terminal-list {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    color: #c7c1d4;
+    list-style: none;
+  }
+
+  .terminal-list li::before {
+    content: "›";
+    margin-right: 0.65rem;
+    color: #5eead4;
+  }
+
+  .activity-grid {
+    display: flex;
+    gap: 3px;
+    min-width: max-content;
+  }
+
+  .activity-week {
+    display: grid;
+    grid-template-rows: repeat(7, 10px);
+    gap: 3px;
+  }
+
+  .activity-cell {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  .activity-cell-empty { background: #211b2c; }
+  .activity-cell-low { background: #316b64; }
+  .activity-cell-medium { background: #3ab394; }
+  .activity-cell-high { background: #7ff3ba; }
+
+  .terminal-github-card {
+    overflow-x: auto;
+  }
+
+  /* Legacy route-level pages retain a restrained version of the new surface. */
+  .glass-panel,
   .glass-card {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(255, 255, 255, 1);
-    box-shadow: 
-      0 4px 24px 0 rgba(31, 38, 135, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
-    will-change: transform;
+    border: 1px solid #2a2340;
+    background: rgba(23, 19, 31, 0.88);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.22);
   }
 
-  .dark .glass-card {
-    background: rgba(18, 18, 26, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 
-      0 4px 24px 0 rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  }
-
-  /* Desktop Glass Effects */
-  @media (min-width: 768px) {
-    .glass-panel {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(12px) saturate(180%);
-      -webkit-backdrop-filter: blur(12px) saturate(180%);
-    }
-    
-    .dark .glass-panel {
-      background: rgba(26, 26, 46, 0.6);
-      backdrop-filter: blur(12px) saturate(180%);
-      -webkit-backdrop-filter: blur(12px) saturate(180%);
-    }
-
-    .glass-card {
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(12px) saturate(180%);
-      -webkit-backdrop-filter: blur(12px) saturate(180%);
-    }
-
-    .dark .glass-card {
-      background: rgba(18, 18, 26, 0.7);
-      backdrop-filter: blur(12px) saturate(180%);
-      -webkit-backdrop-filter: blur(12px) saturate(180%);
-    }
-  }
-
-  .glass-card:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-    box-shadow: 
-      0 12px 48px 0 rgba(99, 102, 241, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    transform: translateY(-4px);
-  }
-
-  .dark .glass-card:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 
-      0 12px 48px 0 rgba(99, 102, 241, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  }
-
-  /* Buttons shouldn't need heavy blur anyway */
   .glass-button {
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    color: #4f46e5;
-    transition: all 0.2s ease;
-  }
-
-  .dark .glass-button {
-    background: rgba(99, 102, 241, 0.2);
-    border: 1px solid rgba(99, 102, 241, 0.4);
-    color: white;
+    border: 1px solid #3b3157;
+    background: #1a1624;
+    color: #ede9f5;
   }
 
   .glass-button:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
-  }
-  
-  .dark .glass-button:hover {
-    background: rgba(99, 102, 241, 0.4);
-    border-color: rgba(99, 102, 241, 0.6);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    border-color: #8b5cf6;
+    background: #221b32;
   }
 }
