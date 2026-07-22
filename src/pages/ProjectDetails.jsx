@@ -7,16 +7,17 @@ import remarkGfm from 'remark-gfm'
 import ThemeToggle from '../components/ThemeToggle'
 import ImageCarousel from '../components/ImageCarousel'
 import { GithubIcon } from '../components/icons'
-import projectsData from '../data/projects.json'
+import { useCvData } from '../context/CvDataContext'
 import { resolveAssetUrl } from '../utils/assetUrl'
 import { setMetaTag } from '../utils/setMetaTag'
 
 function ProjectDetails() {
   const { slug } = useParams()
+  const { data: cv } = useCvData()
   const [copyStatus, setCopyStatus] = useState(null)
   const project = useMemo(
-    () => projectsData.find((item) => item.slug === slug),
-    [slug],
+    () => cv.projects.find((item) => item.slug === slug),
+    [cv.projects, slug],
   )
   const projectThumbnail = resolveAssetUrl(project?.thumbnail)
   const projectImages = useMemo(

@@ -5,9 +5,7 @@ import ProjectCard from '../components/ProjectCard'
 import AchievementCard from '../components/AchievementCard'
 import ThemeToggle from '../components/ThemeToggle'
 import { GithubIcon } from '../components/icons'
-import profile from '../data/profile.json'
-import projectsData from '../data/projects.json'
-import achievementsData from '../data/achievements.json'
+import { useCvData } from '../context/CvDataContext'
 import { resolveAssetUrl } from '../utils/assetUrl'
 import { setMetaTag } from '../utils/setMetaTag'
 
@@ -44,21 +42,6 @@ const YoutubeIcon = ({ className }) => (
   </svg>
 )
 
-const profileEmail = profile?.email || profile?.mail || ''
-const profileImage = resolveAssetUrl(profile?.image)
-const profileCvUrl = profile?.cv_url || profile?.cv || ''
-
-const contactLinks = [
-  { key: 'github', href: profile?.github, label: 'GitHub', icon: GithubIcon },
-  { key: 'linkedin', href: profile?.linkedin, label: 'LinkedIn', icon: LinkedinIcon },
-  { key: 'telegram', href: profile?.telegram, label: 'Telegram', icon: TelegramIcon },
-  { key: 'email', href: profileEmail, label: 'Email', icon: Mail, external: false },
-  { key: 'cv', href: profileCvUrl, label: 'CV', icon: FileText },
-  { key: 'instagram', href: profile?.instagram, label: 'Instagram', icon: InstagramIcon },
-  { key: 'facebook', href: profile?.facebook, label: 'Facebook', icon: FacebookIcon },
-  { key: 'youtube', href: profile?.youtube, label: 'YouTube', icon: YoutubeIcon },
-].filter((item) => Boolean(item.href))
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
@@ -80,17 +63,32 @@ const centeredCardStartsByCount = {
 const getCardPositionClass = (cardsCount, index) => centeredCardStartsByCount[cardsCount]?.[index] || ''
 
 function Home() {
+  const { data: cv } = useCvData()
+  const profile = cv.profile
+  const profileEmail = profile.email || ''
+  const profileImage = resolveAssetUrl(profile.image)
+  const profileCvUrl = profile.cvUrl || ''
+  const contactLinks = [
+    { key: 'github', href: profile.github, label: 'GitHub', icon: GithubIcon },
+    { key: 'linkedin', href: profile.linkedin, label: 'LinkedIn', icon: LinkedinIcon },
+    { key: 'telegram', href: profile.telegram, label: 'Telegram', icon: TelegramIcon },
+    { key: 'email', href: profileEmail, label: 'Email', icon: Mail, external: false },
+    { key: 'cv', href: profileCvUrl, label: 'CV', icon: FileText },
+    { key: 'instagram', href: profile.instagram, label: 'Instagram', icon: InstagramIcon },
+    { key: 'facebook', href: profile.facebook, label: 'Facebook', icon: FacebookIcon },
+    { key: 'youtube', href: profile.youtube, label: 'YouTube', icon: YoutubeIcon },
+  ].filter((item) => Boolean(item.href))
   const [visibleProjectsCount, setVisibleProjectsCount] = useState(PROJECTS_PER_PAGE)
   const [visibleAchievementsCount, setVisibleAchievementsCount] = useState(ACHIEVEMENTS_PER_PAGE)
   const [copyToast, setCopyToast] = useState({ visible: false, text: '' })
 
   const projects = useMemo(
-    () => [...projectsData].sort((a, b) => new Date(b.date) - new Date(a.date)),
-    [],
+    () => [...cv.projects].sort((a, b) => new Date(b.date) - new Date(a.date)),
+    [cv.projects],
   )
   const achievements = useMemo(
-    () => achievementsData.filter((a) => Boolean(a.title)).sort((a, b) => new Date(b.date) - new Date(a.date)),
-    [],
+    () => cv.achievements.filter((a) => Boolean(a.title)).sort((a, b) => new Date(b.date) - new Date(a.date)),
+    [cv.achievements],
   )
 
   const visibleProjects = projects.slice(0, visibleProjectsCount)
@@ -123,8 +121,8 @@ function Home() {
   useEffect(() => {
     document.documentElement.lang = 'ru'
 
-    const baseTitle = profile?.name ? `${profile.name} — Портфолио` : 'Портфолио разработчика'
-    const description = profile?.bio || 'Личный сайт-портфолио: проекты, стек и контакты.'
+    const baseTitle = cv.meta?.siteTitle || (profile.name ? `${profile.name} — Портфолио` : 'Портфолио разработчика')
+    const description = cv.meta?.siteDescription || profile.bio || 'Личный сайт-портфолио: проекты, стек и контакты.'
 
     document.title = baseTitle
     setMetaTag('meta[name="description"]', 'content', description)
@@ -144,7 +142,7 @@ function Home() {
       document.head.appendChild(canonical)
     }
     canonical.setAttribute('href', window.location.origin + window.location.pathname)
-  }, [])
+  }, [cv.meta, profile, profileImage])
 
   return (
     <>
@@ -207,6 +205,14 @@ function Home() {
               <motion.p variants={itemVariants} className="max-w-3xl mx-auto text-gray-600 dark:text-white/60 text-lg md:text-xl leading-relaxed mb-10">
                 {profile.bio}
               </motion.p>
+
+              {(profile.location?.city || profile.workPreference?.status) && (
+                <motion.p variants={itemVariants} className="mb-6 text-sm md:text-base text-gray-500 dark:text-white/50">
+                  {[profile.location?.city, profile.location?.country, profile.location?.timezone, profile.workPreference?.status]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </motion.p>
+              )}
 
               <motion.div variants={itemVariants} className="flex justify-center flex-wrap gap-4 md:gap-6">
                 {contactLinks.map(({ key, href, label, icon: Icon, external = true }) => (
@@ -272,6 +278,43 @@ function Home() {
             </section>
           )}
 
+          {cv.about && (
+            <section id="about-section" className="py-20">
+              <div className="flex items-center gap-6 mb-8">
+                <h2 className="text-4xl font-bold text-gray-900 dark:text-white whitespace-nowrap">Обо мне</h2>
+                <div className="h-px bg-gradient-to-r from-indigo-300 dark:from-indigo-500/50 to-transparent flex-grow" />
+              </div>
+              <div className="glass-panel rounded-3xl p-8 md:p-10 max-w-4xl">
+                <p className="text-lg leading-relaxed text-gray-700 dark:text-white/70">{cv.about}</p>
+              </div>
+            </section>
+          )}
+
+          {cv.experience.length > 0 && (
+            <section id="experience-section" className="py-20">
+              <div className="flex items-center gap-6 mb-12">
+                <h2 className="text-4xl font-bold text-gray-900 dark:text-white whitespace-nowrap">Опыт разработки</h2>
+                <div className="h-px bg-gradient-to-r from-indigo-300 dark:from-indigo-500/50 to-transparent flex-grow" />
+              </div>
+              <div className="space-y-6">
+                {cv.experience.map((item) => (
+                  <article key={`${item.company}-${item.role}`} className="glass-panel rounded-3xl p-8 md:p-10">
+                    <div className="flex flex-col md:flex-row md:justify-between gap-2 mb-5">
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{item.role}</h3>
+                        <p className="text-indigo-600 dark:text-indigo-300">{item.company}</p>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-white/50">{item.period}</p>
+                    </div>
+                    <ul className="space-y-2 text-gray-700 dark:text-white/70 list-disc list-inside">
+                      {item.highlights?.map((highlight) => <li key={highlight}>{highlight}</li>)}
+                    </ul>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Проекты */}
           <section id="projects-section" className="py-20 min-h-screen">
             <div className="flex items-center gap-6 mb-12">
@@ -283,7 +326,7 @@ function Home() {
               <div className="glass-panel rounded-2xl p-16 text-center shadow-xl">
                 <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Нет проектов</h3>
                 <p className="text-gray-600 dark:text-white/60 text-lg max-w-md mx-auto">
-                  Добавьте проекты в <code>src/data/projects.json</code>.
+                  Добавьте проекты в <code>public/cv.jsonc</code>.
                 </p>
               </div>
             ) : (
@@ -315,9 +358,68 @@ function Home() {
             )}
           </section>
 
+          {cv.skillGroups.length > 0 && (
+            <section id="skills-section" className="py-20">
+              <div className="flex items-center gap-6 mb-12">
+                <h2 className="text-4xl font-bold text-gray-900 dark:text-white whitespace-nowrap">Навыки</h2>
+                <div className="h-px bg-gradient-to-r from-indigo-300 dark:from-indigo-500/50 to-transparent flex-grow" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {cv.skillGroups.map((group) => (
+                  <article key={group.name} className="glass-panel rounded-3xl p-7">
+                    <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-4">{group.name}</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {group.skills.map((skill) => <span key={skill} className="glass-button px-3 py-1.5 rounded-full text-sm">{skill}</span>)}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {(cv.education.length > 0 || cv.languages.length > 0) && (
+            <section id="background-section" className="py-20 grid grid-cols-1 lg:grid-cols-2 gap-10">
+              {cv.education.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-6 mb-8">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white whitespace-nowrap">Образование</h2>
+                    <div className="h-px bg-gradient-to-r from-indigo-300 dark:from-indigo-500/50 to-transparent flex-grow" />
+                  </div>
+                  <div className="space-y-5">
+                    {cv.education.map((item) => (
+                      <article key={`${item.institution}-${item.program}`} className="glass-panel rounded-3xl p-7">
+                        <p className="text-sm text-gray-500 dark:text-white/50 mb-2">{item.period}</p>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">{item.institution}</h3>
+                        <p className="text-indigo-600 dark:text-indigo-300 mt-1">{item.program}</p>
+                        {item.degree && <p className="text-sm text-gray-600 dark:text-white/55 mt-3">{item.degree}</p>}
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {cv.languages.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-6 mb-8">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white whitespace-nowrap">Языки</h2>
+                    <div className="h-px bg-gradient-to-r from-indigo-300 dark:from-indigo-500/50 to-transparent flex-grow" />
+                  </div>
+                  <div className="glass-panel rounded-3xl p-7 divide-y divide-gray-200 dark:divide-white/10">
+                    {cv.languages.map((language) => (
+                      <div key={language.name} className="py-4 first:pt-0 last:pb-0 flex justify-between gap-4">
+                        <span className="font-semibold text-gray-900 dark:text-white">{language.name}</span>
+                        <span className="text-right text-gray-600 dark:text-white/60">{language.level}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
           <footer className="pb-6 pt-0 flex justify-end px-6">
             <p className="text-gray-500 dark:text-white/50 text-sm font-medium">
-              hhhhhffd &copy; {new Date().getFullYear()}
+              {profile.name} &copy; {new Date().getFullYear()}
             </p>
           </footer>
         </div>

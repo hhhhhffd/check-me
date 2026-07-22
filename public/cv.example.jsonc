@@ -1,0 +1,136 @@
+// Это пример единственного файла с данными для сайта и будущего PDF-CV.
+// Скопируйте его в public/cv.jsonc и замените значения на свои.
+// Поля со значением null можно удалить, если информация не нужна.
+{
+  "meta": {
+    "locale": "ru",
+    "updatedAt": "2026-07-22",
+    "siteTitle": "Алексей Орлов — Backend Developer",
+    "siteDescription": "Портфолио backend-разработчика: опыт, проекты и контакты."
+  },
+
+  "profile": {
+    "name": "Алексей Орлов",
+    "title": "Backend / Fullstack Developer",
+    "headline": "Проектирую API и сервисы автоматизации — от схемы базы данных до Docker-деплоя.",
+    "bio": "Backend-разработчик с фокусом на API, интеграции и надёжную инфраструктуру. Беру задачу от идеи до работающего сервиса: архитектура, тесты, документация и деплой.",
+    "image": "/images/avatar.jpg",
+
+    "location": {
+      "city": "Алматы",
+      "country": "Казахстан",
+      "timezone": "UTC+5"
+    },
+
+    "workPreference": {
+      "status": "Открыт к стажировкам и junior-позициям",
+      "formats": ["Удалённо", "Гибрид"],
+      "relocation": false
+    },
+
+    "email": "alexey.orlov@example.com",
+    "telegram": "https://t.me/alexey_orlov",
+    "github": "https://github.com/alexey-orlov",
+    "linkedin": "https://www.linkedin.com/in/alexey-orlov",
+    "cvUrl": null,
+    "instagram": null,
+    "facebook": null,
+    "youtube": null
+  },
+
+  "about": "Backend-разработчик, которому интересны понятные системы с предсказуемым поведением. Работаю с Python и TypeScript, проектирую REST API, PostgreSQL-схемы, фоновые задачи и интеграции с внешними сервисами. В проектах уделяю внимание тестам, обработке ошибок и воспроизводимому Docker-окружению.",
+
+  // Указывайте только реальный опыт: работу, стажировку, фриланс или значимый продукт.
+  "experience": [
+    {
+      "company": "GreenMarket",
+      "companyUrl": "https://example.com",
+      "role": "Backend Developer Intern",
+      "employmentType": "Стажировка",
+      "location": "Удалённо",
+      "period": "Февраль 2026 — Июнь 2026",
+      "highlights": [
+        "Разработал REST API для каталога и заказов на FastAPI и PostgreSQL.",
+        "Добавил фоновые задачи для уведомлений и импорта прайс-листов.",
+        "Покрыл критичные сценарии интеграционными тестами и описал API в OpenAPI."
+      ],
+      "stack": ["Python", "FastAPI", "PostgreSQL", "Redis", "Docker"]
+    }
+  ],
+
+  // Четырёх сильных проектов достаточно. Сохраняйте факты, ссылки и конкретный вклад.
+  "projects": [
+    {
+      "id": "parcel-track",
+      "title": "ParcelTrack",
+      "slug": "parcel-track",
+      "date": "2026-05-01",
+      "period": "Март 2026 — Май 2026",
+      "status": "MVP",
+      "thumbnail": "/images/parcel-track/cover.png",
+      "gallery": ["/images/parcel-track/cover.png", "/images/parcel-track/dashboard.png"],
+      "tech_stack": ["FastAPI", "React", "TypeScript", "PostgreSQL", "Docker"],
+      "tags": ["Fullstack", "Logistics"],
+      "github_url": "https://github.com/alexey-orlov/parcel-track",
+      "presentation_url": "https://example.com/parcel-track",
+      "youtube_pitch_url": null,
+      "content-on-card": "Сервис отслеживания посылок из нескольких перевозчиков в одном интерфейсе с уведомлениями об изменении статуса.",
+      "role": "Fullstack Developer",
+      "responsibilities": [
+        "Спроектировал модель статусов отправления и REST API.",
+        "Реализовал периодический опрос API перевозчиков и уведомления.",
+        "Настроил локальный запуск через Docker Compose."
+      ],
+      "outcomes": [
+        "Поддерживает 3 интеграции с перевозчиками.",
+        "Критичные сценарии покрыты интеграционными тестами."
+      ],
+      "content": "## Задача\nПользователю приходилось проверять статусы посылок на сайтах разных перевозчиков.\n\n## Решение\nParcelTrack собирает статусы в одном интерфейсе и отправляет уведомления об изменениях.\n\n## Мой вклад\n- Спроектировал API и схему PostgreSQL.\n- Добавил интеграции с внешними API и обработку ошибок.\n- Собрал frontend и Docker-окружение."
+    }
+  ],
+
+  "skillGroups": [
+    { "name": "Языки", "skills": ["Python", "TypeScript", "JavaScript", "SQL"] },
+    { "name": "Backend", "skills": ["FastAPI", "REST API", "WebSocket", "Background jobs"] },
+    { "name": "Базы данных", "skills": ["PostgreSQL", "Redis", "SQLite", "Alembic"] },
+    { "name": "Frontend", "skills": ["React", "Vite", "Tailwind CSS"] },
+    { "name": "Инфраструктура", "skills": ["Docker", "Docker Compose", "Linux", "Nginx", "GitHub Actions"] },
+    { "name": "Тестирование", "skills": ["Pytest", "Integration tests", "Postman"] }
+  ],
+
+  "education": [
+    {
+      "institution": "Колледж цифровых технологий",
+      "program": "Информационные системы и программирование",
+      "period": "2024 — 2028",
+      "degree": "Техническое и профессиональное образование",
+      "details": ["Алгоритмы и структуры данных", "Базы данных", "Компьютерные сети"]
+    }
+  ],
+
+  "achievements": [
+    {
+      "id": "city-hackathon-2026",
+      "title": "2 место — CityHack 2026",
+      "date": "2026-04-12",
+      "description": "В команде разработал прототип сервиса распределения заявок за 48 часов.",
+      "url": "https://example.com/cityhack",
+      "image": null,
+      "tags": ["Hackathon", "Teamwork"]
+    }
+  ],
+
+  "languages": [
+    { "name": "Русский", "level": "Родной" },
+    { "name": "Казахский", "level": "B2" },
+    { "name": "Английский", "level": "B1 — читаю техническую документацию" }
+  ],
+
+  "interests": ["Backend-архитектура", "Open source", "Автоматизация"],
+
+  "pdf": {
+    "fileName": "alexey-orlov-cv.pdf",
+    "language": "ru",
+    "includeProjectDetails": true
+  }
+}
