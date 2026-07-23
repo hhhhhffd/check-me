@@ -224,7 +224,10 @@ function Home() {
             </section>
           )}
 
-          <GithubActivity githubUrl={profile.github} />
+          <GithubActivity
+            githubUrl={profile.github}
+            githubActivityApiUrl={profile.githubActivityApiUrl}
+          />
         </div>
 
         <footer className="mt-5 flex justify-end px-1 text-xs text-[#635c76]">

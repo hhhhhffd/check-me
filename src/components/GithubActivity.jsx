@@ -3,7 +3,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { GithubIcon } from './icons'
 import { resolveAssetUrl } from '../utils/assetUrl'
 
-const STATS_URL = resolveAssetUrl('/github-stats.json')
+const STATIC_STATS_URL = resolveAssetUrl('/github-stats.json')
 
 function getUsername(githubUrl) {
   try {
@@ -14,6 +14,18 @@ function getUsername(githubUrl) {
   }
 }
 
+function getStatsUrl(githubActivityApiUrl, username) {
+  if (!githubActivityApiUrl || !username) return STATIC_STATS_URL
+
+  try {
+    const url = new URL(githubActivityApiUrl)
+    url.searchParams.set('username', username)
+    return url.toString()
+  } catch {
+    return STATIC_STATS_URL
+  }
+}
+
 function getActivityClass(contributionCount) {
   if (!contributionCount) return 'activity-cell activity-cell-empty'
   if (contributionCount < 3) return 'activity-cell activity-cell-low'
@@ -21,10 +33,14 @@ function getActivityClass(contributionCount) {
   return 'activity-cell activity-cell-high'
 }
 
-function GithubActivity({ githubUrl }) {
+function GithubActivity({ githubUrl, githubActivityApiUrl }) {
   const [stats, setStats] = useState(null)
   const [status, setStatus] = useState('loading')
   const username = useMemo(() => getUsername(githubUrl), [githubUrl])
+  const statsUrl = useMemo(
+    () => getStatsUrl(githubActivityApiUrl, username),
+    [githubActivityApiUrl, username],
+  )
 
   useEffect(() => {
     if (!username) return undefined
@@ -33,7 +49,7 @@ function GithubActivity({ githubUrl }) {
 
     async function loadStats() {
       try {
-        const response = await fetch(STATS_URL, { signal: controller.signal })
+        const response = await fetch(statsUrl, { signal: controller.signal })
         if (!response.ok) throw new Error(`GitHub activity request failed: ${response.status}`)
 
         const data = await response.json()
@@ -50,7 +66,7 @@ function GithubActivity({ githubUrl }) {
 
     loadStats()
     return () => controller.abort()
-  }, [username])
+  }, [statsUrl, username])
 
   if (!username) return null
 
