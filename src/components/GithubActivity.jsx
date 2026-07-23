@@ -4,6 +4,8 @@ import { GithubIcon } from './icons'
 import { resolveAssetUrl } from '../utils/assetUrl'
 
 const STATIC_STATS_URL = resolveAssetUrl('/github-stats.json')
+const MONTH_NAMES = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
+const EMPTY_WEEKS = []
 
 function getUsername(githubUrl) {
   try {
@@ -33,6 +35,35 @@ function getActivityClass(contributionCount) {
   return 'activity-cell activity-cell-high'
 }
 
+function getContributionWord(contributionCount) {
+  const lastTwoDigits = contributionCount % 100
+  const lastDigit = contributionCount % 10
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return 'вкладов'
+  if (lastDigit === 1) return 'вклад'
+  if (lastDigit >= 2 && lastDigit <= 4) return 'вклада'
+  return 'вкладов'
+}
+
+function getMonthLabels(weeks) {
+  let previousMonth = null
+
+  return weeks.flatMap((week, weekIndex) => {
+    const firstDay = week.find((day) => day.date)
+    if (!firstDay) return []
+
+    const month = Number(firstDay.date.slice(5, 7)) - 1
+    if (month === previousMonth) return []
+
+    previousMonth = month
+    return [{ label: MONTH_NAMES[month], weekIndex }]
+  })
+}
+
+function getContributionLabel(day) {
+  return `${day.date}: ${day.contributionCount} ${getContributionWord(day.contributionCount)}`
+}
+
 function GithubActivity({ githubUrl, githubActivityApiUrl }) {
   const [stats, setStats] = useState(null)
   const [status, setStatus] = useState('loading')
@@ -41,6 +72,8 @@ function GithubActivity({ githubUrl, githubActivityApiUrl }) {
     () => getStatsUrl(githubActivityApiUrl, username),
     [githubActivityApiUrl, username],
   )
+  const weeks = stats?.weeks || EMPTY_WEEKS
+  const monthLabels = useMemo(() => getMonthLabels(weeks), [weeks])
 
   useEffect(() => {
     if (!username) return undefined
@@ -70,7 +103,7 @@ function GithubActivity({ githubUrl, githubActivityApiUrl }) {
 
   if (!username) return null
 
-  const weeks = stats?.weeks || []
+  const gridStyle = { '--week-count': weeks.length }
 
   return (
     <section className="terminal-card terminal-github-card lg:col-span-12">
@@ -85,26 +118,47 @@ function GithubActivity({ githubUrl, githubActivityApiUrl }) {
 
       {status === 'ready' ? (
         <>
-          <p className="mt-2 text-sm text-[#8f88a8]">
-            <span className="text-[#5eead4]">{stats.totalContributions.toLocaleString('ru-RU')}</span> contributions за последний год
-          </p>
-          <div className="activity-grid mt-6" aria-label={`GitHub activity: ${stats.totalContributions} contributions за последний год`}>
-            {weeks.map((week, weekIndex) => (
-              <div key={`${weekIndex}-${week[0]?.date || 'empty'}`} className="activity-week">
-                {week.map((day) => (
-                  <span
-                    key={day.date}
-                    title={`${day.date}: ${day.contributionCount} contributions`}
-                    className={getActivityClass(day.contributionCount)}
-                  />
-                ))}
-              </div>
-            ))}
+          <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
+            <p className="text-sm text-[#8f88a8]">
+              <span className="text-xl font-medium text-[#5eead4]">{stats.totalContributions.toLocaleString('ru-RU')}</span>{' '}
+              вкладов за последний год
+            </p>
+            <div className="activity-legend" aria-label="Интенсивность активности">
+              <span>Меньше</span>
+              <i className="activity-cell activity-cell-empty" />
+              <i className="activity-cell activity-cell-low" />
+              <i className="activity-cell activity-cell-medium" />
+              <i className="activity-cell activity-cell-high" />
+              <span>Больше</span>
+            </div>
+          </div>
+          <div className="activity-chart mt-6">
+            <div className="activity-months" style={gridStyle} aria-hidden="true">
+              {monthLabels.map(({ label, weekIndex }) => (
+                <span key={`${label}-${weekIndex}`} className="activity-month" style={{ gridColumnStart: weekIndex + 1 }}>
+                  {label}
+                </span>
+              ))}
+            </div>
+            <div className="activity-grid" style={gridStyle} aria-label={`GitHub activity: ${stats.totalContributions} вкладов за последний год`}>
+              {weeks.map((week, weekIndex) => (
+                <div key={`${weekIndex}-${week[0]?.date || 'empty'}`} className="activity-week">
+                  {week.map((day) => (
+                    <span
+                      key={day.date}
+                      title={getContributionLabel(day)}
+                      aria-label={getContributionLabel(day)}
+                      className={getActivityClass(day.contributionCount)}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </>
       ) : (
         <p className="mt-5 text-sm leading-relaxed text-[#8f88a8]">
-          Активность появится после первого обновления GitHub Actions.
+          Активность GitHub временно недоступна.
         </p>
       )}
     </section>
