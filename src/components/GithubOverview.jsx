@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { GithubIcon } from './icons'
+import ViewCount from './ViewCount'
 import { resolveAssetUrl } from '../utils/assetUrl'
 
 const STATIC_STATS_URL = resolveAssetUrl('/github-stats.json')
@@ -437,11 +438,14 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
           )}
           <p className="terminal-prompt">~/cv $ github --stats</p>
         </div>
-        <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="terminal-inline-link">
-          <GithubIcon className="h-4 w-4" />
-          github.com/{username}
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </a>
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <ViewCount githubActivityApiUrl={githubActivityApiUrl} />
+          <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="terminal-inline-link">
+            <GithubIcon className="h-4 w-4" />
+            github.com/{username}
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
       </div>
 
       {status === 'loading' && <GithubSkeleton />}

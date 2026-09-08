@@ -828,8 +828,34 @@
     display: flex;
     align-items: center;
     gap: 0.55rem;
+    flex-wrap: wrap;
     justify-content: flex-end;
     margin-top: 0.8rem;
+  }
+
+  .view-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid rgba(59, 49, 87, 0.9);
+    border-radius: 5px;
+    padding: 0.28rem 0.45rem;
+    background: rgba(26, 22, 36, 0.62);
+  }
+
+  .view-count-label,
+  .view-count-value {
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.59rem;
+  }
+
+  .view-count-label {
+    color: #8f88a8;
+  }
+
+  .view-count-value {
+    color: #5eead4;
+    font-weight: 500;
   }
 
   .github-source-badge {

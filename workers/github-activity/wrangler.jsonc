@@ -1,13 +1,23 @@
 {
-  "name": "github-activity-api",
-  "main": "src/index.js",
-  "compatibility_date": "2026-07-23",
-  "workers_dev": true,
-  "vars": {
-    "ALLOWED_ORIGINS": "http://localhost:5173,https://datanomads.cc",
-    "GITHUB_USERNAME": "hhhhhffd"
-  },
-  "secrets": {
-    "required": ["GITHUB_TOKEN"]
-  }
+	"name": "github-activity-api",
+	"main": "src/index.js",
+	"compatibility_date": "2026-07-23",
+	"workers_dev": true,
+	"vars": {
+		"ALLOWED_ORIGINS": "http://localhost:5173,https://datanomads.cc",
+		"GITHUB_USERNAME": "hhhhhffd"
+	},
+	// After creating the namespace, add its returned id here:
+	// "kv_namespaces": [{ "binding": "PORTFOLIO_VIEWS", "id": "<namespace-id>" }],
+	"secrets": {
+		"required": [
+			"GITHUB_TOKEN"
+		]
+	},
+	"kv_namespaces": [
+		{
+			"binding": "PORTFOLIO_VIEWS",
+			"id": "19ade7e2850e4334a3a0d297fdf9f3c2"
+		}
+	]
 }

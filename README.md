@@ -51,3 +51,28 @@ GITHUB_TOKEN=ваш_токен npm run update:github-stats
 ```
 
 В статистику репозиториев входят публичные оригинальные репозитории владельца; forks исключены. Проценты языков считаются по размеру файлов в байтах, как отдаёт GitHub.
+
+### Счётчик просмотров портфолио
+
+Тот же Worker обслуживает `GET /api/v1/views`. Первый запрос из браузерной сессии увеличивает ключ `views:total` в KV namespace `PORTFOLIO_VIEWS`; последующие запросы этой сессии только читают текущее значение.
+
+Создайте KV namespace один раз:
+
+```bash
+cd workers/github-activity
+npx wrangler kv namespace create PORTFOLIO_VIEWS
+```
+
+Скопируйте выданный ID в `wrangler.jsonc`:
+
+```jsonc
+"kv_namespaces": [
+  { "binding": "PORTFOLIO_VIEWS", "id": "your-namespace-id" }
+]
+```
+
+После этого задеплойте Worker:
+
+```bash
+npx wrangler deploy
+```

@@ -1,5 +1,7 @@
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
 const API_PATH = '/api/v1/github'
+const VIEWS_API_PATH = '/api/v1/views'
+const VIEWS_KEY = 'views:total'
 const CACHE_TTL_SECONDS = 60 * 60
 const ACTIVITY_MONTH_COUNT = 3
 const REPOSITORY_PAGE_SIZE = 100
@@ -107,12 +109,13 @@ function createCorsHeaders(origin) {
   return headers
 }
 
-function createJsonResponse(body, status, origin) {
+function createJsonResponse(body, status, origin, options = {}) {
   const headers = createCorsHeaders(origin)
   headers.set('Content-Type', 'application/json; charset=utf-8')
   headers.set(
     'Cache-Control',
-    `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=${CACHE_TTL_SECONDS}`,
+    options.cacheControl
+      || `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=${CACHE_TTL_SECONDS}`,
   )
 
   return new Response(JSON.stringify(body), { status, headers })
@@ -343,8 +346,28 @@ async function getCachedStats(requestUrl, username, token, executionContext) {
   return response
 }
 
+async function getViewCount(environment, shouldIncrement) {
+  if (!environment.PORTFOLIO_VIEWS) {
+    throw new Error('PORTFOLIO_VIEWS KV binding is not configured.')
+  }
+
+  const storedValue = await environment.PORTFOLIO_VIEWS.get(VIEWS_KEY)
+  const parsedValue = Number.parseInt(storedValue || '0', 10)
+  const currentValue = Number.isSafeInteger(parsedValue) && parsedValue >= 0 ? parsedValue : 0
+
+  if (!shouldIncrement) return currentValue
+
+  const nextValue = currentValue + 1
+  await environment.PORTFOLIO_VIEWS.put(VIEWS_KEY, String(nextValue))
+  return nextValue
+}
+
 function isSupportedPath(pathname) {
-  return pathname === '/' || pathname === API_PATH || pathname === `${API_PATH}/`
+  return pathname === '/'
+    || pathname === API_PATH
+    || pathname === `${API_PATH}/`
+    || pathname === VIEWS_API_PATH
+    || pathname === `${VIEWS_API_PATH}/`
 }
 
 export default {
@@ -367,6 +390,27 @@ export default {
 
     if (request.method !== 'GET') {
       return createJsonResponse({ error: 'Method not allowed.' }, 405, origin)
+    }
+
+    if (requestUrl.pathname === VIEWS_API_PATH || requestUrl.pathname === `${VIEWS_API_PATH}/`) {
+      try {
+        const shouldIncrement = requestUrl.searchParams.get('increment') !== '0'
+        const views = await getViewCount(environment, shouldIncrement)
+        return createJsonResponse(
+          { views },
+          200,
+          origin,
+          { cacheControl: 'no-store' },
+        )
+      } catch (error) {
+        console.error('Could not load portfolio view count.', error)
+        return createJsonResponse(
+          { error: 'View counter is temporarily unavailable.' },
+          500,
+          origin,
+          { cacheControl: 'no-store' },
+        )
+      }
     }
 
     if (!environment.GITHUB_TOKEN) {
