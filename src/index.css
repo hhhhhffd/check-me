@@ -203,77 +203,400 @@
     color: #5eead4;
   }
 
-  .activity-chart {
-    overflow-x: auto;
-    padding-bottom: 0.4rem;
-    scrollbar-color: #3b3157 transparent;
+  .terminal-github-card {
+    overflow: visible;
   }
 
-  .activity-months,
-  .activity-grid {
+  .github-avatar {
+    width: 1.35rem;
+    height: 1.35rem;
+    border: 1px solid #3b3157;
+    border-radius: 999px;
+    object-fit: cover;
+  }
+
+  .github-stat-grid {
     display: grid;
-    grid-template-columns: repeat(var(--week-count), minmax(10px, 1fr));
-    gap: 3px;
-    min-width: 42rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-top: 1.45rem;
   }
 
-  .activity-months {
-    min-height: 1rem;
-    margin-bottom: 0.45rem;
+  .github-stat-card,
+  .github-panel {
+    border: 1px solid rgba(59, 49, 87, 0.9);
+    border-radius: 6px;
+    background: rgba(26, 22, 36, 0.62);
   }
 
-  .activity-month {
+  .github-stat-card {
+    display: flex;
+    min-height: 7rem;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.85rem 0.9rem;
+  }
+
+  .github-stat-value {
+    color: #5eead4;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: clamp(1.25rem, 3vw, 1.8rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .github-stat-label,
+  .github-panel-title {
+    color: #b8b1ca;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+  }
+
+  .github-stat-hint,
+  .github-panel-subtitle,
+  .github-date-range,
+  .github-month-total,
+  .github-meta-line,
+  .github-activity-legend {
     color: #635c76;
     font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.64rem;
-    line-height: 1rem;
+    font-size: 0.62rem;
+  }
+
+  .github-overview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(15rem, 0.85fr);
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .github-panel {
+    min-width: 0;
+    padding: 1rem;
+  }
+
+  .github-panel-heading,
+  .github-month-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .github-panel-title,
+  .github-panel-subtitle {
+    margin: 0;
+  }
+
+  .github-panel-subtitle {
+    margin-top: 0.25rem;
+    line-height: 1.4;
+  }
+
+  .github-date-range {
+    padding-top: 0.1rem;
     white-space: nowrap;
   }
 
-  .activity-week {
+  .github-months {
     display: grid;
-    grid-template-rows: repeat(7, auto);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .github-month-card {
+    min-width: 0;
+    border: 1px solid #2a2340;
+    border-radius: 5px;
+    background: rgba(13, 11, 20, 0.45);
+    padding: 0.7rem;
+  }
+
+  .github-month-heading h3,
+  .github-month-heading span {
+    margin: 0;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.68rem;
+    font-weight: 500;
+  }
+
+  .github-month-heading h3 {
+    color: #ede9f5;
+    letter-spacing: 0.03em;
+  }
+
+  .github-month-heading span {
+    color: #635c76;
+  }
+
+  .github-weekdays,
+  .github-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 3px;
   }
 
-  .activity-cell {
-    width: 100%;
-    min-width: 10px;
-    aspect-ratio: 1;
-    border-radius: 2px;
-    transition: transform 150ms ease, box-shadow 150ms ease;
+  .github-weekdays {
+    margin-top: 0.85rem;
   }
 
-  .activity-grid .activity-cell:hover {
+  .github-weekdays span {
+    color: #635c76;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.5rem;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .github-calendar-grid {
+    margin-top: 0.38rem;
+  }
+
+  .github-day {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 1;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    color: #b8b1ca;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: clamp(0.49rem, 0.8vw, 0.62rem);
+    line-height: 1;
+    transition: transform 150ms ease, box-shadow 150ms ease, color 150ms ease;
+  }
+
+  .github-day:not(.github-day-future):not(.github-day-blank):hover {
     position: relative;
     z-index: 1;
+    color: #ffffff;
     box-shadow: 0 0 0 2px #0d0b14, 0 0 0 3px #5eead4;
-    transform: scale(1.2);
+    transform: scale(1.16);
   }
 
-  .activity-cell-empty { background: #211b2c; }
-  .activity-cell-low { background: #316b64; }
-  .activity-cell-medium { background: #3ab394; }
-  .activity-cell-high { background: #7ff3ba; }
+  .github-day-tooltip {
+    position: relative;
+    cursor: default;
+    outline: none;
+  }
 
-  .activity-legend {
+  .github-day-tooltip::after {
+    position: absolute;
+    z-index: 20;
+    bottom: calc(100% + 0.55rem);
+    left: 50%;
+    width: max-content;
+    max-width: 12rem;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid #4a3d6d;
+    border-radius: 5px;
+    background: #17131f;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+    color: #ede9f5;
+    content: attr(data-tooltip);
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.64rem;
+    line-height: 1.45;
+    opacity: 0;
+    pointer-events: none;
+    text-align: center;
+    transform: translate(-50%, 0.3rem);
+    transition: opacity 140ms ease, transform 140ms ease;
+    white-space: pre-line;
+  }
+
+  .github-day-tooltip:hover::after,
+  .github-day-tooltip:focus-visible::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  .github-day-tooltip:focus-visible {
+    box-shadow: 0 0 0 2px #0d0b14, 0 0 0 3px #5eead4;
+  }
+
+  .github-day-blank {
+    background: transparent;
+  }
+
+  .github-day-empty { background: #211b2c; }
+  .github-day-low { background: #316b64; color: #d5f6ee; }
+  .github-day-medium { background: #3ab394; color: #09271f; }
+  .github-day-high { background: #7ff3ba; color: #09271f; }
+  .github-day-future { background: #17131f; color: #413951; }
+  .github-day-today { box-shadow: inset 0 0 0 2px #ef4444; }
+
+  .github-day-today:not(.github-day-future):hover {
+    box-shadow: inset 0 0 0 2px #ef4444, 0 0 0 2px #0d0b14, 0 0 0 3px #5eead4;
+  }
+
+  .github-month-total {
+    margin: 0.75rem 0 0;
+  }
+
+  .github-activity-legend {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    color: #635c76;
+    margin-top: 0.85rem;
+  }
+
+  .github-activity-legend .github-day {
+    width: 0.68rem;
+    min-width: 0.68rem;
+    color: transparent;
+  }
+
+  .github-language-bar {
+    display: flex;
+    height: 0.5rem;
+    gap: 2px;
+    margin-top: 1.4rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #211b2c;
+  }
+
+  .github-language-segment {
+    flex: 0 0 var(--language-share);
+    min-width: 2px;
+    background: var(--language-color);
+  }
+
+  .github-language-list {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1.15rem;
+  }
+
+  .github-language-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: #c7c1d4;
+    font-size: 0.78rem;
+  }
+
+  .github-language-name {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .github-language-name i {
+    width: 0.48rem;
+    height: 0.48rem;
+    flex: none;
+    border-radius: 999px;
+  }
+
+  .github-language-percentage {
+    color: #8f88a8;
     font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.64rem;
   }
 
-  .activity-legend .activity-cell {
-    width: 10px;
-    min-width: 10px;
+  .github-empty-copy,
+  .github-unavailable {
+    margin: 1.25rem 0 0;
+    color: #8f88a8;
+    font-size: 0.8rem;
+    line-height: 1.6;
   }
 
-  @media (max-width: 640px) {
-    .activity-chart {
-      margin-right: -0.25rem;
-      padding-right: 0.25rem;
+  .github-meta-line {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    justify-content: flex-end;
+    margin-top: 0.8rem;
+  }
+
+  .github-source-badge {
+    border: 1px solid #3b3157;
+    border-radius: 999px;
+    padding: 0.2rem 0.4rem;
+    color: #a78bfa;
+    font-size: 0.56rem;
+  }
+
+  .github-skeleton {
+    margin-top: 1.45rem;
+  }
+
+  .github-skeleton-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .github-skeleton-stats span,
+  .github-skeleton-body span {
+    display: block;
+    min-height: 7rem;
+    border: 1px solid #2a2340;
+    border-radius: 6px;
+    background: linear-gradient(100deg, rgba(42, 35, 64, 0.45), rgba(59, 49, 87, 0.62), rgba(42, 35, 64, 0.45));
+    background-size: 200% 100%;
+    animation: github-skeleton-shimmer 1.5s ease-in-out infinite;
+  }
+
+  .github-skeleton-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(15rem, 0.85fr);
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .github-skeleton-body span {
+    min-height: 17rem;
+  }
+
+  @keyframes github-skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .github-skeleton-stats span,
+    .github-skeleton-body span {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .github-stat-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .github-overview-grid,
+    .github-skeleton-body {
+      grid-template-columns: 1fr;
+    }
+
+    .github-months {
+      display: flex;
+      margin-right: -0.35rem;
+      margin-left: -0.35rem;
+      overflow-x: auto;
+      padding: 0 0.35rem 0.35rem;
+      scroll-snap-type: x mandatory;
+      scrollbar-color: #3b3157 transparent;
+    }
+
+    .github-month-card {
+      min-width: min(82vw, 22rem);
+      scroll-snap-align: start;
+    }
+
+    .github-date-range {
+      display: none;
     }
   }
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Download, Mail, MapPin } from 'lucide-react'
-import GithubActivity from '../components/GithubActivity'
+import GithubOverview from '../components/GithubOverview'
 import ProjectDialog from '../components/ProjectDialog'
 import { GithubIcon } from '../components/icons'
 import { useCvData } from '../context/CvDataContext'
@@ -224,7 +224,7 @@ function Home() {
             </section>
           )}
 
-          <GithubActivity
+          <GithubOverview
             githubUrl={profile.github}
             githubActivityApiUrl={profile.githubActivityApiUrl}
           />

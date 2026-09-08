@@ -4,7 +4,8 @@
   "compatibility_date": "2026-07-23",
   "workers_dev": true,
   "vars": {
-    "ALLOWED_ORIGINS": "http://localhost:5173"
+    "ALLOWED_ORIGINS": "http://localhost:5173,https://datanomads.cc",
+    "GITHUB_USERNAME": "hhhhhffd"
   },
   "secrets": {
     "required": ["GITHUB_TOKEN"]
