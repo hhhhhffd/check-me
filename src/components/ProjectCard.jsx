@@ -3,22 +3,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import ImageCarousel from './ImageCarousel'
 import { resolveAssetUrl } from '../utils/assetUrl'
-
-function stripMarkdown(text) {
-  if (!text) return ''
-  return text
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/`[^`]*`/g, '')
-    .replace(/#{1,6}\s+/g, '')
-    .replace(/[*_]{1,3}([^*_\n]+)[*_]{1,3}/g, '$1')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-    .replace(/^[-*+]\s+/gm, '')
-    .replace(/^\d+\.\s+/gm, '')
-    .replace(/^>\s*/gm, '')
-    .replace(/\n{2,}/g, '\n')
-    .trim()
-}
+import { getProjectDescription } from '../utils/cvPresentation'
 
 export function SkeletonCard() {
   return (
@@ -70,7 +55,7 @@ function ProjectCard({ project, index }) {
         </Link>
         
         <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed mb-4 flex-grow">
-          {stripMarkdown(contentOnCard)}
+          {getProjectDescription({ 'content-on-card': contentOnCard })}
         </p>
 
         {/* Tech Stack Tags */}

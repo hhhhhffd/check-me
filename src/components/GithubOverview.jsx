@@ -245,6 +245,13 @@ function formatUpdatedAt(value) {
   }
 }
 
+function getActiveDays(months) {
+  return months.reduce(
+    (total, month) => total + month.days.filter((day) => day.count > 0).length,
+    0,
+  )
+}
+
 function getLanguageRows(languages) {
   const totalBytes = languages.reduce((total, language) => total + language.bytes, 0)
   const topLanguages = languages.slice(0, 5).map((language, index) => ({
@@ -419,6 +426,7 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
   const months = stats?.activity?.months || []
   const languageData = stats?.languages || []
   const updatedAt = formatUpdatedAt(stats?.updatedAt)
+  const activeDays = getActiveDays(months)
 
   return (
     <section className="terminal-card terminal-github-card lg:col-span-12" aria-busy={status === 'loading'}>
@@ -443,7 +451,7 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
           <div className="github-stat-grid">
             <StatCard label="CONTRIBUTIONS" hint="за 12 месяцев" value={stats.stats.contributionsLastYear} />
             <StatCard label="REPOSITORIES" hint="публичные" value={stats.stats.repositories} />
-            <StatCard label="STARS" hint="на своих репо" value={stats.stats.stars} />
+            <StatCard label="ACTIVE DAYS" hint="за 3 месяца" value={activeDays} />
             <StatCard label="FOLLOWERS" hint="в профиле" value={stats.profile.followers} />
           </div>
 
@@ -484,6 +492,8 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
 
           <div className="github-meta-line">
             {stats.source === 'snapshot' && <span className="github-source-badge">SNAPSHOT</span>}
+            {stats.stats.stars > 0 && <span>stars {formatNumber(stats.stats.stars)}</span>}
+            {stats.stats.forks > 0 && <span>forks {formatNumber(stats.stats.forks)}</span>}
             {updatedAt && <span>обновлено {updatedAt}</span>}
           </div>
         </>

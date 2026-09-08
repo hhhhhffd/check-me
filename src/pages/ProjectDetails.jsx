@@ -186,6 +186,7 @@ function ProjectDetails() {
         >
           <ImageCarousel
             images={projectImages}
+            alt={project.title}
             imageClassName="w-full h-full object-contain"
           />
         </motion.div>

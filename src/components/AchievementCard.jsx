@@ -2,21 +2,7 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import ImageCarousel from './ImageCarousel'
 import { resolveAssetUrl } from '../utils/assetUrl'
-
-function placeBadgeClass(place) {
-  if (!place) return null
-  const p = place.toLowerCase()
-  if (p.includes('1') || p.includes('победит') || p.includes('winner')) {
-    return 'bg-amber-400/20 border-amber-400/50 text-amber-500 dark:text-amber-300'
-  }
-  if (p.includes('2')) {
-    return 'bg-gray-300/20 border-gray-400/50 text-gray-500 dark:text-gray-300'
-  }
-  if (p.includes('3') || p.includes('призёр') || p.includes('призер')) {
-    return 'bg-orange-400/20 border-orange-400/50 text-orange-500 dark:text-orange-300'
-  }
-  return 'bg-indigo-400/20 border-indigo-400/50 text-indigo-600 dark:text-indigo-300'
-}
+import { placeBadgeClass } from '../utils/cvPresentation'
 
 function AchievementCard({ achievement, index }) {
   const { title, event, place, description, tech_stack, tags, thumbnail, gallery, github_url, presentation_url, youtube_pitch_url } = achievement

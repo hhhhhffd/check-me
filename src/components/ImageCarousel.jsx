@@ -2,7 +2,13 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-export default function ImageCarousel({ images, linkTo, imageClassName = "w-full h-full object-contain" }) {
+export default function ImageCarousel({
+  images,
+  linkTo,
+  alt = 'Изображение проекта',
+  loading = 'lazy',
+  imageClassName = 'w-full h-full object-contain',
+}) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   if (!images || images.length === 0) return null
@@ -22,9 +28,10 @@ export default function ImageCarousel({ images, linkTo, imageClassName = "w-full
   const ImageElement = (
     <img
       src={images[currentIndex]}
-      alt={`Slide ${currentIndex + 1}`}
+      alt={`${alt}, слайд ${currentIndex + 1}`}
       className={imageClassName}
-      loading="lazy"
+      loading={loading}
+      decoding="async"
     />
   )
 
