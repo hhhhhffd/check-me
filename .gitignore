@@ -27,3 +27,6 @@ temp
 # IDE
 .claude
 .agents
+
+.serena/
+project-context.md
