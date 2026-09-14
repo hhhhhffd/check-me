@@ -9,15 +9,15 @@ export default {
     extend: {
       colors: {
         terminal: {
-          canvas: '#0d0b14',
-          surface: 'rgba(23, 19, 31, 0.88)',
-          elevated: '#1a1624',
-          border: '#2a2340',
-          borderStrong: '#3b3157',
+          canvas: '#08090c',
+          surface: 'rgba(15, 16, 20, 0.92)',
+          elevated: '#11171a',
+          border: '#242a2d',
+          borderStrong: '#2f3b3b',
           text: '#ede9f5',
-          muted: '#8f88a8',
-          cyan: '#5eead4',
-          violet: '#8b5cf6',
+          muted: '#85818f',
+          cyan: '#69f7d1',
+          violet: '#69f7d1',
         },
         glass: {
           100: 'rgba(255, 255, 255, 0.05)',

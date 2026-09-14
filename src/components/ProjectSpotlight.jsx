@@ -7,7 +7,7 @@ import { resolveAssetUrl } from '../utils/assetUrl'
 export default function ProjectSpotlight({ projects, onOpen, className }) {
   return (
     <SpotlightFrame
-      command="~/cv $ ls ./projects --spotlight"
+      command="~/system $ ls ./projects --spotlight"
       items={projects}
       className={className}
       getPreview={(project) => resolveAssetUrl(project?.thumbnail)}

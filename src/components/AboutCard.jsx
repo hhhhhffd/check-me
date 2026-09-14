@@ -19,7 +19,7 @@ export default function AboutCard({ profile, about, languages, cv }) {
   const nowEntries = getNowEntries(cv)
 
   return (
-    <TerminalCard command="~/cv $ cat ./about.md" className="md:col-span-1 lg:col-span-3">
+    <TerminalCard command="~/system $ cat ./about.md" className="md:col-span-1 lg:col-span-3">
       {about && <p className="mt-5 text-sm leading-6 text-[#c7c1d4]">{about}</p>}
 
       {metadata.length > 0 && (
@@ -35,7 +35,7 @@ export default function AboutCard({ profile, about, languages, cv }) {
 
       {nowEntries.length > 0 && (
         <div className="about-now">
-          <TerminalPrompt>~/cv $ status</TerminalPrompt>
+          <TerminalPrompt>~/system $ status</TerminalPrompt>
           <dl className="now-list">
             {nowEntries.map((entry) => (
               <div key={entry.label} className="now-row">

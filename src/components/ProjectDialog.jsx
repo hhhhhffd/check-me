@@ -68,7 +68,7 @@ function ProjectDialog({ project, onClose }) {
           >
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="terminal-prompt mb-3">~/cv $ cat ./projects/{project.slug || project.id}</p>
+                <p className="terminal-prompt mb-3">~/system $ cat ./projects/{project.slug || project.id}</p>
                 <h2 id="project-dialog-title" className="text-3xl font-semibold tracking-tight text-[#ede9f5] md:text-5xl">
                   {project.title}
                 </h2>
@@ -103,7 +103,7 @@ function ProjectDialog({ project, onClose }) {
 
             {project.responsibilities?.length > 0 && (
               <section className="mt-10">
-                <p className="terminal-prompt mb-4">~/cv $ cat ./contribution.md</p>
+                <p className="terminal-prompt mb-4">~/system $ cat ./contribution.md</p>
                 <ul className="terminal-list">
                   {project.responsibilities.map((item) => <li key={item}>{item}</li>)}
                 </ul>
@@ -112,7 +112,7 @@ function ProjectDialog({ project, onClose }) {
 
             {project.outcomes?.length > 0 && (
               <section className="mt-8">
-                <p className="terminal-prompt mb-4">~/cv $ cat ./outcomes.md</p>
+                <p className="terminal-prompt mb-4">~/system $ cat ./outcomes.md</p>
                 <ul className="terminal-list">
                   {project.outcomes.map((item) => <li key={item}>{item}</li>)}
                 </ul>

@@ -436,7 +436,7 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
           {stats?.profile?.avatarUrl && (
             <img className="github-avatar" src={stats.profile.avatarUrl} alt="" />
           )}
-          <p className="terminal-prompt">~/cv $ github --stats</p>
+        <p className="terminal-prompt">~/system $ github --stats</p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3">
           <ViewCount githubActivityApiUrl={githubActivityApiUrl} />

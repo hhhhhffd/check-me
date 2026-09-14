@@ -1,16 +1,26 @@
 {
   "meta": {
-    "locale": "en",
-    "siteTitle": "my bio",
-    "siteDescription": "my bio"
+    "locale": "ru",
+    "siteTitle": "san4ezka — personal.system",
+    "siteDescription": "Фёдор Винокуров — developer / builder. Backend, AI и real-time продукты."
   },
 
   "profile": {
-    "name": "Vinokurov Fyodor",
-    "title": "Backend / Fullstack Developer",
-    "headline": "Проектирую API и сервисы автоматизации — от схемы базы данных до Docker-деплоя.",
-    "bio": "Backend-разработчик с фокусом на API, интеграции и надёжную инфраструктуру. Беру задачу от идеи до работающего сервиса: архитектура, тесты, документация и деплой.",
-    "image": "/images/avatar.jpg",
+    "handle": "san4ezka",
+    "name": "Фёдор Винокуров",
+    "title": "developer / builder",
+    "headline": "backend · AI · real-time",
+    "bio": "Делаю ботов, сервисы и AI-штуки — и иногда ломаю всё это обратно.",
+    "image": "",
+    "email": "",
+    "telegram": "https://t.me/top_k0te1ka193",
+    "github": "https://github.com/hhhhhffd",
+    "githubActivityApiUrl": "https://github-activity-api.feder80136.workers.dev",
+    "linkedin": "https://www.linkedin.com/in/винокуров-фёдор-1822ab3bb/",
+    "cvUrl": null,
+    "instagram": null,
+    "facebook": null,
+    "youtube": null,
 
     "location": {
       "city": "Алматы",
@@ -19,116 +29,141 @@
     },
 
     "workPreference": {
-      "status": "Открыт к стажировкам и junior-позициям",
-      "formats": ["Удалённо", "Гибрид"],
+      "status": "coding / building",
+      "formats": ["remote", "hybrid"],
       "relocation": false
-    },
-
-    "email": "alexey.orlov@example.com",
-    "telegram": "https://t.me/alexey_orlov",
-    "github": "https://github.com/hhhhhffd",
-    "githubActivityApiUrl": "https://github-activity-api.feder80136.workers.dev",
-    "linkedin": "https://www.linkedin.com/in/alexey-orlov",
-    "cvUrl": null,
-    "instagram": null,
-    "facebook": null,
-    "youtube": null
+    }
   },
 
-  "about": "Backend-разработчик, которому интересны понятные системы с предсказуемым поведением. Работаю с Python и TypeScript, проектирую REST API, PostgreSQL-схемы, фоновые задачи и интеграции с внешними сервисами. В проектах уделяю внимание тестам, обработке ошибок и воспроизводимому Docker-окружению.",
+  "about": "Проектирую и поднимаю бэкенд с нуля до продакшена. Люблю системы, где сложная архитектура остаётся за кулисами, а пользователь получает простой и предсказуемый интерфейс.",
 
-  // Указывайте только реальный опыт: работу, стажировку, фриланс или значимый продукт.
-  "experience": [
-    {
-      "company": "GreenMarket",
-      "companyUrl": "https://example.com",
-      "role": "Backend Developer Intern",
-      "employmentType": "Стажировка",
-      "location": "Удалённо",
-      "period": "Февраль 2026 — Июнь 2026",
-      "highlights": [
-        "Разработал REST API для каталога и заказов на FastAPI и PostgreSQL.",
-        "Добавил фоновые задачи для уведомлений и импорта прайс-листов.",
-        "Покрыл критичные сценарии интеграционными тестами и описал API в OpenAPI."
-      ],
-      "stack": ["Python", "FastAPI", "PostgreSQL", "Redis", "Docker"]
-    }
-  ],
+  "now": {
+    "building": ["AI / real-time products"],
+    "learning": ["system design", "reliable infrastructure"],
+    "available": ["interesting collaborations"]
+  },
 
-  // Четырёх сильных проектов достаточно. Сохраняйте факты, ссылки и конкретный вклад.
+  "experience": [],
+
   "projects": [
     {
-      "id": "parcel-track",
-      "title": "ParcelTrack",
-      "slug": "parcel-track",
-      "date": "2026-05-01",
-      "period": "Март 2026 — Май 2026",
-      "status": "MVP",
-      "thumbnail": "/images/parcel-track/cover.png",
-      "gallery": ["/images/parcel-track/cover.png", "/images/parcel-track/dashboard.png"],
-      "tech_stack": ["FastAPI", "React", "TypeScript", "PostgreSQL", "Docker"],
-      "tags": ["Fullstack", "Logistics"],
-      "github_url": "https://github.com/alexey-orlov/parcel-track",
-      "presentation_url": "https://example.com/parcel-track",
-      "youtube_pitch_url": null,
-      "content-on-card": "Сервис отслеживания посылок из нескольких перевозчиков в одном интерфейсе с уведомлениями об изменении статуса.",
-      "role": "Fullstack Developer",
-      "responsibilities": [
-        "Спроектировал модель статусов отправления и REST API.",
-        "Реализовал периодический опрос API перевозчиков и уведомления.",
-        "Настроил локальный запуск через Docker Compose."
+      "id": 1,
+      "title": "_k0t1k Project",
+      "slug": "k0t1k-project",
+      "date": "2026-04-14",
+      "status": "GOVTECH / AI",
+      "thumbnail": "/images/k0t1k/4.jpg",
+      "gallery": [
+        "/images/k0t1k/1.jpg",
+        "/images/k0t1k/2.jpg",
+        "/images/k0t1k/3.jpg",
+        "/images/k0t1k/4.jpg",
+        "/images/k0t1k/5.jpg",
+        "/images/k0t1k/6.jpg",
+        "/images/k0t1k/7.jpg",
+        "/images/k0t1k/8.jpg",
+        "/images/k0t1k/9.jpg",
+        "/images/k0t1k/10.jpg"
       ],
-      "outcomes": [
-        "Поддерживает 3 интеграции с перевозчиками.",
-        "Критичные сценарии покрыты интеграционными тестами."
+      "tech_stack": ["FastAPI", "React", "TailwindCSS", "LightGBM", "Pandas"],
+      "tags": ["AI", "Machine Learning", "Fullstack", "GovTech", "Hackathon"],
+      "presentation_url": "https://hhhhhffd.github.io/dc-5.0-win-project/preza/",
+      "youtube_pitch_url": "https://youtu.be/yAVp_S-rzCY",
+      "github_url": "https://github.com/hhhhhffd/dc-5.0-win-project",
+      "content-on-card": "Госсубсидии в Казахстане раздавались по принципу «кто первый встал». Мы заменили FIFO на ML-скоринг с объяснимым AI и anti-fraud прямо на хакатоне.",
+      "content": "## Контекст\nГосударственные субсидии фермерам в Казахстане распределялись по принципу first-come-first-served: получает тот, кто раньше подал заявку, а не тот, кто эффективнее использует деньги. Мы пришли на хакатон **Decentrathon 5.0** с идеей это сломать.\n\n## Что построили\nПолноценная система оценки заявок с двухэтапной логикой: сначала жёсткие фильтры отсекают нерелевантные заявки, потом **LightGBM** ранжирует оставшихся по 20 признакам — эффективность хозяйства, история использования средств, потенциал роста.\n\nКаждое решение модели объясняется через **SHAP** — комиссия видит не просто score, а конкретные факторы. Текстовое объяснение генерирует **Qwen LLM** на русском и казахском.\n\nОтдельный блок — **anti-fraud**: аномальные суммы, ночные подачи, паттерны потенциального сговора.\n\n## Стек\n- **ML:** LightGBM, SHAP, scikit-learn, pandas — 5-fold CV валидация\n- **Backend:** FastAPI, PostgreSQL, Redis\n- **Frontend:** React, TailwindCSS\n- **Infra:** Docker Compose, Nginx, Cloudflare Tunnel\n\n## Итог\nПрототип GovTech-системы, где AI помогает комиссии принять обоснованное решение, а не заменяет её. Бюджет распределяется не по скорости подачи, а по реальным данным."
+    },
+    {
+      "id": 2,
+      "title": "QR Taxi miniApps",
+      "slug": "aparu-qr",
+      "date": "2026-04-14",
+      "status": "REAL-TIME / FULLSTACK",
+      "thumbnail": "/images/aparu/1.jpg",
+      "gallery": [
+        "/images/aparu/1.jpg",
+        "/images/aparu/2.png",
+        "/images/aparu/3.png",
+        "/images/aparu/4.png",
+        "/images/aparu/5.jpg",
+        "/images/aparu/6.png",
+        "/images/aparu/7.png"
       ],
-      "content": "## Задача\nПользователю приходилось проверять статусы посылок на сайтах разных перевозчиков.\n\n## Решение\nParcelTrack собирает статусы в одном интерфейсе и отправляет уведомления об изменениях.\n\n## Мой вклад\n- Спроектировал API и схему PostgreSQL.\n- Добавил интеграции с внешними API и обработку ошибок.\n- Собрал frontend и Docker-окружение."
+      "tech_stack": ["FastAPI", "React", "TypeScript", "TailwindCSS", "PostgreSQL", "Redis", "Docker Compose"],
+      "tags": ["Fullstack", "Real-time", "System Design", "Telegram Mini App", "Production-ready"],
+      "presentation_url": "",
+      "youtube_pitch_url": "",
+      "github_url": "https://github.com/hhhhhffd/qr-taxi",
+      "content-on-card": "Сканируешь QR в машине — и ты уже в интерфейсе заказа. Без установки приложения. Web, Telegram Mini App и WeChat H5 работают на одной архитектуре.",
+      "content": "## Идея\nПуть от «хочу такси» до «машина едет» должен быть максимально коротким. Никакой установки, никакой регистрации с нуля — отсканировал QR на стекле и сразу попал в нужный интерфейс на той платформе, которую уже используешь.\n\n## Архитектура\nТри клиентские точки входа — **web, Telegram Mini App, WeChat H5** — подключены к единому backend. Состояние поездки управляется через **детерминированную state machine**: каждый переход явный, никаких «а вдруг». Real-time обновления идут через **WebSocket + Redis Pub/Sub**.\n\nАвторизация адаптируется под платформу: **JWT + Phone OTP** для web, **Telegram initData** для Mini App. Карты через **Aparu Maps API**, интерфейс на двух языках через **i18next**.\n\n## Стек\n- **Backend:** FastAPI, PostgreSQL, Redis, SQLAlchemy Async, Alembic\n- **Frontend:** React, TypeScript, Vite, TailwindCSS\n- **Infra:** Docker Compose, Nginx, Cloudflare Tunnel\n\n## Итог\nСервис, где сложность архитектуры — мультиплатформенность, real-time и несколько схем авторизации — полностью скрыта за простым UX. Пользователь этого не видит — и это правильно."
+    },
+    {
+      "id": 3,
+      "title": "Tinder для стримеров",
+      "slug": "tinder-for-streamer",
+      "date": "2026-04-14",
+      "status": "MATCHING ENGINE",
+      "thumbnail": "/images/tinder-streamer/1.png",
+      "gallery": [
+        "/images/tinder-streamer/1.png",
+        "/images/tinder-streamer/2.png",
+        "/images/tinder-streamer/3.png",
+        "/images/tinder-streamer/4.png",
+        "/images/tinder-streamer/5.png",
+        "/images/tinder-streamer/6.png",
+        "/images/tinder-streamer/7.png",
+        "/images/tinder-streamer/8.png",
+        "/images/tinder-streamer/9.png",
+        "/images/tinder-streamer/10.png"
+      ],
+      "tech_stack": ["FastAPI", "React", "TypeScript", "PostgreSQL", "Redis", "Celery"],
+      "tags": ["Fullstack", "Real-time", "System Design", "Twitch", "Matching Engine"],
+      "presentation_url": "",
+      "youtube_pitch_url": "",
+      "github_url": "https://github.com/hhhhhffd/tinder-for-streamer",
+      "content-on-card": "Twitch-стримеры ищут коллабы в Discord и Twitter. Я сделал Tinder: свайпаешь стримеров своего уровня, матчишься — и сразу в чат.",
+      "content": "## Проблема\nНайти партнёра для совместного стрима — боль. Хаотичный поиск в Discord, холодные DM в Twitter, и всё равно непонятно, совпадаете ли вы по масштабу аудитории. Стример с 10 зрителями и стример с 50k — разные лиги.\n\n## Решение\nМатчинг внутри лиг на основе среднего количества зрителей. Механика Tinder: свайп, матч, real-time чат. Feed приоритизирует тех, кто уже лайкнул тебя, плюс кросс-лиг логика для роста.\n\nДневные лимиты на лайки, super-like и кросс-лиг свайпы — через **атомарные Lua-скрипты в Redis**, без гонок. Twitch-статистика обновляется в фоне через **Celery**.\n\n## Стек\n- **Backend:** FastAPI, PostgreSQL, Redis, SQLAlchemy Async, Alembic, Celery\n- **Frontend:** React, TypeScript, Vite, TailwindCSS, Zustand, TanStack Query\n- **Infra:** Docker Compose, Nginx, Cloudflare Tunnel\n- **Integrations:** Twitch OAuth 2.0, Twitch Helix API, Web Push API\n\n## Итог\nSocial-платформа, где механика честная: ты матчишься с равными по уровню, а не случайными людьми. Под простым UX — конкурентный доступ, асинхронные процессы и интеграция с внешним API."
+    },
+    {
+      "id": 4,
+      "title": "AI-платформа психоэмоционального здоровья",
+      "slug": "psycho-health-platform",
+      "date": "2026-04-14",
+      "status": "HEALTHTECH / AI",
+      "thumbnail": "/images/psyplatform/1.png",
+      "gallery": [
+        "/images/psyplatform/1.png",
+        "/images/psyplatform/2.png",
+        "/images/psyplatform/3.png",
+        "/images/psyplatform/4.png",
+        "/images/psyplatform/5.png",
+        "/images/psyplatform/6.png",
+        "/images/psyplatform/7.png",
+        "/images/psyplatform/8.png",
+        "/images/psyplatform/9.png",
+        "/images/psyplatform/10.png",
+        "/images/psyplatform/11.png"
+      ],
+      "tech_stack": ["FastAPI", "React", "TypeScript", "PostgreSQL", "WebSocket", "TailwindCSS"],
+      "tags": ["Fullstack", "AI", "HealthTech", "Real-time", "Role-based Access"],
+      "presentation_url": "",
+      "youtube_pitch_url": "",
+      "github_url": "https://github.com/hhhhhffd/psycho-health-platform",
+      "content-on-card": "Платформа мониторинга ментального здоровья: тесты → AI-анализ → живой психолог если нужно. LLM-пайплайн отвечает даже когда провайдер лежит.",
+      "content": "## Контекст\nБольшинство HR-инструментов для ментального здоровья — это опросник раз в квартал и PDF с результатами. Хотелось сделать иначе: непрерывный мониторинг, понятная аналитика, и живой психолог доступен без разрыва сценария.\n\n## Что внутри\nПользователь проходит стандартизированные тесты, получает **AI-анализ с персональными рекомендациями** и подборкой курсов. Если ситуация требует — эскалация к психологу прямо в интерфейсе, через **WebSocket** без перезагрузки страницы.\n\nТри роли с разными правами: **user / psychologist / admin**. Психолог видит свою очередь и аналитику, admin — агрегированные данные по организации.\n\nLLM-пайплайн построен с двойным fallback: основной **Groq / LLaMA 3.3 70B**, резервный **Gemini 2.5 Flash**, детерминированный ответ если оба недоступны. Система не ломается от сбоя провайдера.\n\n## Стек\n- **Backend:** FastAPI, PostgreSQL, SQLAlchemy Async, Alembic\n- **Frontend:** React, TypeScript, Vite, TailwindCSS, Zustand\n- **AI / Real-time:** Groq API, Gemini, WebSocket\n- **Infra:** Docker Compose, Nginx, Cloudflare Tunnel\n\n## Итог\nHealthtech-продукт, где AI не заменяет специалиста, а берёт на себя рутину — тесты, первичный анализ, рекомендации. Психолог подключается там, где это действительно нужно."
     }
   ],
 
   "skillGroups": [
-    { "name": "Языки", "skills": ["Python", "TypeScript", "JavaScript", "SQL"] },
-    { "name": "Backend", "skills": ["FastAPI", "REST API", "WebSocket", "Background jobs"] },
-    { "name": "Базы данных", "skills": ["PostgreSQL", "Redis", "SQLite", "Alembic"] },
-    { "name": "Frontend", "skills": ["React", "Vite", "Tailwind CSS"] },
-    { "name": "Инфраструктура", "skills": ["Docker", "Docker Compose", "Linux", "Nginx", "GitHub Actions"] },
-    { "name": "Тестирование", "skills": ["Pytest", "Integration tests", "Postman"] }
+    { "name": "LANGUAGES", "skills": ["Python", "TypeScript", "JavaScript", "SQL"] },
+    { "name": "BACKEND", "skills": ["FastAPI", "REST API", "WebSocket", "Celery"] },
+    { "name": "DATA / AI", "skills": ["PostgreSQL", "Redis", "LightGBM", "SHAP"] },
+    { "name": "FRONTEND", "skills": ["React", "Vite", "TailwindCSS", "Zustand"] },
+    { "name": "INFRA", "skills": ["Docker", "Nginx", "Cloudflare Tunnel", "Git"] }
   ],
 
-  "education": [
-    {
-      "institution": "Колледж цифровых технологий",
-      "program": "Информационные системы и программирование",
-      "period": "2024 — 2028",
-      "degree": "Техническое и профессиональное образование",
-      "details": ["Алгоритмы и структуры данных", "Базы данных", "Компьютерные сети"]
-    }
-  ],
-
-  "achievements": [
-    {
-      "id": "city-hackathon-2026",
-      "title": "2 место — CityHack 2026",
-      "date": "2026-04-12",
-      "description": "В команде разработал прототип сервиса распределения заявок за 48 часов.",
-      "url": "https://example.com/cityhack",
-      "image": null,
-      "tags": ["Hackathon", "Teamwork"]
-    }
-  ],
-
-  "languages": [
-    { "name": "Русский", "level": "Родной" },
-    { "name": "Казахский", "level": "B2" },
-    { "name": "Английский", "level": "B1 — читаю техническую документацию" }
-  ],
-
-  "interests": ["Backend-архитектура", "Open source", "Автоматизация"],
-
-  "pdf": {
-    "fileName": "alexey-orlov-cv.pdf",
-    "language": "ru",
-    "includeProjectDetails": true
-  }
+  "education": [],
+  "achievements": [],
+  "languages": [],
+  "interests": ["backend architecture", "AI", "real-time systems", "automation"]
 }
-

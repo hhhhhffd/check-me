@@ -92,7 +92,7 @@ function removeTrailingCommas(source) {
 
 export function parseJsonc(source) {
   if (!source.trim()) {
-    throw new Error('Файл пустой. Добавьте в него объект CV или скопируйте cv.example.jsonc.')
+    throw new Error('Файл пустой. Добавьте в него объект CV в public/cv.jsonc.')
   }
 
   return JSON.parse(removeTrailingCommas(stripJsoncComments(source)))

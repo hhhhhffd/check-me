@@ -31,18 +31,20 @@ export default function ProfileCard({ profile }) {
   const location = [profile.location?.city, profile.location?.country].filter(Boolean).join(', ')
   const availability = profile.workPreference?.status
   const cvUrl = profile.cvUrl || profile.cv_url
+  const handle = profile.handle || profile.name
 
   return (
     <TerminalCard staticCard className="flex min-h-[360px] flex-col justify-between md:col-span-2 lg:col-span-6 lg:row-span-2">
       <div>
-        <p className="terminal-prompt">~/cv $ whoami</p>
+        <p className="terminal-prompt">~/system $ whoami</p>
+        <p className="profile-real-name">{profile.name}</p>
         <motion.h1
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: 'easeOut' }}
           className="mt-8 max-w-xl text-4xl font-semibold leading-[0.98] tracking-[-0.045em] text-[#ede9f5] sm:text-6xl md:text-7xl"
         >
-          {profile.name}
+          {handle}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 8 }}
@@ -52,6 +54,11 @@ export default function ProfileCard({ profile }) {
         >
           {profile.title}
         </motion.p>
+        {(profile.bio || profile.headline) && (
+          <p className="profile-bio">
+            {profile.bio || profile.headline}
+          </p>
+        )}
       </div>
 
       <div className="mt-10 space-y-5">

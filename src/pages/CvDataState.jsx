@@ -19,7 +19,7 @@ function CvDataState({ children }) {
   const isMissing = cvState.status === 'missing'
   const title = isMissing ? '404 — cv.jsonc не найден' : 'Не удалось прочитать cv.jsonc'
   const description = isMissing
-    ? 'Создай public/cv.jsonc или скопируй в него содержимое public/cv.example.jsonc.'
+    ? 'Создай public/cv.jsonc и заполни его данными профиля, проектов и стека.'
     : cvState.error
 
   return (
@@ -30,7 +30,7 @@ function CvDataState({ children }) {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{title}</h1>
         <p className="text-gray-600 dark:text-white/65 leading-relaxed">{description}</p>
         <p className="mt-6 text-sm text-gray-500 dark:text-white/45">
-          Пример: <code>public/cv.example.jsonc</code>
+          Источник данных: <code>public/cv.jsonc</code>
         </p>
         <Link to="/" className="inline-flex mt-8 glass-button px-5 py-3 rounded-xl font-medium">
           Попробовать снова

@@ -6,16 +6,25 @@ import StackCard from '../components/StackCard'
 import AboutCard from '../components/AboutCard'
 import ProjectSpotlight from '../components/ProjectSpotlight'
 import AchievementSpotlight from '../components/AchievementSpotlight'
+import ThemeToggle from '../components/ThemeToggle'
 import { useCvData } from '../context/CvDataContext'
 import { resolveAssetUrl } from '../utils/assetUrl'
 import { sortByDateDesc } from '../utils/cvPresentation'
 import { setMetaTag } from '../utils/setMetaTag'
 
-const MAX_VISIBLE_ITEMS = 3
+const MAX_VISIBLE_ITEMS = 4
+
+function getCurrentTime() {
+  return new Intl.DateTimeFormat('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date())
+}
 
 function Home() {
   const { data: cv } = useCvData()
   const [selectedProject, setSelectedProject] = useState(null)
+  const [currentTime, setCurrentTime] = useState(getCurrentTime)
   const lastFocusedElement = useRef(null)
   const profile = cv.profile
   const profileImage = resolveAssetUrl(profile.image)
@@ -40,6 +49,11 @@ function Home() {
   const openProject = useCallback((project, event) => {
     lastFocusedElement.current = event.currentTarget
     setSelectedProject(project)
+  }, [])
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setCurrentTime(getCurrentTime()), 30_000)
+    return () => window.clearInterval(interval)
   }, [])
 
   useEffect(() => {
@@ -68,15 +82,22 @@ function Home() {
     canonical.setAttribute('href', window.location.origin + window.location.pathname)
   }, [cv.meta, profile, profileImage])
 
-  const shortAbout = profile.headline || cv.about || profile.bio
+  const shortAbout = cv.about || profile.headline || profile.bio
+  const handle = profile.handle || profile.name
 
   return (
     <main className="min-h-screen px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-10">
       <div className="mx-auto max-w-6xl">
-        <div className="portfolio-breadcrumb mb-5 text-xs">
-          <span className="font-mono">~/portfolio</span>
-          <span className="portfolio-status"><i aria-hidden="true" /> online</span>
-        </div>
+        <header className="portfolio-header mb-5">
+          <div className="portfolio-breadcrumb text-xs">
+            <span className="font-mono">{handle}@web:~$</span>
+            <span className="portfolio-status"><i aria-hidden="true" /> online</span>
+          </div>
+          <div className="portfolio-header-tools">
+            <span className="portfolio-time">{profile.location?.timezone || 'local'} · {currentTime}</span>
+            <ThemeToggle />
+          </div>
+        </header>
 
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-12 lg:gap-4">
           <ProfileCard profile={profile} />
@@ -104,8 +125,9 @@ function Home() {
           />
         </div>
 
-        <footer className="mt-5 flex justify-end px-1 text-xs text-[#635c76]">
-          {profile.name} © {new Date().getFullYear()}
+        <footer className="portfolio-footer mt-5 px-1 text-xs">
+          <span>source: public/cv.jsonc</span>
+          <span>{handle} © {new Date().getFullYear()}</span>
         </footer>
       </div>
 

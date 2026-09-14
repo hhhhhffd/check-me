@@ -31,7 +31,7 @@ function AchievementContent({ achievement, link }) {
 export default function AchievementSpotlight({ achievements, className }) {
   return (
     <SpotlightFrame
-      command="~/cv $ cat ./achievements.log"
+      command="~/system $ cat ./achievements.log"
       items={achievements}
       className={className}
       spotlightClassName="spotlight-achievement"

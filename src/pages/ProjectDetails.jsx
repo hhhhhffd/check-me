@@ -211,7 +211,7 @@ function ProjectDetails() {
 
         <footer className="pb-6 pt-0 flex justify-end px-6">
           <p className="text-gray-500 dark:text-white/50 text-sm font-medium">
-            hhhhhffd &copy; {new Date().getFullYear()}
+            {(cv.profile.handle || cv.profile.name)} &copy; {new Date().getFullYear()}
           </p>
         </footer>
       </div>

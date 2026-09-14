@@ -72,7 +72,7 @@ export default function ViewCount({ githubActivityApiUrl }) {
 
   return (
     <span className="view-count-badge" aria-label={`Просмотров портфолио: ${formatNumber(count)}`}>
-      <span className="view-count-label">~/cv $ cat ./views.log</span>
+      <span className="view-count-label">~/system $ cat ./views.log</span>
       <strong className="view-count-value">{formatNumber(count)}</strong>
     </span>
   )

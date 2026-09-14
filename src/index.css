@@ -5,7 +5,7 @@
 @layer base {
   :root {
     color: #ede9f5;
-    background: #0d0b14;
+    background: #08090c;
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
@@ -15,9 +15,9 @@
     margin: 0;
     min-width: 320px;
     background:
-      radial-gradient(circle at 12% 0%, rgba(96, 61, 165, 0.17), transparent 32rem),
-      radial-gradient(circle at 88% 100%, rgba(94, 234, 212, 0.08), transparent 34rem),
-      #0d0b14;
+      radial-gradient(circle at 12% 0%, rgba(105, 247, 209, 0.08), transparent 32rem),
+      radial-gradient(circle at 88% 100%, rgba(105, 247, 209, 0.06), transparent 34rem),
+      #08090c;
     color: #ede9f5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -34,8 +34,8 @@
 
   body::before {
     background-image:
-      linear-gradient(rgba(167, 139, 250, 0.018) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(167, 139, 250, 0.018) 1px, transparent 1px);
+      linear-gradient(rgba(105, 247, 209, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(105, 247, 209, 0.018) 1px, transparent 1px);
     background-size: 64px 64px;
   }
 
@@ -107,9 +107,9 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border: 1px solid #3b3157;
+    border: 1px solid #2a3235;
     border-radius: 6px;
-    background: #1a1624;
+    background: #11171a;
     color: #ede9f5;
     font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.75rem;
@@ -125,8 +125,8 @@
   .terminal-button:hover,
   .terminal-button-muted:hover,
   .terminal-icon-button:hover {
-    border-color: #8b5cf6;
-    background: #221b32;
+    border-color: #69f7d1;
+    background: #15221f;
     color: #ffffff;
   }
 
@@ -146,18 +146,18 @@
   }
 
   .terminal-tag {
-    border: 1px solid rgba(139, 92, 246, 0.4);
+    border: 1px solid rgba(105, 247, 209, 0.4);
     border-radius: 999px;
-    background: rgba(139, 92, 246, 0.11);
+    background: rgba(105, 247, 209, 0.08);
     padding: 0.35rem 0.55rem;
-    color: #c4b5fd;
+    color: #9df8df;
     font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.69rem;
     line-height: 1;
   }
 
   .terminal-tag-muted {
-    border-color: #3b3157;
+    border-color: #2a3235;
     background: transparent;
     color: #a39bb6;
   }
@@ -188,6 +188,49 @@
     align-items: center;
     gap: 0.65rem;
     color: #8f88a8;
+  }
+
+  .portfolio-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .portfolio-header-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .portfolio-time {
+    color: #635c76;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.65rem;
+  }
+
+  .profile-real-name {
+    margin: 2.25rem 0 0;
+    color: #777783;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.72rem;
+  }
+
+  .profile-bio {
+    max-width: 32rem;
+    margin: 1rem 0 0;
+    color: #a4a0ad;
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .portfolio-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: #635c76;
+    font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 
   .portfolio-status {
@@ -223,7 +266,7 @@
     margin-top: 1rem;
     border: 1px solid rgba(59, 49, 87, 0.9);
     border-radius: theme('borderRadius.panel');
-    background: rgba(13, 11, 20, 0.52);
+    background: rgba(8, 9, 12, 0.62);
   }
 
   .spotlight-preview {
@@ -239,7 +282,7 @@
   .spotlight-preview::after {
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(13, 11, 20, 0.98) 0%, rgba(13, 11, 20, 0.72) 38%, rgba(13, 11, 20, 0.28) 100%);
+    background: linear-gradient(90deg, rgba(8, 9, 12, 0.98) 0%, rgba(8, 9, 12, 0.72) 38%, rgba(8, 9, 12, 0.28) 100%);
     content: '';
   }
 
@@ -361,9 +404,9 @@
     justify-content: center;
     width: 1.8rem;
     height: 1.8rem;
-    border: 1px solid #3b3157;
+    border: 1px solid #2a3235;
     border-radius: 5px;
-    background: #1a1624;
+    background: #11171a;
     color: #b8b1ca;
     text-decoration: none;
     transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, transform 160ms ease;
@@ -371,8 +414,8 @@
 
   .spotlight-control:hover,
   .spotlight-action:hover {
-    border-color: #8b5cf6;
-    background: #221b32;
+    border-color: #69f7d1;
+    background: #15221f;
     color: #ffffff;
     transform: translateY(-1px);
   }
@@ -926,6 +969,11 @@
   }
 
   @media (max-width: 768px) {
+    .portfolio-header,
+    .portfolio-footer {
+      align-items: flex-start;
+    }
+
     .github-stat-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -969,6 +1017,12 @@
     .about-meta-row,
     .now-row {
       grid-template-columns: 4.8rem minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 420px) {
+    .portfolio-time {
+      display: none;
     }
   }
 
