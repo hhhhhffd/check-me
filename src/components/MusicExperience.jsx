@@ -12,11 +12,13 @@ export default function MusicExperience({ music }) {
   const audioContextRef = useRef(null)
   const analyserRef = useRef(null)
   const frameRef = useRef(0)
+  const autoplayAttemptedRef = useRef(false)
   const volumeRef = useRef(0.6)
   const [visualizerRoot, setVisualizerRoot] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [volume, setVolume] = useState(0.6)
   const [error, setError] = useState('')
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false)
 
   useEffect(() => {
     setVisualizerRoot(document.getElementById('bio-visualizer-root'))
@@ -44,6 +46,46 @@ export default function MusicExperience({ music }) {
     }
   }, [visualizerRoot])
 
+  useEffect(() => {
+    if (!music?.src || autoplayAttemptedRef.current) return
+    autoplayAttemptedRef.current = true
+    const audio = audioRef.current
+    audio.volume = volumeRef.current
+    audio.play().then(async () => {
+      connectAnalyser()
+      if (audioContextRef.current?.state === 'suspended') await audioContextRef.current.resume()
+    }).catch((playError) => {
+      if (playError.name === 'NotAllowedError') setAutoplayBlocked(true)
+      else setError('Не удалось включить музыку')
+    })
+  }, [music?.src])
+
+  useEffect(() => {
+    if (!autoplayBlocked) return undefined
+
+    function startOnInteraction(event) {
+      if (event.target instanceof Element && event.target.closest('.bio-music-player')) return
+      const audio = audioRef.current
+      if (!audio || !audio.paused) return
+      connectAnalyser()
+      const resume = audioContextRef.current?.state === 'suspended'
+        ? audioContextRef.current.resume()
+        : Promise.resolve()
+      Promise.all([audio.play(), resume]).then(() => {
+        setAutoplayBlocked(false)
+      }).catch((playError) => {
+        if (playError.name !== 'NotAllowedError') setError('Не удалось включить музыку')
+      })
+    }
+
+    document.addEventListener('pointerdown', startOnInteraction)
+    document.addEventListener('keydown', startOnInteraction)
+    return () => {
+      document.removeEventListener('pointerdown', startOnInteraction)
+      document.removeEventListener('keydown', startOnInteraction)
+    }
+  }, [autoplayBlocked])
+
   if (!music?.src) return null
 
   function draw() {
@@ -59,22 +101,20 @@ export default function MusicExperience({ music }) {
     const count = Math.max(28, Math.min(72, Math.floor(width / 16)))
     const gap = width < 600 ? 4 : 7
     const barWidth = (width - gap * (count - 1)) / count
-    const gradient = context.createLinearGradient(0, height, 0, height * 0.34)
-    gradient.addColorStop(0, 'rgba(185, 145, 255, 0.6)')
-    gradient.addColorStop(0.55, 'rgba(147, 107, 235, 0.35)')
-    gradient.addColorStop(1, 'rgba(125, 85, 210, 0)')
-
     context.clearRect(0, 0, width, height)
-    context.fillStyle = gradient
-    context.shadowColor = 'rgba(156, 109, 255, 0.35)'
-    context.shadowBlur = 12
+    const rows = Math.max(4, Math.ceil(height / 190))
+    const rowHeight = height / rows
 
-    for (let index = 0; index < count; index += 1) {
-      const position = index / (count - 1)
-      const bin = Math.min(frequencies.length - 3, Math.round(2 + Math.pow(position, 1.7) * 105))
-      const strength = (frequencies[bin] + frequencies[bin + 1] + frequencies[bin + 2]) / (3 * 255)
-      const barHeight = Math.max(3, Math.pow(strength, 1.3) * height * 0.72 * volumeRef.current)
-      context.fillRect(index * (barWidth + gap), height - barHeight, barWidth, barHeight)
+    for (let row = 0; row < rows; row += 1) {
+      const baseline = rowHeight * (row + 0.5)
+      context.fillStyle = row % 2 === 0 ? 'rgba(216, 226, 167, 0.42)' : 'rgba(225, 137, 96, 0.34)'
+      for (let index = 0; index < count; index += 1) {
+        const position = index / (count - 1)
+        const bin = Math.min(frequencies.length - 3, Math.round(2 + Math.pow(position, 1.7) * 105 + row * 4))
+        const strength = (frequencies[bin] + frequencies[bin + 1] + frequencies[bin + 2]) / (3 * 255)
+        const barHeight = Math.max(2, Math.pow(strength, 1.3) * rowHeight * 0.76 * volumeRef.current)
+        context.fillRect(index * (barWidth + gap), baseline - barHeight, barWidth, barHeight * 2)
+      }
     }
 
     const miniBars = miniBarsRef.current?.children
@@ -89,6 +129,22 @@ export default function MusicExperience({ music }) {
     frameRef.current = window.requestAnimationFrame(draw)
   }
 
+  function connectAnalyser() {
+    const audio = audioRef.current
+    if (!audio || audioContextRef.current || !(window.AudioContext || window.webkitAudioContext)) return
+
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext
+    const audioContext = new AudioContextClass()
+    const analyser = audioContext.createAnalyser()
+    analyser.fftSize = 1024
+    analyser.smoothingTimeConstant = 0.8
+    audioContext.createMediaElementSource(audio).connect(analyser)
+    analyser.connect(audioContext.destination)
+    audioContextRef.current = audioContext
+    analyserRef.current = analyser
+    if (!audio.paused) draw()
+  }
+
   async function togglePlayback() {
     const audio = audioRef.current
     if (!audio) return
@@ -101,19 +157,10 @@ export default function MusicExperience({ music }) {
     setError('')
     try {
       audio.volume = volumeRef.current
-      if (!audioContextRef.current && (window.AudioContext || window.webkitAudioContext)) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext
-        const audioContext = new AudioContextClass()
-        const analyser = audioContext.createAnalyser()
-        analyser.fftSize = 1024
-        analyser.smoothingTimeConstant = 0.8
-        audioContext.createMediaElementSource(audio).connect(analyser)
-        analyser.connect(audioContext.destination)
-        audioContextRef.current = audioContext
-        analyserRef.current = analyser
-      }
+      connectAnalyser()
       if (audioContextRef.current?.state === 'suspended') await audioContextRef.current.resume()
       await audio.play()
+      setAutoplayBlocked(false)
     } catch {
       setError('Не удалось включить музыку')
     }
@@ -166,7 +213,7 @@ export default function MusicExperience({ music }) {
           {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
         </button>
         <div className="bio-music-info">
-          <span>{isPlaying ? 'NOW PLAYING' : 'SOUND OFF'} / HAZE MODE</span>
+          <span>{isPlaying ? 'NOW PLAYING' : autoplayBlocked ? 'TAP TO START' : 'SOUND OFF'} / HAZE MODE</span>
           <strong>{music.title}</strong>
           <div className="bio-music-volume">
             <Volume2 size={14} />
