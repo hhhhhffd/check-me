@@ -37,6 +37,12 @@
 
   "about": "Проектирую и поднимаю бэкенд с нуля до продакшена. Люблю системы, где сложная архитектура остаётся за кулисами, а пользователь получает простой и предсказуемый интерфейс.",
 
+  "music": {
+    "title": "Meditating Beat",
+    "artist": "FreePD",
+    "src": "/audio/meditating-beat.mp3"
+  },
+
   "now": {
     "building": ["AI / real-time products"],
     "learning": ["system design", "reliable infrastructure"],

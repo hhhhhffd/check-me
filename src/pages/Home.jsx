@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDown, ArrowUpRight, ChevronDown, Mail, MapPin, Send } from 'lucide-react'
 import GithubOverview from '../components/GithubOverview'
 import ProjectDialog from '../components/ProjectDialog'
+import MusicExperience from '../components/MusicExperience'
 import { GithubIcon } from '../components/icons'
 import { useCvData } from '../context/CvDataContext'
 import { resolveAssetUrl } from '../utils/assetUrl'
@@ -81,6 +82,7 @@ function Home() {
   return (
     <main className="bio-page" id="top">
       <div className="bio-backdrop" aria-hidden="true" />
+      <div id="bio-visualizer-root" aria-hidden="true" />
       <header className="bio-topbar">
         <a href="#top" className="bio-wordmark" aria-label="Наверх">
           {handle.slice(0, 1).toLowerCase()}<span>.</span>
@@ -110,6 +112,7 @@ function Home() {
             {profile.workPreference?.status || 'building'}
             {location && <span className="bio-presence-place"><MapPin size={13} /> {location}</span>}
           </div>
+          <MusicExperience music={cv.music} />
           <div className="bio-socials" aria-label="Ссылки на профили">
             {socialLinks.map((link) => (
               <a

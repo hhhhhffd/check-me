@@ -4,6 +4,8 @@ React/Vite-сайт-профиль в terminal/bento-стиле. Весь пуб
 
 Редактируйте только `public/cv.jsonc`: профиль, ссылки, проекты, стек и блок `now` находятся там. Если файл отсутствует или содержит ошибку, сайт покажет страницу конфигурации вместо сломанного интерфейса.
 
+Фоновая музыка задаётся в блоке `music` того же файла (`title`, `artist`, `src`). Плеер запускается только по нажатию посетителя; столбы на фоне строятся из реального аудиосигнала и реагируют на громкость. Текущий трек — [Meditating Beat из FreePD](https://github.com/0lhi/FreePD/blob/stream/Electronic/Meditating%20Beat.mp3), распространяется по [CC0](https://github.com/0lhi/FreePD/blob/stream/LICENSE).
+
 ```bash
 npm install
 npm run dev
