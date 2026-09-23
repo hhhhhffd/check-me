@@ -11,6 +11,13 @@ import './home.css'
 
 const SHORT_STACK = ['Python', 'TypeScript', 'FastAPI', 'React', 'PostgreSQL']
 const THEMES = ['ghost', 'phosphor', 'amber']
+const SECTIONS = [
+  { command: 'whoami', label: 'Обо мне' },
+  { command: 'work', label: 'Работы' },
+  { command: 'github', label: 'GitHub' },
+  { command: 'stack', label: 'Стек' },
+  { command: 'links', label: 'Контакты' },
+]
 const COMMANDS = [
   { command: 'help', description: 'show available commands' },
   { command: 'whoami', description: 'back to profile' },
@@ -21,7 +28,6 @@ const COMMANDS = [
   { command: 'clear', description: 'clear the screen' },
   { command: 'theme', description: 'change terminal theme' },
 ]
-const COMPLETIONS = [...COMMANDS.map((item) => item.command), 'neofetch', 'music play', 'music pause', 'music next']
 
 function getCurrentTime() {
   return new Intl.DateTimeFormat('ru-RU', {
@@ -63,7 +69,6 @@ function Home() {
   const [screen, setScreen] = useState('home')
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0)
   const [imageIndex, setImageIndex] = useState(0)
-  const [commandValue, setCommandValue] = useState('')
   const [lastCommand, setLastCommand] = useState('')
   const [message, setMessage] = useState('')
   const [currentTime, setCurrentTime] = useState(getCurrentTime)
@@ -71,12 +76,10 @@ function Home() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteQuery, setPaletteQuery] = useState('')
   const [paletteIndex, setPaletteIndex] = useState(0)
-  const inputRef = useRef(null)
   const paletteInputRef = useRef(null)
+  const paletteTriggerRef = useRef(null)
   const bodyRef = useRef(null)
   const musicRef = useRef(null)
-  const historyRef = useRef([])
-  const historyIndexRef = useRef(-1)
 
   const selectedProject = projects[selectedProjectIndex]
   const projectImages = selectedProject
@@ -93,13 +96,8 @@ function Home() {
     ...(profile.github ? [{ command: 'github profile', description: 'open GitHub profile' }] : []),
   ].filter((item) => (item.command + ' ' + item.description).toLowerCase().includes(paletteQuery.toLowerCase()))
 
-  function focusPrompt() {
-    window.requestAnimationFrame(() => inputRef.current?.focus())
-  }
-
   function showScreen(nextScreen) {
     setScreen(nextScreen)
-    focusPrompt()
   }
 
   function openProject(index) {
@@ -123,9 +121,6 @@ function Home() {
     const command = rawCommand.trim().replace(/\s+/g, ' ').toLowerCase()
     if (!command) return
 
-    historyRef.current = [...historyRef.current, command]
-    historyIndexRef.current = -1
-    setCommandValue('')
     setLastCommand(command)
     setMessage('')
     setPaletteOpen(false)
@@ -148,7 +143,6 @@ function Home() {
       showScreen('message')
     } else if (command === 'github profile' && profile.github) {
       window.open(profile.github, '_blank', 'noopener,noreferrer')
-      focusPrompt()
     } else if (/^open (?:projects\/|work\/)?0?[1-9]$/.test(command)) {
       const index = Number(command.match(/(\d+)$/)?.[1]) - 1
       if (projects[index]) openProject(index)
@@ -171,30 +165,6 @@ function Home() {
     }
   }
 
-  function handlePromptKeyDown(event) {
-    if (event.key === 'Tab' && commandValue.trim()) {
-      const completion = COMPLETIONS.find((item) => item.startsWith(commandValue.trim().toLowerCase()))
-      if (completion) {
-        event.preventDefault()
-        setCommandValue(completion)
-      }
-    } else if (event.key === 'ArrowUp' && historyRef.current.length > 0) {
-      event.preventDefault()
-      historyIndexRef.current = Math.min(historyIndexRef.current + 1, historyRef.current.length - 1)
-      setCommandValue(historyRef.current[historyRef.current.length - 1 - historyIndexRef.current])
-    } else if (event.key === 'ArrowDown' && historyIndexRef.current >= 0) {
-      event.preventDefault()
-      historyIndexRef.current -= 1
-      setCommandValue(historyIndexRef.current < 0 ? '' : historyRef.current[historyRef.current.length - 1 - historyIndexRef.current])
-    } else if (screen === 'work' && projects.length > 0 && !commandValue && (event.key === 'j' || event.key === 'k')) {
-      event.preventDefault()
-      setSelectedProjectIndex((index) => (index + (event.key === 'j' ? 1 : -1) + projects.length) % projects.length)
-    } else if (screen === 'work' && !commandValue && event.key === 'Enter' && projects.length > 0) {
-      event.preventDefault()
-      openProject(selectedProjectIndex)
-    }
-  }
-
   function handlePaletteKeyDown(event) {
     if (event.key === 'ArrowDown') {
       event.preventDefault()
@@ -202,9 +172,10 @@ function Home() {
     } else if (event.key === 'ArrowUp') {
       event.preventDefault()
       setPaletteIndex((index) => Math.max(index - 1, 0))
-    } else if (event.key === 'Enter' && paletteItems[paletteIndex]) {
+    } else if (event.key === 'Enter') {
       event.preventDefault()
-      runCommand(paletteItems[paletteIndex].command)
+      const command = paletteItems[paletteIndex]?.command || paletteQuery.trim()
+      if (command) runCommand(command)
     }
   }
 
@@ -258,13 +229,29 @@ function Home() {
       if (event.key !== 'Escape') return
       if (paletteOpen) {
         setPaletteOpen(false)
-        focusPrompt()
+        paletteTriggerRef.current?.focus()
       } else if (screen === 'project') showScreen('work')
       else if (screen !== 'home') showScreen('home')
     }
     document.addEventListener('keydown', handleGlobalKeyDown)
     return () => document.removeEventListener('keydown', handleGlobalKeyDown)
   }, [paletteOpen, screen])
+
+  useEffect(() => {
+    function handleWorkKeys(event) {
+      if (paletteOpen || screen !== 'work' || projects.length === 0 || event.altKey || event.ctrlKey || event.metaKey) return
+      if (event.target instanceof Element && event.target.closest('input, textarea')) return
+      if (event.key === 'j' || event.key === 'k') {
+        event.preventDefault()
+        setSelectedProjectIndex((index) => (index + (event.key === 'j' ? 1 : -1) + projects.length) % projects.length)
+      } else if (event.key === 'Enter' && event.target === document.body) {
+        event.preventDefault()
+        openProject(selectedProjectIndex)
+      }
+    }
+    document.addEventListener('keydown', handleWorkKeys)
+    return () => document.removeEventListener('keydown', handleWorkKeys)
+  }, [paletteOpen, projects.length, screen, selectedProjectIndex])
 
   return (
     <main className="bio-page" data-theme={theme}>
@@ -275,46 +262,67 @@ function Home() {
           <span className="bio-window-title">{handle}@devbox <span>{path}</span></span>
           <time className="bio-window-time">{profile.location?.timezone || 'LOCAL'} · {currentTime}</time>
         </header>
+        <nav className="bio-section-nav" aria-label="Разделы сайта">
+          {SECTIONS.map((item) => (
+            <button
+              type="button"
+              key={item.command}
+              className={(screen === item.command || (screen === 'home' && item.command === 'whoami') || (screen === 'project' && item.command === 'work')) ? 'is-active' : ''}
+              onClick={() => runCommand(item.command)}
+            >
+              {item.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            className="bio-section-more"
+            ref={paletteTriggerRef}
+            onClick={() => { setPaletteOpen(true); setPaletteQuery(''); setPaletteIndex(0) }}
+            aria-label="Открыть команды и настройки"
+          >
+            Команды <span>⌘K</span>
+          </button>
+        </nav>
 
         <div className="bio-terminal-body" ref={bodyRef} aria-live="polite">
           {screen === 'home' && (
-            <>
-              <section className="bio-command-block" aria-labelledby="bio-name">
-                <p className="bio-command"><span>$</span> whoami</p>
-                <div className="bio-identity">
-                  <span className="bio-monogram" aria-hidden="true">{handle.slice(0, 1).toUpperCase()}.</span>
-                  <div>
-                    <h1 id="bio-name">{profile.name}</h1>
-                    <p><span className="bio-handle">@{handle}</span> <span className="bio-separator">/</span> {profile.title}</p>
-                  </div>
+            <div className="bio-home">
+              <section className="bio-home-intro" aria-labelledby="bio-name">
+                <p className="bio-home-eyebrow"><span className="bio-live-dot" /> PERSONAL SYSTEM <span>/ 001</span></p>
+                <div className="bio-home-heading">
+                  <span className="bio-home-mark" aria-hidden="true">{handle.slice(0, 1).toUpperCase()}</span>
+                  <h1 id="bio-name">{handle}<span>.</span></h1>
                 </div>
+                <p className="bio-home-byline">{profile.name} <span>↗</span> {profile.title}</p>
+                <p className="bio-home-bio">{profile.bio}</p>
+                <div className="bio-home-actions">
+                  <button type="button" className="bio-home-primary" onClick={() => runCommand('work')}>Смотреть работы <ArrowUpRight size={17} /></button>
+                  <button type="button" className="bio-home-secondary" onClick={() => runCommand('github')}>GitHub / stats <ArrowUpRight size={16} /></button>
+                </div>
+                <p className="bio-home-location"><span className="bio-live-dot" /> {profile.workPreference?.status || 'building'} <span>/</span> {profile.location?.city || 'online'}</p>
               </section>
-              <section className="bio-command-block" aria-label="Обо мне">
-                <p className="bio-command"><span>$</span> cat bio.txt</p>
-                <p className="bio-output bio-description">{profile.bio}</p>
-              </section>
-              <section className="bio-command-block" aria-label="Проекты">
-                <button type="button" className="bio-command bio-command-button" onClick={() => runCommand('work')}><span>$</span> ls work/ <span className="bio-command-count">{String(projects.length).padStart(2, '0')} items</span></button>
-                <div className="bio-project-list">
+
+              <section className="bio-home-work" aria-label="Избранные проекты">
+                <div className="bio-home-work-heading"><span><i>❯</i> ls work/</span><span>{String(projects.length).padStart(2, '0')} entries</span></div>
+                <div className="bio-home-work-list">
                   {projects.map((project, index) => (
                     <button type="button" className="bio-project" key={project.id || project.slug} onClick={() => openProject(index)}>
                       <span className="bio-project-number">{String(index + 1).padStart(2, '0')}</span>
-                      <span className="bio-project-title">{project.title}</span>
-                      <span className="bio-project-category">{project.status || 'PROJECT'}</span>
-                      <ArrowUpRight size={16} aria-hidden="true" />
+                      <span className="bio-project-copy"><strong>{project.title}</strong><small>{project.status || 'PROJECT'}</small></span>
+                      <ArrowUpRight size={17} aria-hidden="true" />
                     </button>
                   ))}
                 </div>
+                <div className="bio-home-work-foot"><span>Выбери проект</span><button type="button" onClick={() => runCommand('help')}>Команды ↗</button></div>
               </section>
-              <p className="bio-home-hint">type <button type="button" onClick={() => runCommand('help')}>help</button> or press <kbd>Ctrl K</kbd> to explore</p>
-            </>
+            </div>
           )}
 
           {screen === 'work' && (
             <section className="bio-screen">
               <p className="bio-command"><span>$</span> work</p>
-              <h2>Selected work<span className="bio-heading-dot">.</span></h2>
-              <p className="bio-screen-subtitle">j / k — выбор · Enter — открыть · Esc — назад</p>
+              <h2>Работы<span className="bio-heading-dot">.</span></h2>
+              <p className="bio-screen-subtitle">Выбери проект, чтобы посмотреть детали.</p>
               <div className="bio-work-list">
                 {projects.map((project, index) => (
                   <button
@@ -336,7 +344,7 @@ function Home() {
 
           {screen === 'project' && selectedProject && (
             <section className="bio-screen">
-              <button type="button" className="bio-back-button" onClick={() => showScreen('work')}><ArrowLeft size={15} /> work</button>
+              <button type="button" className="bio-back-button" onClick={() => showScreen('work')}><ArrowLeft size={15} /> Все работы</button>
               <p className="bio-command"><span>$</span> open work/{selectedProject.slug || selectedProject.id}</p>
               <div className="bio-project-screen">
                 <div className="bio-project-screen-copy">
@@ -347,7 +355,7 @@ function Home() {
                   <div className="bio-project-screen-links">
                     {selectedProject.github_url && <a href={selectedProject.github_url} target="_blank" rel="noopener noreferrer">[ github <ArrowUpRight size={13} /> ]</a>}
                     {selectedProject.presentation_url && <a href={selectedProject.presentation_url} target="_blank" rel="noopener noreferrer">[ live <ArrowUpRight size={13} /> ]</a>}
-                    {selectedProject.slug && <Link to={'/project/' + selectedProject.slug}>[ full details <ArrowUpRight size={13} /> ]</Link>}
+                    {selectedProject.slug && <Link to={'/project/' + selectedProject.slug}>[ Подробнее <ArrowUpRight size={13} /> ]</Link>}
                   </div>
                 </div>
                 {projectImages.length > 0 && (
@@ -375,7 +383,7 @@ function Home() {
           {screen === 'stack' && (
             <section className="bio-screen">
               <p className="bio-command"><span>$</span> stack</p>
-              <h2>Current stack<span className="bio-heading-dot">.</span></h2>
+              <h2>Мой стек<span className="bio-heading-dot">.</span></h2>
               <div className="bio-stack-groups">
                 {cv.skillGroups?.map((group) => (
                   <div className="bio-stack-group" key={group.name}><span>{group.name}</span><p>{group.skills?.join(' · ')}</p></div>
@@ -387,7 +395,7 @@ function Home() {
           {screen === 'links' && (
             <section className="bio-screen">
               <p className="bio-command"><span>$</span> links</p>
-              <h2>Find me elsewhere<span className="bio-heading-dot">.</span></h2>
+              <h2>Контакты<span className="bio-heading-dot">.</span></h2>
               <div className="bio-link-list">
                 {socialLinks.map((link) => (
                   <a key={link.label} href={link.href} target={link.href.startsWith('mailto:') ? undefined : '_blank'} rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}>
@@ -401,7 +409,7 @@ function Home() {
           {screen === 'help' && (
             <section className="bio-screen">
               <p className="bio-command"><span>$</span> help</p>
-              <h2>Available commands<span className="bio-heading-dot">.</span></h2>
+              <h2>Команды<span className="bio-heading-dot">.</span></h2>
               <div className="bio-help-table">
                 <div className="bio-help-head"><span>COMMAND</span><span>DESCRIPTION</span></div>
                 {COMMANDS.map((item) => (
@@ -417,7 +425,7 @@ function Home() {
           {screen === 'theme' && (
             <section className="bio-screen">
               <p className="bio-command"><span>$</span> theme</p>
-              <h2>Terminal theme<span className="bio-heading-dot">.</span></h2>
+              <h2>Оформление<span className="bio-heading-dot">.</span></h2>
               <div className="bio-theme-list">
                 {THEMES.map((item) => (
                   <button type="button" key={item} className={theme === item ? 'is-active' : ''} onClick={() => chooseTheme(item)}>
@@ -453,33 +461,8 @@ function Home() {
           )}
         </div>
 
-        <div className="bio-terminal-controls">
-          <form className="bio-input-row" onSubmit={(event) => { event.preventDefault(); runCommand(commandValue) }}>
-            <span className="bio-input-path">{path}</span><span className="bio-input-prompt">❯</span>
-            <input
-              ref={inputRef}
-              value={commandValue}
-              onChange={(event) => setCommandValue(event.target.value)}
-              onKeyDown={handlePromptKeyDown}
-              aria-label="Команда терминала"
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck="false"
-              placeholder="type a command..."
-            />
-            <button type="button" className="bio-palette-trigger" onClick={() => { setPaletteOpen(true); setPaletteQuery(''); setPaletteIndex(0) }} aria-label="Открыть список команд">⌘ K</button>
-          </form>
-          <nav className="bio-command-nav" aria-label="Быстрые команды">
-            {['whoami', 'work', 'github', 'stack', 'links'].map((item) => (
-              <button type="button" key={item} onClick={() => runCommand(item)} className={(screen === item || (screen === 'home' && item === 'whoami') || (screen === 'project' && item === 'work')) ? 'is-active' : ''}>{item}</button>
-            ))}
-          </nav>
-        </div>
-
-        {cv.music?.src && <footer className="bio-terminal-footer"><MusicExperience ref={musicRef} music={cv.music} /></footer>}
-
         {paletteOpen && (
-          <div className="bio-palette-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) { setPaletteOpen(false); focusPrompt() } }}>
+          <div className="bio-palette-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) { setPaletteOpen(false); paletteTriggerRef.current?.focus() } }}>
             <div className="bio-palette" role="dialog" aria-modal="true" aria-label="Командная палитра">
               <input
                 ref={paletteInputRef}
@@ -487,7 +470,7 @@ function Home() {
                 onChange={(event) => { setPaletteQuery(event.target.value); setPaletteIndex(0) }}
                 onKeyDown={handlePaletteKeyDown}
                 aria-label="Поиск команды"
-                placeholder="Search commands..."
+                placeholder="Поиск раздела или команда..."
               />
               <div className="bio-palette-list">
                 {paletteItems.map((item, index) => (
@@ -501,7 +484,7 @@ function Home() {
           </div>
         )}
       </section>
-      <p className="bio-outside-note">{handle} <span>/</span> personal terminal</p>
+      {cv.music?.src && <MusicExperience ref={musicRef} music={cv.music} />}
     </main>
   )
 }

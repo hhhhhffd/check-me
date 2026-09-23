@@ -12,6 +12,7 @@ function formatTime(seconds) {
 
 const MusicExperience = forwardRef(function MusicExperience({ music }, ref) {
   const audioRef = useRef(null)
+  const canvasRef = useRef(null)
   const miniBarsRef = useRef(null)
   const audioContextRef = useRef(null)
   const analyserRef = useRef(null)
@@ -35,7 +36,21 @@ const MusicExperience = forwardRef(function MusicExperience({ music }, ref) {
   }))
 
   useEffect(() => {
+    const canvas = canvasRef.current
+    const context = canvas?.getContext('2d')
+    if (!canvas || !context) return undefined
+
+    function resizeCanvas() {
+      const scale = Math.min(window.devicePixelRatio || 1, 2)
+      canvas.width = Math.round(window.innerWidth * scale)
+      canvas.height = Math.round(window.innerHeight * scale)
+      context.setTransform(scale, 0, 0, scale, 0, 0)
+    }
+
+    resizeCanvas()
+    window.addEventListener('resize', resizeCanvas)
     return () => {
+      window.removeEventListener('resize', resizeCanvas)
       window.cancelAnimationFrame(frameRef.current)
       audioRef.current?.pause()
       if (audioContextRef.current?.state !== 'closed') audioContextRef.current?.close()
@@ -47,40 +62,28 @@ const MusicExperience = forwardRef(function MusicExperience({ music }, ref) {
     autoplayAttemptedRef.current = true
     const audio = audioRef.current
     audio.volume = volumeRef.current
-    audio.play().then(async () => {
-      connectAnalyser()
-      if (audioContextRef.current?.state === 'suspended') await audioContextRef.current.resume()
-    }).catch((playError) => {
+    audio.play().catch((playError) => {
       if (playError.name === 'NotAllowedError') setAutoplayBlocked(true)
       else setError('Не удалось включить музыку')
     })
   }, [music?.src])
 
   useEffect(() => {
-    if (!autoplayBlocked) return undefined
+    if (!isPlaying || analyserRef.current) return undefined
 
-    function startOnInteraction(event) {
-      if (event.target instanceof Element && event.target.closest('.bio-music-player')) return
-      const audio = audioRef.current
-      if (!audio || !audio.paused) return
+    function startVisualizer() {
       connectAnalyser()
-      const resume = audioContextRef.current?.state === 'suspended'
-        ? audioContextRef.current.resume()
-        : Promise.resolve()
-      Promise.all([audio.play(), resume]).then(() => {
-        setAutoplayBlocked(false)
-      }).catch((playError) => {
-        if (playError.name !== 'NotAllowedError') setError('Не удалось включить музыку')
+      audioContextRef.current?.resume().catch((resumeError) => {
+        setError('Не удалось включить визуализацию музыки')
+        console.warn('AudioContext resume failed:', resumeError)
       })
     }
 
-    document.addEventListener('pointerdown', startOnInteraction)
-    document.addEventListener('keydown', startOnInteraction)
+    document.addEventListener('pointerdown', startVisualizer, { once: true })
     return () => {
-      document.removeEventListener('pointerdown', startOnInteraction)
-      document.removeEventListener('keydown', startOnInteraction)
+      document.removeEventListener('pointerdown', startVisualizer)
     }
-  }, [autoplayBlocked])
+  }, [isPlaying])
 
   if (!music?.src) return null
 
@@ -90,6 +93,27 @@ const MusicExperience = forwardRef(function MusicExperience({ music }, ref) {
 
     const frequencies = new Uint8Array(analyser.frequencyBinCount)
     analyser.getByteFrequencyData(frequencies)
+    const canvas = canvasRef.current
+    const context = canvas?.getContext('2d')
+    if (canvas && context) {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      const count = Math.max(32, Math.min(90, Math.floor(width / 15)))
+      const gap = width < 600 ? 4 : 7
+      const barWidth = (width - gap * (count - 1)) / count
+      context.clearRect(0, 0, width, height)
+      for (let row = 0; row < 3; row += 1) {
+        const baseline = height * (0.18 + row * 0.32)
+        context.fillStyle = row === 1 ? 'rgba(189, 157, 235, .3)' : 'rgba(225, 185, 146, .24)'
+        for (let index = 0; index < count; index += 1) {
+          const position = index / (count - 1)
+          const bin = Math.min(frequencies.length - 1, Math.round(3 + position * 115 + row * 5))
+          const strength = frequencies[bin] / 255
+          const barHeight = Math.max(2, Math.pow(strength, 1.2) * 95 * volumeRef.current)
+          context.fillRect(index * (barWidth + gap), baseline - barHeight, barWidth, barHeight * 2)
+        }
+      }
+    }
 
     const miniBars = miniBarsRef.current?.children
     if (miniBars) {
@@ -127,8 +151,11 @@ const MusicExperience = forwardRef(function MusicExperience({ music }, ref) {
     try {
       audio.volume = volumeRef.current
       connectAnalyser()
-      if (audioContextRef.current?.state === 'suspended') await audioContextRef.current.resume()
-      await audio.play()
+      const playback = audio.play()
+      const resume = audioContextRef.current?.state === 'suspended'
+        ? audioContextRef.current.resume()
+        : Promise.resolve()
+      await Promise.all([playback, resume])
       setAutoplayBlocked(false)
     } catch {
       setError('Не удалось включить музыку')
@@ -149,6 +176,7 @@ const MusicExperience = forwardRef(function MusicExperience({ music }, ref) {
   function handlePause() {
     setIsPlaying(false)
     window.cancelAnimationFrame(frameRef.current)
+    canvasRef.current?.getContext('2d')?.clearRect(0, 0, window.innerWidth, window.innerHeight)
     for (const bar of miniBarsRef.current?.children || []) bar.style.height = '3px'
   }
 
@@ -160,49 +188,64 @@ const MusicExperience = forwardRef(function MusicExperience({ music }, ref) {
   }
 
   return (
-    <div className="bio-music-player" aria-label="Музыкальный плеер">
-      <audio
-        ref={audioRef}
-        src={resolveAssetUrl(music.src)}
-        preload="metadata"
-        loop
-        onPlay={handlePlay}
-        onPause={handlePause}
-        onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
-        onTimeUpdate={(event) => setPosition(event.currentTarget.currentTime)}
-        onError={() => setError('Не удалось загрузить трек')}
-      />
-      <button
-        type="button"
-        className="bio-music-toggle"
-        onClick={togglePlayback}
-        aria-label={isPlaying ? 'Приостановить музыку' : 'Включить музыку'}
-        aria-pressed={isPlaying}
-      >
-        {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
-      </button>
-      <div className="bio-music-info">
-        <span>{isPlaying ? '♫' : autoplayBlocked ? '▶' : 'Ⅱ'} {isPlaying ? 'PLAYING' : 'PAUSED'}</span>
-        <strong>{music.title}</strong>
-        <div className="bio-music-volume">
-          <Volume2 size={14} />
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            aria-label="Громкость музыки"
-          />
+    <>
+      <canvas ref={canvasRef} className="bio-visualizer" aria-hidden="true" />
+      {autoplayBlocked && (
+        <div className="bio-entry-overlay" role="dialog" aria-modal="true" aria-label="Вход со звуком">
+          <div className="bio-entry-card">
+            <span className="bio-entry-symbol" aria-hidden="true">S.</span>
+            <p className="bio-entry-label">PERSONAL SPACE / AUDIO ON</p>
+            <h2>Нажми, чтобы войти<span>.</span></h2>
+            <p>Музыка и визуализация запустятся после клика.</p>
+            <button type="button" autoFocus onClick={play}>Войти со звуком <Play size={16} fill="currentColor" /></button>
+            <button type="button" className="bio-entry-skip" onClick={() => setAutoplayBlocked(false)}>Продолжить без звука</button>
+          </div>
         </div>
-        <time>{formatTime(position)} / {formatTime(duration)}</time>
+      )}
+      <div className="bio-music-player" aria-label="Музыкальный плеер">
+        <audio
+          ref={audioRef}
+          src={resolveAssetUrl(music.src)}
+          preload="metadata"
+          loop
+          onPlay={handlePlay}
+          onPause={handlePause}
+          onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
+          onTimeUpdate={(event) => setPosition(event.currentTarget.currentTime)}
+          onError={() => setError('Не удалось загрузить трек')}
+        />
+        <button
+          type="button"
+          className="bio-music-toggle"
+          onClick={togglePlayback}
+          aria-label={isPlaying ? 'Приостановить музыку' : 'Включить музыку'}
+          aria-pressed={isPlaying}
+        >
+          {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
+        </button>
+        <div className="bio-music-info">
+          <span>{isPlaying ? '♫' : autoplayBlocked ? '▶' : 'Ⅱ'} {isPlaying ? 'PLAYING' : 'PAUSED'}</span>
+          <strong>{music.title}</strong>
+          <div className="bio-music-volume">
+            <Volume2 size={14} />
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={handleVolumeChange}
+              aria-label="Громкость музыки"
+            />
+          </div>
+          <time>{formatTime(position)} / {formatTime(duration)}</time>
+        </div>
+        <div className="bio-music-levels" ref={miniBarsRef} aria-hidden="true">
+          {Array.from({ length: MINI_BAR_COUNT }, (_, index) => <i key={index} />)}
+        </div>
+        {error && <p className="bio-music-error" role="status">{error}</p>}
       </div>
-      <div className="bio-music-levels" ref={miniBarsRef} aria-hidden="true">
-        {Array.from({ length: MINI_BAR_COUNT }, (_, index) => <i key={index} />)}
-      </div>
-      {error && <p className="bio-music-error" role="status">{error}</p>}
-    </div>
+    </>
   )
 })
 
