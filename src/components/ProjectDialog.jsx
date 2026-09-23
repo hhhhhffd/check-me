@@ -1,10 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, ExternalLink, X } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { ArrowUpRight, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { GithubIcon } from './icons'
+import { getProjectDescription } from '../utils/cvPresentation'
 
 function ProjectDialog({ project, onClose }) {
   const closeButtonRef = useRef(null)
@@ -36,13 +34,14 @@ function ProjectDialog({ project, onClose }) {
       }
     }
 
+    const previousOverflow = document.body.style.overflow
     document.addEventListener('keydown', handleKeyDown)
     document.body.style.overflow = 'hidden'
     closeButtonRef.current?.focus()
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = ''
+      document.body.style.overflow = previousOverflow
     }
   }, [project, onClose])
 
@@ -50,7 +49,7 @@ function ProjectDialog({ project, onClose }) {
     <AnimatePresence>
       {project && (
         <motion.div
-          className="fixed inset-0 z-50 overflow-y-auto bg-[#0d0b14]/85 p-4 backdrop-blur-sm md:p-8"
+          className="bio-project-overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -60,84 +59,42 @@ function ProjectDialog({ project, onClose }) {
         >
           <motion.article
             ref={dialogRef}
-            layoutId={`project-${project.id || project.slug}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="project-dialog-title"
-            className="terminal-dialog mx-auto my-4 max-w-4xl p-6 md:my-10 md:p-10"
+            className="bio-project-dialog"
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 10, opacity: 0 }}
           >
-            <div className="flex items-start justify-between gap-6">
-              <div>
-                <p className="terminal-prompt mb-3">~/system $ cat ./projects/{project.slug || project.id}</p>
-                <h2 id="project-dialog-title" className="text-3xl font-semibold tracking-tight text-[#ede9f5] md:text-5xl">
-                  {project.title}
-                </h2>
-              </div>
-              <button
-                ref={closeButtonRef}
-                type="button"
-                aria-label="Закрыть проект"
-                onClick={onClose}
-                className="terminal-icon-button"
-              >
-                <X className="h-5 w-5" />
+            <div className="bio-project-dialog-bar">
+              <span><b>$</b> open projects/{project.slug || project.id}</span>
+              <button ref={closeButtonRef} type="button" aria-label="Закрыть проект" onClick={onClose}>
+                <X size={17} />
               </button>
             </div>
-
-            {(project.tech_stack?.length > 0 || project.tags?.length > 0) && (
-              <div className="mt-6 flex flex-wrap gap-2">
-                {project.tech_stack?.map((tech) => (
-                  <span key={tech} className="terminal-tag">{tech}</span>
-                ))}
-                {project.tags?.map((tag) => (
-                  <span key={tag} className="terminal-tag terminal-tag-muted">#{tag}</span>
-                ))}
+            <div className="bio-project-dialog-body">
+              <p className="bio-project-dialog-label">{project.status || 'PROJECT'}</p>
+              <h2 id="project-dialog-title">{project.title}</h2>
+              <p className="bio-project-dialog-description">{getProjectDescription(project)}</p>
+              {project.tech_stack?.length > 0 && (
+                <div className="bio-project-dialog-stack">
+                  <span>STACK</span>
+                  <p>{project.tech_stack.join('  ·  ')}</p>
+                </div>
+              )}
+              <div className="bio-project-dialog-links">
+                {project.github_url && (
+                  <a href={project.github_url} target="_blank" rel="noopener noreferrer">[ github <ArrowUpRight size={14} /> ]</a>
+                )}
+                {project.presentation_url && (
+                  <a href={project.presentation_url} target="_blank" rel="noopener noreferrer">[ demo <ArrowUpRight size={14} /> ]</a>
+                )}
+                {project.youtube_pitch_url && (
+                  <a href={project.youtube_pitch_url} target="_blank" rel="noopener noreferrer">[ video <ArrowUpRight size={14} /> ]</a>
+                )}
+                {project.slug && <Link to={'/project/' + project.slug}>[ подробнее <ArrowUpRight size={14} /> ]</Link>}
               </div>
-            )}
-
-            <div className="terminal-prose mt-10">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {project.content || project['content-on-card'] || 'Описание проекта пока не добавлено.'}
-              </ReactMarkdown>
-            </div>
-
-            {project.responsibilities?.length > 0 && (
-              <section className="mt-10">
-                <p className="terminal-prompt mb-4">~/system $ cat ./contribution.md</p>
-                <ul className="terminal-list">
-                  {project.responsibilities.map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </section>
-            )}
-
-            {project.outcomes?.length > 0 && (
-              <section className="mt-8">
-                <p className="terminal-prompt mb-4">~/system $ cat ./outcomes.md</p>
-                <ul className="terminal-list">
-                  {project.outcomes.map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </section>
-            )}
-
-            <div className="mt-10 flex flex-wrap gap-3">
-              {project.github_url && (
-                <a className="terminal-button" href={project.github_url} target="_blank" rel="noopener noreferrer">
-                  <GithubIcon className="h-4 w-4" />
-                  GitHub
-                </a>
-              )}
-              {project.presentation_url && (
-                <a className="terminal-button" href={project.presentation_url} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                  Открыть проект
-                </a>
-              )}
-              {project.slug && (
-                <Link className="terminal-button terminal-button-muted" to={`/project/${project.slug}`}>
-                  <ArrowUpRight className="h-4 w-4" />
-                  Отдельная страница
-                </Link>
-              )}
             </div>
           </motion.article>
         </motion.div>

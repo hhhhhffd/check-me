@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowUpRight, ChevronDown, Mail, MapPin, Send } from 'lucide-react'
-import GithubOverview from '../components/GithubOverview'
-import ProjectDialog from '../components/ProjectDialog'
+import { ArrowUpRight } from 'lucide-react'
 import MusicExperience from '../components/MusicExperience'
-import { GithubIcon } from '../components/icons'
+import ProjectDialog from '../components/ProjectDialog'
 import { useCvData } from '../context/CvDataContext'
 import { resolveAssetUrl } from '../utils/assetUrl'
-import { getNowEntries, getProjectDescription, sortByDateDesc } from '../utils/cvPresentation'
+import { sortByDateDesc } from '../utils/cvPresentation'
 import { setMetaTag } from '../utils/setMetaTag'
 import './home.css'
 
-const MAX_VISIBLE_ITEMS = 4
+const SHORT_STACK = ['Python', 'TypeScript', 'FastAPI', 'React', 'PostgreSQL']
 
 function getCurrentTime() {
-  return new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit' }).format(new Date())
+  return new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Asia/Almaty',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date())
 }
 
 function Home() {
@@ -24,19 +26,18 @@ function Home() {
   const profile = cv.profile
   const handle = profile.handle || profile.name
   const profileImage = resolveAssetUrl(profile.image)
-  const location = [profile.location?.city, profile.location?.country].filter(Boolean).join(', ')
   const email = profile.email?.replace(/^mailto:/, '')
-  const contactUrl = profile.telegram || (email ? `mailto:${email}` : profile.github)
   const projects = useMemo(
-    () => sortByDateDesc(cv.projects).filter((project) => Boolean(project.title)).slice(0, MAX_VISIBLE_ITEMS),
+    () => sortByDateDesc(cv.projects).filter((project) => Boolean(project.title)).slice(0, 4),
     [cv.projects],
   )
-  const nowEntries = getNowEntries(cv)
+  const availableSkills = cv.skillGroups?.flatMap((group) => group.skills || []) || []
+  const shortStack = SHORT_STACK.filter((skill) => availableSkills.includes(skill))
   const socialLinks = [
-    { label: 'GitHub', href: profile.github, icon: <GithubIcon className="h-5 w-5" /> },
-    { label: 'Telegram', href: profile.telegram, icon: <Send size={19} /> },
-    { label: 'LinkedIn', href: profile.linkedin, icon: <span className="bio-linkedin-mark">in</span> },
-    { label: 'Email', href: email ? `mailto:${email}` : '', icon: <Mail size={19} /> },
+    { label: 'github', href: profile.github },
+    { label: 'telegram', href: profile.telegram },
+    { label: 'linkedin', href: profile.linkedin },
+    { label: 'email', href: email ? 'mailto:' + email : '' },
   ].filter((link) => link.href)
 
   const closeProject = useCallback(() => {
@@ -56,7 +57,7 @@ function Home() {
 
   useEffect(() => {
     document.documentElement.lang = cv.meta?.locale || 'ru'
-    const baseTitle = cv.meta?.siteTitle || (profile.name ? `${profile.name} — Портфолио` : 'Портфолио разработчика')
+    const baseTitle = cv.meta?.siteTitle || (profile.name ? profile.name + ' — Портфолио' : 'Портфолио разработчика')
     const description = cv.meta?.siteDescription || profile.bio || 'Личный сайт-портфолио: проекты, стек и контакты.'
 
     document.title = baseTitle
@@ -82,179 +83,86 @@ function Home() {
   return (
     <main className="bio-page" id="top">
       <div className="bio-backdrop" aria-hidden="true" />
-      <div id="bio-visualizer-root" aria-hidden="true" />
-      <header className="bio-topbar">
-        <a href="#top" className="bio-wordmark" aria-label="Наверх">
-          {handle.slice(0, 1).toLowerCase()}<span>.</span>
-        </a>
-        <span className="bio-topbar-label">PERSONAL SPACE <span>/</span> {new Date().getFullYear()}</span>
-        <a href="#projects" className="bio-topbar-link">PROJECTS <ArrowDown size={14} /></a>
-      </header>
+      <section className="bio-terminal" aria-label="Профиль в терминале">
+        <header className="bio-terminal-bar">
+          <div className="bio-window-dots" aria-hidden="true"><i /><i /><i /></div>
+          <span className="bio-window-title">{handle}@devbox <span>~/portfolio</span></span>
+          <time className="bio-window-time">{profile.location?.timezone || 'LOCAL'} · {currentTime}</time>
+        </header>
 
-      <div className="bio-intro">
-        <section className="bio-profile" aria-labelledby="bio-name">
-          <div className="bio-profile-top">
-            <span>{handle.toUpperCase()} / ONLINE</span>
-            <span>{profile.location?.timezone || 'LOCAL'} · {currentTime}</span>
-          </div>
-          <div className="bio-avatar">
-            {profileImage
-              ? <img src={profileImage} alt={profile.name} />
-              : <span aria-hidden="true">{handle.slice(0, 1).toUpperCase()}</span>}
-            <span className="bio-avatar-status" aria-label="Online" />
-          </div>
-          <p className="bio-real-name">{profile.name}</p>
-          <h1 id="bio-name">{handle}<span>.</span></h1>
-          <p className="bio-role">{profile.title}{profile.headline && <> <span>✦</span> {profile.headline}</>}</p>
-          <p className="bio-description">{profile.bio}</p>
-          <div className="bio-presence">
-            <span className="bio-presence-dot" />
-            {profile.workPreference?.status || 'building'}
-            {location && <span className="bio-presence-place"><MapPin size={13} /> {location}</span>}
-          </div>
-          <MusicExperience music={cv.music} />
-          <div className="bio-socials" aria-label="Ссылки на профили">
-            {socialLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                target={link.href.startsWith('mailto:') ? undefined : '_blank'}
-                rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                aria-label={link.label}
-                title={link.label}
-              >
-                {link.icon}
-              </a>
-            ))}
-          </div>
-          <div className="bio-profile-actions">
-            {contactUrl && (
-              <a
-                href={contactUrl}
-                target={contactUrl.startsWith('mailto:') ? undefined : '_blank'}
-                rel={contactUrl.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                className="bio-main-link"
-              >
-                Написать мне <ArrowUpRight size={18} />
-              </a>
-            )}
-            <a href="#projects" className="bio-quiet-link">Мои проекты <ArrowDown size={17} /></a>
-          </div>
-          <div className="bio-profile-bottom">
-            <span>BUILDING THINGS THAT WORK</span><span>01 / 03</span>
-          </div>
-        </section>
-        <a className="bio-scroll-cue" href="#projects">
-          <span>SCROLL TO EXPLORE</span><ChevronDown size={17} />
-        </a>
-      </div>
-
-      <div className="bio-content">
-        {projects.length > 0 && (
-          <section className="bio-section" id="projects" aria-labelledby="projects-heading">
-            <div className="bio-section-heading">
+        <div className="bio-terminal-body">
+          <section className="bio-command-block" aria-labelledby="bio-name">
+            <p className="bio-command"><span>$</span> whoami</p>
+            <div className="bio-identity">
+              <span className="bio-monogram" aria-hidden="true">{handle.slice(0, 1).toUpperCase()}.</span>
               <div>
-                <p className="bio-eyebrow">01 / SELECTED WORK</p>
-                <h2 id="projects-heading">То, что я <em>построил.</em></h2>
+                <h1 id="bio-name">{profile.name}</h1>
+                <p><span className="bio-handle">@{handle}</span> <span className="bio-separator">/</span> {profile.title}</p>
               </div>
-              <p>Продукты, в которых идея стала работающей системой.</p>
-            </div>
-            <div className="bio-project-list">
-              {projects.map((project, index) => (
-                <button
-                  type="button"
-                  className="bio-project"
-                  key={project.id || project.slug}
-                  onClick={(event) => openProject(project, event)}
-                  aria-label={`Открыть проект ${project.title}`}
-                >
-                  <span className="bio-project-number">{String(index + 1).padStart(2, '0')}</span>
-                  <span className="bio-project-image">
-                    {project.thumbnail && <img src={resolveAssetUrl(project.thumbnail)} alt="" loading="lazy" />}
-                  </span>
-                  <span className="bio-project-body">
-                    <span className="bio-project-category">{project.status || 'PROJECT'}</span>
-                    <strong>{project.title}</strong>
-                    <span className="bio-project-description">{getProjectDescription(project)}</span>
-                    <span className="bio-project-stack">{project.tech_stack?.slice(0, 3).join(' · ')}</span>
-                  </span>
-                  <span className="bio-project-arrow"><ArrowUpRight size={20} /></span>
-                </button>
-              ))}
             </div>
           </section>
-        )}
 
-        <section className="bio-section bio-about" id="about" aria-labelledby="about-heading">
-          <div className="bio-about-copy">
-            <p className="bio-eyebrow">02 / ABOUT</p>
-            <h2 id="about-heading">Чуть больше,<br /><em>чем bio.</em></h2>
-            <p>{cv.about || profile.headline || profile.bio}</p>
-          </div>
-          <div className="bio-about-details">
-            <p className="bio-details-title">/ CURRENT SETUP</p>
-            {cv.skillGroups?.map((group) => (
-              <div className="bio-skill-row" key={group.name}>
-                <span>{group.name}</span><span>{group.skills?.join(' · ')}</span>
-              </div>
-            ))}
-            {nowEntries.length > 0 && (
-              <div className="bio-now">
-                <span>RIGHT NOW</span>
-                {nowEntries.map((entry) => (
-                  <p key={entry.label}><strong>{entry.label}</strong>{entry.value}</p>
+          <section className="bio-command-block" aria-label="Обо мне">
+            <p className="bio-command"><span>$</span> cat bio.txt</p>
+            <p className="bio-output bio-description">{profile.bio}</p>
+          </section>
+
+          {projects.length > 0 && (
+            <section className="bio-command-block" id="projects" aria-label="Проекты">
+              <p className="bio-command"><span>$</span> ls projects/ <span className="bio-command-count">{String(projects.length).padStart(2, '0')} items</span></p>
+              <div className="bio-project-list">
+                {projects.map((project, index) => (
+                  <button
+                    type="button"
+                    className="bio-project"
+                    key={project.id || project.slug}
+                    onClick={(event) => openProject(project, event)}
+                    aria-label={'Открыть проект ' + project.title}
+                  >
+                    <span className="bio-project-number">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="bio-project-title">{project.title}</span>
+                    <span className="bio-project-category">{project.status || 'PROJECT'}</span>
+                    <ArrowUpRight size={16} aria-hidden="true" />
+                  </button>
                 ))}
               </div>
-            )}
-          </div>
-        </section>
-
-        {profile.github && (
-          <section className="bio-section bio-github" aria-labelledby="github-heading">
-            <div className="bio-section-heading">
-              <div>
-                <p className="bio-eyebrow">03 / ACTIVITY</p>
-                <h2 id="github-heading">Следы <em>в коде.</em></h2>
-              </div>
-            </div>
-            <GithubOverview githubUrl={profile.github} githubActivityApiUrl={profile.githubActivityApiUrl} />
-          </section>
-        )}
-
-        <footer className="bio-footer" id="contact">
-          <p className="bio-eyebrow">GOT AN IDEA?</p>
-          <h2>Давай сделаем<br /><em>что-то крутое.</em></h2>
-          {contactUrl && (
-            <a
-              className="bio-footer-contact"
-              href={contactUrl}
-              target={contactUrl.startsWith('mailto:') ? undefined : '_blank'}
-              rel={contactUrl.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-            >
-              Связаться <ArrowUpRight size={24} />
-            </a>
+            </section>
           )}
-          <div className="bio-footer-bottom">
-            <span>© {new Date().getFullYear()} {handle}</span>
-            <div>
-              {socialLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target={link.href.startsWith('mailto:') ? undefined : '_blank'}
-                  rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                >
-                  {link.label}
-                </a>
-              ))}
-              {(profile.cvUrl || profile.cv_url) && (
-                <a href={profile.cvUrl || profile.cv_url} target="_blank" rel="noopener noreferrer">CV</a>
-              )}
-            </div>
-            <a href="#top">Наверх ↑</a>
+
+          {shortStack.length > 0 && (
+            <section className="bio-command-block" aria-label="Основной стек">
+              <p className="bio-command"><span>$</span> stack --short</p>
+              <p className="bio-output bio-stack">{shortStack.join('  ·  ')}</p>
+            </section>
+          )}
+
+          {socialLinks.length > 0 && (
+            <section className="bio-command-block" aria-label="Ссылки">
+              <p className="bio-command"><span>$</span> open links</p>
+              <div className="bio-links">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target={link.href.startsWith('mailto:') ? undefined : '_blank'}
+                    rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                  >
+                    [ {link.label} <ArrowUpRight size={13} aria-hidden="true" /> ]
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <div className="bio-terminal-end">
+            <span className="bio-command"><span>$</span> <span className="bio-cursor" aria-hidden="true" /></span>
+            <span className="bio-status"><i aria-hidden="true" />{profile.workPreference?.status || 'building'}{profile.location?.city && <> · {profile.location.city}</>}</span>
           </div>
-        </footer>
-      </div>
+        </div>
+
+        {cv.music?.src && <footer className="bio-terminal-footer"><MusicExperience music={cv.music} /></footer>}
+      </section>
+      <p className="bio-outside-note">{handle} <span>/</span> personal terminal</p>
       <ProjectDialog project={selectedProject} onClose={closeProject} />
     </main>
   )
