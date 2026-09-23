@@ -152,7 +152,47 @@ function normalizeStats(data, username, source) {
       to: data.activity?.to || activityMonths.at(-1)?.days.at(-1)?.date || '',
       months: activityMonths,
     },
+    recentRepos: Array.isArray(data.recentRepos) ? data.recentRepos : [],
     updatedAt: data.updatedAt || null,
+  }
+}
+
+async function fetchPublicStats(username, signal) {
+  const userUrl = 'https://api.github.com/users/' + encodeURIComponent(username)
+  const [userResponse, reposResponse] = await Promise.all([
+    fetch(userUrl, { signal, headers: { Accept: 'application/vnd.github+json' } }),
+    fetch(userUrl + '/repos?sort=updated&per_page=3', { signal, headers: { Accept: 'application/vnd.github+json' } }),
+  ])
+  if (!userResponse.ok || !reposResponse.ok) {
+    throw new Error('GitHub public API request failed')
+  }
+
+  const [user, repos] = await Promise.all([userResponse.json(), reposResponse.json()])
+  if (user.login?.toLowerCase() !== username.toLowerCase() || !Array.isArray(repos)) {
+    throw new Error('GitHub public API returned invalid account data')
+  }
+
+  return {
+    username,
+    source: 'public',
+    profile: {
+      username: user.login,
+      avatarUrl: user.avatar_url || '',
+      url: user.html_url || userUrl,
+      followers: toNullableNumber(user.followers),
+    },
+    stats: {
+      repositories: toNullableNumber(user.public_repos),
+      stars: null,
+      forks: null,
+      contributionsLastYear: null,
+    },
+    languages: [],
+    activity: { from: '', to: '', months: [] },
+    recentRepos: repos
+      .filter((repo) => repo?.name && repo?.html_url)
+      .map((repo) => ({ name: repo.name, url: repo.html_url, language: repo.language || '' })),
+    updatedAt: null,
   }
 }
 
@@ -393,16 +433,19 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
 
       try {
         let nextStats
-        if (hasLiveEndpoint && statsUrl !== STATIC_STATS_URL) {
+        const sources = hasLiveEndpoint
+          ? [[statsUrl, 'live'], [STATIC_STATS_URL, 'snapshot']]
+          : [[STATIC_STATS_URL, 'snapshot']]
+
+        for (const [url, source] of sources) {
           try {
-            nextStats = await fetchStats(statsUrl, 'live')
-          } catch (liveError) {
-            if (liveError.name === 'AbortError') throw liveError
-            nextStats = await fetchStats(STATIC_STATS_URL, 'snapshot')
+            nextStats = await fetchStats(url, source)
+            break
+          } catch (sourceError) {
+            if (sourceError.name === 'AbortError') throw sourceError
           }
-        } else {
-          nextStats = await fetchStats(STATIC_STATS_URL, 'snapshot')
         }
+        if (!nextStats) nextStats = await fetchPublicStats(username, controller.signal)
 
         setStats(nextStats)
         setStatus('ready')
@@ -420,7 +463,7 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
   const months = stats?.activity?.months || []
   const languageData = stats?.languages || []
   const updatedAt = formatUpdatedAt(stats?.updatedAt)
-  const activeDays = getActiveDays(months)
+  const activeDays = months.length > 0 ? getActiveDays(months) : null
 
   return (
     <section className="terminal-card terminal-github-card lg:col-span-12" aria-busy={status === 'loading'}>
@@ -429,7 +472,7 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
           {stats?.profile?.avatarUrl && (
             <img className="github-avatar" src={stats.profile.avatarUrl} alt="" />
           )}
-        <p className="terminal-prompt">~/system $ github --stats</p>
+          <p className="terminal-prompt">~/system $ github --stats</p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3">
           <ViewCount githubActivityApiUrl={githubActivityApiUrl} />
@@ -445,50 +488,64 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
 
       {status === 'ready' && stats && (
         <>
-          <div className="github-stat-grid">
-            <StatCard label="CONTRIBUTIONS" hint="за 12 месяцев" value={stats.stats.contributionsLastYear} />
+          <div className={'github-stat-grid' + (months.length === 0 ? ' github-stat-grid-compact' : '')}>
+            {months.length > 0 && <StatCard label="CONTRIBUTIONS" hint="за 12 месяцев" value={stats.stats.contributionsLastYear} />}
             <StatCard label="REPOSITORIES" hint="публичные" value={stats.stats.repositories} />
-            <StatCard label="ACTIVE DAYS" hint="за 3 месяца" value={activeDays} />
+            {months.length > 0 && <StatCard label="ACTIVE DAYS" hint="за 3 месяца" value={activeDays} />}
             <StatCard label="FOLLOWERS" hint="в профиле" value={stats.profile.followers} />
           </div>
 
-          <div className="github-overview-grid">
-            <div className="github-panel github-activity-panel">
-              <div className="github-panel-heading">
-                <div>
-                  <p className="github-panel-title">RECENT ACTIVITY</p>
-                  <p className="github-panel-subtitle">последние 3 месяца</p>
-                </div>
-                {stats.activity.from && stats.activity.to && (
-                  <span className="github-date-range">{stats.activity.from} → {stats.activity.to}</span>
-                )}
-              </div>
+          {(months.length > 0 || languageData.length > 0) && (
+            <div className="github-overview-grid">
+              {months.length > 0 && (
+                <div className="github-panel github-activity-panel">
+                  <div className="github-panel-heading">
+                    <div>
+                      <p className="github-panel-title">RECENT ACTIVITY</p>
+                      <p className="github-panel-subtitle">последние 3 месяца</p>
+                    </div>
+                    {stats.activity.from && stats.activity.to && (
+                      <span className="github-date-range">{stats.activity.from} → {stats.activity.to}</span>
+                    )}
+                  </div>
 
-              {months.length > 0 ? (
-                <div className="github-months" aria-label="GitHub activity за последние три месяца">
-                  {months.map((month) => (
-                    <GithubMonth key={`${month.year}-${month.month}`} month={month} activityTo={stats.activity.to} />
-                  ))}
+                  <div className="github-months" aria-label="GitHub activity за последние три месяца">
+                    {months.map((month) => (
+                      <GithubMonth key={`${month.year}-${month.month}`} month={month} activityTo={stats.activity.to} />
+                    ))}
+                  </div>
+
+                  <div className="github-activity-legend" aria-label="Интенсивность активности">
+                    <span>меньше</span>
+                    <i className="github-day github-day-empty" />
+                    <i className="github-day github-day-low" />
+                    <i className="github-day github-day-medium" />
+                    <i className="github-day github-day-high" />
+                    <span>больше</span>
+                  </div>
                 </div>
-              ) : (
-                <p className="github-empty-copy">Календарь активности пока пуст.</p>
               )}
 
-              <div className="github-activity-legend" aria-label="Интенсивность активности">
-                <span>меньше</span>
-                <i className="github-day github-day-empty" />
-                <i className="github-day github-day-low" />
-                <i className="github-day github-day-medium" />
-                <i className="github-day github-day-high" />
-                <span>больше</span>
-              </div>
+              {languageData.length > 0 && <GithubLanguages languages={languageData} />}
             </div>
+          )}
 
-            <GithubLanguages languages={languageData} />
-          </div>
+          {stats.recentRepos?.length > 0 && (
+            <div className="github-panel github-recent-panel">
+              <p className="github-panel-title">RECENT REPOSITORIES</p>
+              {stats.recentRepos.map((repo) => (
+                <a key={repo.url} href={repo.url} target="_blank" rel="noopener noreferrer" className="github-recent-repo">
+                  <span>{repo.name}</span><small>{repo.language || '—'}</small><ArrowUpRight size={14} />
+                </a>
+              ))}
+            </div>
+          )}
+
+          {stats.source === 'public' && <p className="github-public-note">Публичные данные GitHub. Календарь вкладов сейчас недоступен.</p>}
 
           <div className="github-meta-line">
             {stats.source === 'snapshot' && <span className="github-source-badge">SNAPSHOT</span>}
+            {stats.source === 'public' && <span className="github-source-badge">PUBLIC API</span>}
             {stats.stats.stars > 0 && <span>stars {formatNumber(stats.stats.stars)}</span>}
             {stats.stats.forks > 0 && <span>forks {formatNumber(stats.stats.forks)}</span>}
             {updatedAt && <span>обновлено {updatedAt}</span>}
