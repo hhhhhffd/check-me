@@ -35,14 +35,14 @@ npm run dev
    npx wrangler deploy
    ```
 
-5. В `public/cv.jsonc`, рядом с `profile.github`, добавьте URL Worker с версионированным endpoint:
+5. Настройте DNS `github-api.<домен сайта>` на Worker. Для локальной разработки укажите рабочий адрес API в `public/cv.jsonc` рядом с `profile.github`:
 
    ```jsonc
    "github": "https://github.com/your-login",
-   "githubActivityApiUrl": "https://github-activity-api.<account>.workers.dev/api/v1/github"
+   "githubActivityApiUrl": "https://github-api.datanomads.cc"
    ```
 
-Worker кэширует данные на один час и обслуживает только `GITHUB_USERNAME`; endpoint вызывается обычным `GET /api/v1/github`, без query-параметра `username`. Для обратной совместимости корневой URL Worker тоже принимается и автоматически дополняется до `/api/v1/github`.
+На опубликованном сайте адрес API автоматически строится как `https://github-api.<домен открытой страницы>/api/v1/github` (префикс `www.` отбрасывается). На `localhost` используется адрес из `cv.jsonc`. Worker кэширует данные на один час и обслуживает только `GITHUB_USERNAME`; endpoint вызывается обычным `GET /api/v1/github`, без query-параметра `username`. Добавьте каждый домен сайта в `ALLOWED_ORIGINS` Worker.
 
 Если Worker или GitHub временно недоступны, сайт пробует последний статический snapshot из `public/github-stats.json`. Обновить snapshot вручную можно так:
 

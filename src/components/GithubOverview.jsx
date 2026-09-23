@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { GithubIcon } from './icons'
 import ViewCount from './ViewCount'
 import { resolveAssetUrl } from '../utils/assetUrl'
+import { getWorkerApiUrl } from '../utils/apiUrl'
 
 const STATIC_STATS_URL = resolveAssetUrl('/github-stats.json')
 const GITHUB_API_PATH = '/api/v1/github'
@@ -34,15 +35,7 @@ function getUsername(githubUrl) {
 }
 
 function getStatsUrl(githubActivityApiUrl) {
-  if (!githubActivityApiUrl) return STATIC_STATS_URL
-
-  try {
-    const url = new URL(githubActivityApiUrl)
-    if (url.pathname === '/' || !url.pathname) url.pathname = GITHUB_API_PATH
-    return url.toString()
-  } catch {
-    return STATIC_STATS_URL
-  }
+  return getWorkerApiUrl(githubActivityApiUrl, GITHUB_API_PATH) || STATIC_STATS_URL
 }
 
 function toNullableNumber(value) {
@@ -386,7 +379,7 @@ function GithubOverview({ githubUrl, githubActivityApiUrl }) {
     if (!username) return undefined
 
     const controller = new AbortController()
-    const hasLiveEndpoint = Boolean(githubActivityApiUrl)
+    const hasLiveEndpoint = statsUrl !== STATIC_STATS_URL
 
     async function fetchStats(url, source) {
       const response = await fetch(url, { signal: controller.signal })
