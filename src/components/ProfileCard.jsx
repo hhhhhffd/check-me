@@ -1,57 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { getWorkerApiUrl } from '../utils/apiUrl'
-import { EyeIcon, FileIcon, GithubIcon, LinkedinIcon, MailIcon, TelegramIcon } from './Icons'
+import { EyeIcon, FileIcon, GithubIcon, LinkedinIcon, MailIcon, TelegramIcon, TrophyIcon } from './Icons'
 
 const VIEWS_API_PATH = '/api/v1/views'
 const VIEWS_SESSION_KEY = 'portfolio:view-counted'
 const LINK_ICONS = { GitHub: GithubIcon, Telegram: TelegramIcon, LinkedIn: LinkedinIcon }
-const TYPE_DELAY = 55
-const ERASE_DELAY = 28
-const HOLD_DELAY = 2200
-
-function useTypewriter(lines, enabled) {
-  const [text, setText] = useState(lines[0] || '')
-  // Зависимость по содержимому, а не по ссылке: массив может пересоздаваться на каждом рендере.
-  const linesKey = lines.join('\n')
-
-  useEffect(() => {
-    if (!enabled || lines.length === 0) {
-      setText(lines[0] || '')
-      return undefined
-    }
-
-    let lineIndex = 0
-    let length = 0
-    let erasing = false
-    let timer
-
-    function step() {
-      const line = lines[lineIndex]
-      if (!erasing && length < line.length) {
-        length += 1
-        timer = window.setTimeout(step, TYPE_DELAY)
-      } else if (!erasing) {
-        erasing = true
-        timer = window.setTimeout(step, HOLD_DELAY)
-      } else if (length > 0) {
-        length -= 1
-        timer = window.setTimeout(step, ERASE_DELAY)
-      } else {
-        erasing = false
-        lineIndex = (lineIndex + 1) % lines.length
-        timer = window.setTimeout(step, TYPE_DELAY * 4)
-      }
-      setText(lines[lineIndex].slice(0, length))
-    }
-
-    setText('')
-    timer = window.setTimeout(step, 400)
-    return () => window.clearTimeout(timer)
-  }, [linesKey, enabled])
-
-  return text
-}
-
 function useViewCount(apiBaseUrl) {
   const [count, setCount] = useState(null)
 
@@ -91,11 +44,8 @@ function useViewCount(apiBaseUrl) {
   return count
 }
 
-function ProfileCard({ profile, lang, t, ui, active, onLangChange, langs, cvHref, avatarSrc }) {
+function ProfileCard({ profile, lang, t, ui, onLangChange, langs, cvHref, avatarSrc }) {
   const cardRef = useRef(null)
-  const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const taglines = t(profile.taglines) || [profile.title]
-  const tagline = useTypewriter(taglines, active && !reducedMotion)
   const views = useViewCount(profile.githubActivityApiUrl)
   const initials = (profile.name?.en || profile.name || '').split(/\s+/).map((word) => word[0]).join('').slice(0, 2)
 
@@ -124,9 +74,8 @@ function ProfileCard({ profile, lang, t, ui, active, onLangChange, langs, cvHref
         ? <img className="avatar" src={avatarSrc} alt="" width="120" height="120" />
         : <span className="avatar avatar-initials" aria-hidden="true">{initials}</span>}
       <h1 className="profile-name">{t(profile.name)}</h1>
-      <p className="profile-tagline" aria-label={taglines.join(', ')}>
-        <span aria-hidden="true">{tagline}</span><i className="caret" aria-hidden="true" />
-      </p>
+      <p className="profile-headline">{t(profile.headline) || profile.title}</p>
+      {profile.badge && <p className="profile-badge"><TrophyIcon size={15} /> {t(profile.badge)}</p>}
       <p className="profile-location">{t(profile.location)} · {profile.timezone}</p>
 
       <ul className="profile-links">

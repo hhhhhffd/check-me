@@ -300,25 +300,24 @@ ul {
   text-shadow: var(--glow);
 }
 
-.profile-tagline {
-  margin-top: 10px;
-  min-height: 1.6em;
-  font: 500 15px/1.6 var(--font-mono);
+.profile-headline {
+  margin-top: 8px;
+  font-size: 17px;
+  font-weight: 500;
   color: var(--muted);
 }
 
-.caret {
-  display: inline-block;
-  width: 2px;
-  height: 1.05em;
-  margin-left: 3px;
-  vertical-align: -0.15em;
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 16px auto 0;
+  padding: 6px 14px;
+  border-radius: 999px;
   background: #fff;
-  animation: caret 1s steps(1) infinite;
-}
-
-@keyframes caret {
-  50% { opacity: 0; }
+  color: var(--ink);
+  font: 600 13px/1.2 var(--font-mono);
+  box-shadow: 0 0 calc(18px + var(--level) * 24px) rgb(255 255 255 / 0.55);
 }
 
 .profile-location {
@@ -1243,7 +1242,6 @@ ul {
 @media (prefers-reduced-motion: reduce) {
   .backdrop,
   .gate-dots,
-  .caret,
   .player-cover.is-playing i,
   .modal[open] .modal-panel {
     animation: none;

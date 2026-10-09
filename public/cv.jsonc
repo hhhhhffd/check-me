@@ -16,11 +16,9 @@
     "title": "Backend / Full-Stack Engineer",
     // Путь к фото, например "/images/avatar.jpg". Пусто — показываются инициалы.
     "avatar": "",
-    // Строки, которые по очереди печатаются под именем на главной карточке.
-    "taglines": {
-      "en": ["Backend / Full-Stack Engineer", "Rust · Python · TypeScript", "1st place · Decentrathon 5.0", "237 endpoints · 1,000+ tests"],
-      "ru": ["Backend / Full-Stack инженер", "Rust · Python · TypeScript", "1-е место · Decentrathon 5.0", "237 эндпоинтов · 1 000+ тестов"]
-    },
+    // Строка под именем на главной карточке и плашка с главной наградой.
+    "headline": { "en": "Backend Engineer · Rust / Python", "ru": "Backend-инженер · Rust / Python" },
+    "badge": { "en": "1st place · Decentrathon 5.0", "ru": "1-е место · Decentrathon 5.0" },
     "languages": ["Rust", "Python", "TypeScript"],
     "summary": {
       "en": "Backend engineer (Rust, Python) who designs and ships complete systems solo — API, database, frontend and deployment.",

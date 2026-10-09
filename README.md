@@ -6,7 +6,7 @@
 
 На главной карточке:
 - `profile.avatar` — путь к фото (например, `/images/avatar.jpg`); если пусто, показываются инициалы;
-- `profile.taglines` — строки, которые по очереди печатаются под именем;
+- `profile.headline` — строка под именем, `profile.badge` — плашка с главной наградой;
 - счётчик просмотров берётся из того же Worker (`/api/v1/views`).
 
 Трек задаётся в блоке `music` (`title`, `artist`, `src`). Текущий — [Meditating Beat из FreePD](https://github.com/0lhi/FreePD/blob/stream/Electronic/Meditating%20Beat.mp3), лицензия [CC0](https://github.com/0lhi/FreePD/blob/stream/LICENSE). Если поставить свой трек, у него должна быть лицензия на публичное использование.
