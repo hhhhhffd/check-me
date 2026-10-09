@@ -32,6 +32,12 @@ const UI = {
     back: 'Back to projects',
     close: 'Close',
     projectsCount: (count) => `${count} projects`,
+    awardsCount: (count) => `${count} awards`,
+    aboutHint: 'Summary',
+    role: 'My role',
+    architecture: 'How it works',
+    skillsHint: 'Pick a skill to see the projects that use it.',
+    usedIn: 'Used in',
     sections: { about: 'About', projects: 'Projects', experience: 'Experience', awards: 'Awards', skills: 'Skills', github: 'GitHub', education: 'Education', languages: 'Languages' },
     loadError: 'The site content failed to load.',
   },
@@ -54,6 +60,12 @@ const UI = {
     back: 'Назад к проектам',
     close: 'Закрыть',
     projectsCount: (count) => `${count} проектов`,
+    awardsCount: (count) => `${count} награды`,
+    aboutHint: 'Коротко',
+    role: 'Моя роль',
+    architecture: 'Как устроено',
+    skillsHint: 'Нажми на навык, чтобы увидеть проекты, где он используется.',
+    usedIn: 'Используется в',
     sections: { about: 'Обо мне', projects: 'Проекты', experience: 'Опыт', awards: 'Награды', skills: 'Стек', github: 'GitHub', education: 'Образование', languages: 'Языки' },
     loadError: 'Не удалось загрузить содержимое сайта.',
   },
@@ -111,13 +123,38 @@ function ProjectBadges({ project, t, ui }) {
   )
 }
 
+const SECTION_IDS = ['about', 'projects', 'experience', 'awards', 'skills', 'github', 'education', 'languages']
+
+// Адрес модалки живёт в hash: #projects, #projects/ratscan. Так на проект можно дать прямую ссылку.
+function parseRoute(hash) {
+  const [section, slug] = hash.replace(/^#/, '').split('/')
+  return SECTION_IDS.includes(section) ? { section, slug: section === 'projects' ? slug || null : null } : { section: null, slug: null }
+}
+
+function routeHash(route) {
+  return route.section ? '#' + route.section + (route.slug ? '/' + route.slug : '') : ''
+}
+
+// Навык считается подтверждённым проектом, если встречается в его стеке или английском описании.
+// Короткие названия (Go, SQL) сравниваем с учётом регистра, чтобы не цеплять обычные слова.
+function findProjectsUsing(skill, projects) {
+  const names = skill.replace(/\(.*?\)/g, '').split('/').map((part) => part.trim().replace(/\s\d+$/, '')).filter(Boolean)
+  return projects.filter((project) => {
+    const text = [project.stack?.join(' '), pick(project.summary, 'en'), ...(pick(project.bullets, 'en') || []), pick(project.proof, 'en')].join(' ')
+    return names.some((name) => {
+      const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      return new RegExp('(^|[^\\w-])' + escaped + '(?!\\w)', name.length <= 3 ? '' : 'i').test(text)
+    })
+  })
+}
+
 function App() {
   const [cv, setCv] = useState(null)
   const [loadError, setLoadError] = useState('')
   const [lang, setLang] = useState(getInitialLang)
   const [entered, setEntered] = useState(false)
-  const [section, setSection] = useState(null)
-  const [project, setProject] = useState(null)
+  const [route, setRoute] = useState(() => parseRoute(window.location.hash))
+  const [skill, setSkill] = useState(null)
   const audio = useAudio(cv?.music?.src ? assetUrl(cv.music.src) : '')
 
   useEffect(() => {
@@ -150,9 +187,31 @@ function App() {
     if (withSound) audio.play()
   }
 
+  useEffect(() => {
+    const onPopState = () => setRoute(parseRoute(window.location.hash))
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  // Открытие модалки добавляет запись в историю — кнопка «назад» в браузере её закрывает.
+  // Переходы внутри модалки (список → проект) заменяют запись, а не плодят новые.
+  function openRoute(path) {
+    const next = parseRoute('#' + path)
+    if (route.section) window.history.replaceState(window.history.state, '', routeHash(next))
+    else window.history.pushState({ modal: true }, '', routeHash(next))
+    setSkill(null)
+    setRoute(next)
+  }
+
   function closeModal() {
-    setSection(null)
-    setProject(null)
+    if (!route.section) return
+    if (window.history.state?.modal) {
+      window.history.back()
+      return
+    }
+    // Модалку открыли по прямой ссылке — возвращаться некуда, просто убираем hash.
+    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    setRoute({ section: null, slug: null })
   }
 
   const ui = UI[lang]
@@ -171,16 +230,18 @@ function App() {
 
   const { profile } = cv
   const cvHref = assetUrl(profile.cvPdf)
+  const section = route.section
+  const project = section === 'projects' && route.slug ? cv.projects.find((item) => item.slug === route.slug) || null : null
 
   const tiles = [
-    { id: 'about', Icon: UserIcon, hint: profile.title },
+    { id: 'about', Icon: UserIcon, hint: ui.aboutHint },
     cv.projects.length > 0 && { id: 'projects', Icon: FolderIcon, hint: ui.projectsCount(cv.projects.length) },
     cv.experience.length > 0 && { id: 'experience', Icon: BriefcaseIcon, hint: cv.experience[0].company },
-    cv.awards.length > 0 && { id: 'awards', Icon: TrophyIcon, hint: t(cv.awards[0].place) + ' · ' + cv.awards[0].event.split(',')[0] },
-    cv.skillGroups.length > 0 && { id: 'skills', Icon: LayersIcon, hint: profile.languages?.join(' · ') },
+    cv.awards.length > 0 && { id: 'awards', Icon: TrophyIcon, hint: ui.awardsCount(cv.awards.length) },
+    cv.skillGroups.length > 0 && { id: 'skills', Icon: LayersIcon, hint: profile.languages?.slice(0, 2).join(' · ') },
     profile.githubUsername && { id: 'github', Icon: GithubIcon, hint: '@' + profile.githubUsername },
-    cv.education.length > 0 && { id: 'education', Icon: CapIcon, hint: formatPeriod(cv.education[0].start, cv.education[0].end, lang) },
-    cv.languages.length > 0 && { id: 'languages', Icon: GlobeIcon, hint: cv.languages.map((item) => t(item.name)).join(' · ') },
+    cv.education.length > 0 && { id: 'education', Icon: CapIcon, hint: cv.education[0].start.slice(0, 4) + ' – ' + (cv.education[0].end || '').slice(0, 4) },
+    cv.languages.length > 0 && { id: 'languages', Icon: GlobeIcon, hint: cv.languages.map((item) => item.code || t(item.name)).join(' · ') },
   ].filter(Boolean)
 
   function renderSection() {
@@ -192,7 +253,11 @@ function App() {
             {profile.highlights?.length > 0 && (
               <ul className="highlights">
                 {profile.highlights.map((item) => (
-                  <li key={t(item.label)}><b>{t(item.value)}</b><span>{t(item.label)}</span></li>
+                  <li key={t(item.label)}>
+                    {item.link
+                      ? <button type="button" onClick={() => openRoute(item.link)}><b>{t(item.value)}</b><span>{t(item.label)} <span aria-hidden="true">→</span></span></button>
+                      : <><b>{t(item.value)}</b><span>{t(item.label)}</span></>}
+                  </li>
                 ))}
               </ul>
             )}
@@ -204,7 +269,7 @@ function App() {
           <ul className="project-list">
             {cv.projects.map((item) => (
               <li key={item.slug}>
-                <button type="button" className="project-card" onClick={() => setProject(item)}>
+                <button type="button" className="project-card" onClick={() => openRoute('projects/' + item.slug)}>
                   <span className="project-card-head">
                     <strong>{item.title}</strong>
                     <span className="project-card-arrow" aria-hidden="true">→</span>
@@ -245,17 +310,39 @@ function App() {
           </ul>
         )
 
-      case 'skills':
+      case 'skills': {
+        const usedIn = skill ? findProjectsUsing(skill, cv.projects) : []
         return (
-          <dl className="skills">
-            {cv.skillGroups.map((group) => (
-              <div key={t(group.name)}>
-                <dt>{t(group.name)}</dt>
-                <dd>{group.skills.map((skill) => <span className="chip" key={skill}>{skill}</span>)}</dd>
-              </div>
-            ))}
-          </dl>
+          <>
+            <div className="skill-usage" aria-live="polite">
+              {skill
+                ? (
+                  <>
+                    <span>{ui.usedIn} <b>{skill}</b>:</span>
+                    {usedIn.map((item) => (
+                      <button type="button" className="badge badge-link" key={item.slug} onClick={() => openRoute('projects/' + item.slug)}>{item.title} →</button>
+                    ))}
+                  </>
+                )
+                : <span className="muted">{ui.skillsHint}</span>}
+            </div>
+            <dl className="skills">
+              {cv.skillGroups.map((group) => (
+                <div key={t(group.name)}>
+                  <dt>{t(group.name)}</dt>
+                  <dd>
+                    {group.skills.map((name) => (
+                      findProjectsUsing(name, cv.projects).length > 0
+                        ? <button type="button" className="chip chip-button" key={name} aria-pressed={skill === name} onClick={() => setSkill(skill === name ? null : name)}>{name}</button>
+                        : <span className="chip" key={name}>{name}</span>
+                    ))}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </>
         )
+      }
 
       case 'github':
         return <GithubActivity username={profile.githubUsername} apiBaseUrl={profile.githubActivityApiUrl} lang={lang} />
@@ -289,8 +376,17 @@ function App() {
         {project.subtitle && <p className="muted">{t(project.subtitle)}</p>}
         <ProjectBadges project={project} t={t} ui={ui} />
         <p className="lead">{t(project.summary)}</p>
+        {project.role && <p className="project-role"><span>{ui.role}</span>{t(project.role)}</p>}
         <Bullets items={t(project.bullets)} />
         {project.proof && <p className="proof"><span aria-hidden="true">✓</span> {t(project.proof)}</p>}
+        {project.architecture?.length > 0 && (
+          <div className="arch">
+            <p className="mono-faint">{ui.architecture}</p>
+            <ol className="arch-flow">
+              {project.architecture.map((step) => <li key={step}>{step}</li>)}
+            </ol>
+          </div>
+        )}
         {project.gallery?.length > 0 && <Gallery images={project.gallery.map(assetUrl)} title={project.title} lang={lang} />}
         <footer className="project-foot">
           {project.stack?.length > 0 && <p className="mono-faint">{project.stack.join(' · ')}</p>}
@@ -333,7 +429,7 @@ function App() {
 
         <nav className="tiles" aria-label={ui.sectionsNav}>
           {tiles.map(({ id, Icon, hint }) => (
-            <button type="button" key={id} className="tile" onClick={() => setSection(id)}>
+            <button type="button" key={id} className="tile" onClick={() => openRoute(id)}>
               <Icon size={22} />
               <span className="tile-name">{ui.sections[id]}</span>
               {hint && <span className="tile-hint">{hint}</span>}
@@ -343,10 +439,10 @@ function App() {
       </main>
 
       <Modal
-        open={section !== null}
+        open={entered && section !== null}
         title={project ? project.title : section && ui.sections[section]}
         eyebrow={project ? ui.sections.projects : null}
-        onBack={project ? () => setProject(null) : null}
+        onBack={project ? () => openRoute('projects') : null}
         onClose={closeModal}
         ui={ui}
       >

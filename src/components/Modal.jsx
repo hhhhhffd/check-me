@@ -5,6 +5,7 @@ import { ArrowLeftIcon, CloseIcon } from './Icons'
 function Modal({ open, title, eyebrow, onClose, onBack, ui, children }) {
   const dialogRef = useRef(null)
   const bodyRef = useRef(null)
+  const titleRef = useRef(null)
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -12,10 +13,13 @@ function Modal({ open, title, eyebrow, onClose, onBack, ui, children }) {
     if (!open && dialog.open) dialog.close()
   }, [open])
 
-  // При переходе внутри модалки (список → проект) начинаем сверху.
+  // При открытии и переходе внутри модалки (список → проект) начинаем сверху и ставим фокус
+  // на заголовок: так скринридер читает, куда попали, а на крестике не висит кольцо фокуса.
   useEffect(() => {
+    if (!open) return
     if (bodyRef.current) bodyRef.current.scrollTop = 0
-  }, [title])
+    titleRef.current?.focus()
+  }, [open, title])
 
   return (
     <dialog
@@ -35,7 +39,7 @@ function Modal({ open, title, eyebrow, onClose, onBack, ui, children }) {
             )}
             <div className="modal-titles">
               {eyebrow && <p className="modal-eyebrow">{eyebrow}</p>}
-              <h2 id="modal-title">{title}</h2>
+              <h2 id="modal-title" ref={titleRef} tabIndex={-1}>{title}</h2>
             </div>
             <button type="button" className="icon-button" onClick={() => dialogRef.current.close()} aria-label={ui.close}>
               <CloseIcon size={18} />

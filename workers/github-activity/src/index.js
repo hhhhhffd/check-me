@@ -3,7 +3,8 @@ const API_PATH = '/api/v1/github'
 const VIEWS_API_PATH = '/api/v1/views'
 const VIEWS_KEY = 'views:total'
 const CACHE_TTL_SECONDS = 60 * 60
-const ACTIVITY_MONTH_COUNT = 3
+// 12 месяцев: календарь вклада за год, GitHub отдаёт его одним запросом (диапазон ≤ 1 года).
+const ACTIVITY_MONTH_COUNT = 12
 const REPOSITORY_PAGE_SIZE = 100
 const LANGUAGE_PAGE_SIZE = 100
 const GITHUB_USERNAME_PATTERN = /^(?!.*--)[a-z\d](?:[a-z\d-]{0,37}[a-z\d])?$/i

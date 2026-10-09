@@ -3,7 +3,8 @@ export function getWorkerApiUrl(baseUrl, apiPath) {
 
   try {
     const hostname = typeof window !== 'undefined' ? window.location.hostname.replace(/^www\./, '') : ''
-    const isLocal = !hostname || hostname === 'localhost' || hostname === '127.0.0.1'
+    // Dev-сервер, открытый по localhost или по IP в локальной сети, ходит на адрес из cv.jsonc.
+    const isLocal = !hostname || hostname === 'localhost' || /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)
     const resolvedBaseUrl = isLocal ? baseUrl : `https://github-api.${hostname}`
     if (!resolvedBaseUrl) return ''
 

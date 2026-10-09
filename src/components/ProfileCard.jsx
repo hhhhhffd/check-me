@@ -59,7 +59,6 @@ function ProfileCard({ profile, lang, t, ui, onLangChange, langs, cvHref, avatar
   const links = [
     ...(profile.links || []).map((link) => ({ label: link.label, href: link.url, Icon: LINK_ICONS[link.label], external: true })),
     profile.email && { label: profile.email, href: 'mailto:' + profile.email, Icon: MailIcon },
-    cvHref && { label: ui.downloadCv, href: cvHref, Icon: FileIcon, download: true },
   ].filter((link) => link && link.Icon)
 
   return (
@@ -76,7 +75,9 @@ function ProfileCard({ profile, lang, t, ui, onLangChange, langs, cvHref, avatar
       <h1 className="profile-name">{t(profile.name)}</h1>
       <p className="profile-headline">{t(profile.headline) || profile.title}</p>
       {profile.badge && <p className="profile-badge"><TrophyIcon size={15} /> {t(profile.badge)}</p>}
-      <p className="profile-location">{t(profile.location)} · {profile.timezone}</p>
+      {profile.status
+        ? <p className="profile-status"><i aria-hidden="true" />{t(profile.status)} · {profile.timezone}</p>
+        : <p className="profile-status">{t(profile.location)} · {profile.timezone}</p>}
 
       <ul className="profile-links">
         {links.map(({ label, href, Icon, external, download }) => (
@@ -93,6 +94,13 @@ function ProfileCard({ profile, lang, t, ui, onLangChange, langs, cvHref, avatar
             </a>
           </li>
         ))}
+        {cvHref && (
+          <li>
+            <a className="profile-cv" href={cvHref} download title={ui.downloadCv}>
+              <FileIcon size={20} /> CV
+            </a>
+          </li>
+        )}
       </ul>
 
       {views !== null && (

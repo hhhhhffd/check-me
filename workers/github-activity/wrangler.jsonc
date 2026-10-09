@@ -4,7 +4,7 @@
 	"compatibility_date": "2026-07-23",
 	"workers_dev": true,
 	"vars": {
-		"ALLOWED_ORIGINS": "http://localhost:5173,https://datanomads.cc",
+		"ALLOWED_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173,http://192.168.10.12:5173,https://datanomads.cc",
 		"GITHUB_USERNAME": "hhhhhffd"
 	},
 	// After creating the namespace, add its returned id here:

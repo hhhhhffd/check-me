@@ -1,7 +1,7 @@
 :root {
   --text: #fbf6ff;
-  --muted: rgb(251 246 255 / 0.72);
-  --faint: rgb(251 246 255 / 0.5);
+  --muted: rgb(251 246 255 / 0.84);
+  --faint: rgb(251 246 255 / 0.7);
   --line: rgb(255 255 255 / 0.16);
   /* Фирменный фиолетовый — rgb(185 0 255). */
   --purple: #b900ff;
@@ -116,6 +116,14 @@ ul {
   filter: brightness(calc(0.82 + var(--level) * 0.3)) saturate(calc(1 + var(--level) * 0.25));
   transition: filter 0.1s linear;
   animation: mesh 22s ease-in-out infinite alternate;
+}
+
+.backdrop::before {
+  /* Виньетка: глушит насыщенность по краям, центр остаётся ярким. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 35%, rgb(20 0 40 / 0.55) 100%);
 }
 
 .backdrop::after {
@@ -308,7 +316,8 @@ ul {
 }
 
 .profile-badge {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
   gap: 7px;
   margin: 16px auto 0;
@@ -320,10 +329,22 @@ ul {
   box-shadow: 0 0 calc(18px + var(--level) * 24px) rgb(255 255 255 / 0.55);
 }
 
-.profile-location {
-  margin-top: 6px;
+.profile-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
   font-size: 14px;
-  color: var(--faint);
+  color: var(--muted);
+}
+
+.profile-status i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px rgb(157 255 200 / 0.25), 0 0 10px var(--ok);
 }
 
 .profile-links {
@@ -342,6 +363,18 @@ ul {
   border-radius: 14px;
   filter: drop-shadow(0 0 8px rgb(255 255 255 / 0.6));
   transition: transform 0.2s ease, background 0.2s ease, filter 0.2s ease;
+}
+
+.profile-links .profile-cv {
+  width: auto;
+  display: flex;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.12);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font: 600 14px/1 var(--font-mono);
+  text-decoration: none;
 }
 
 .profile-links a:hover {
@@ -553,9 +586,9 @@ ul {
 }
 
 .modal::backdrop {
-  background: rgb(26 0 48 / 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgb(26 0 48 / 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .modal[open] .modal-panel {
@@ -602,6 +635,10 @@ ul {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--faint);
+}
+
+.modal-head h2:focus {
+  outline: none;
 }
 
 .modal-head h2 {
@@ -731,6 +768,28 @@ ul {
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
+.highlights li:has(button) {
+  padding: 0;
+}
+
+.highlights button {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.highlights button:hover {
+  background: rgb(255 255 255 / 0.1);
+}
+
 .highlights b {
   font: 700 30px/1.1 var(--font-body);
   text-shadow: var(--glow);
@@ -815,6 +874,47 @@ ul {
 
 .project-links a:hover {
   text-decoration: underline;
+}
+
+.project-role {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 15px;
+}
+
+.project-role span {
+  font: 500 12px/1.9 var(--font-mono);
+  color: var(--faint);
+}
+
+.arch > * + * {
+  margin-top: 10px;
+}
+
+.arch-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.arch-flow li {
+  display: flex;
+  align-items: center;
+  font: 500 12.5px/1.3 var(--font-mono);
+}
+
+.arch-flow li::before {
+  content: '→';
+  margin: 0 8px;
+  color: var(--faint);
+}
+
+.arch-flow li:first-child::before {
+  content: none;
 }
 
 /* gallery */
@@ -977,7 +1077,43 @@ ul {
   transition: background 0.2s ease, color 0.2s ease;
 }
 
-.chip:hover {
+.chip-button {
+  border: 0;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.4);
+}
+
+.chip-button:hover,
+.chip-button[aria-pressed='true'] {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 0 14px rgb(255 255 255 / 0.5);
+}
+
+.skill-usage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 14px;
+}
+
+.skill-usage + .skills {
+  margin-top: 20px;
+}
+
+.badge-link {
+  border: 0;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.badge-link:hover {
   background: #fff;
   color: var(--ink);
 }
@@ -1001,12 +1137,29 @@ ul {
 
 /* github */
 
-.gh > * + * {
-  margin-top: 22px;
+.gh {
+  padding-top: 12px;
 }
 
-.gh-note a {
-  text-decoration: underline;
+.gh > * + * {
+  margin-top: 28px;
+}
+
+.gh h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.gh-window > * + * {
+  margin-top: 16px;
+}
+
+.gh-window-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
 }
 
 .gh-hero {
@@ -1026,7 +1179,7 @@ ul {
 
 .gh-tiles {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -1043,7 +1196,6 @@ ul {
 
 .gh-tiles b {
   font: 700 20px/1.2 var(--font-body);
-  overflow-wrap: anywhere;
 }
 
 .gh-tiles span {
@@ -1052,55 +1204,39 @@ ul {
   color: var(--muted);
 }
 
-.gh-activity figcaption {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 4px 16px;
-  margin-bottom: 10px;
-  font-weight: 600;
-}
-
-.gh-hover {
-  font: 400 12px/1.6 var(--font-mono);
-  color: var(--faint);
+.gh-activity {
+  /* Клетки подстраиваются под ширину модалки и число недель (11 или 52). */
+  container-type: inline-size;
+  /* Незарегистрированное свойство подставляется у потомков, поэтому cqi считается от этого контейнера. */
+  --cell: clamp(9px, calc((100cqi - 36px) / var(--weeks) - 3px), 20px);
 }
 
 .gh-heatmap {
-  --cell: 24px;
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.gh-weekdays,
-.gh-week {
   display: grid;
+  grid-template-columns: 30px repeat(var(--weeks), var(--cell));
   grid-template-rows: 16px repeat(7, var(--cell));
-  gap: 4px;
-  flex: none;
+  gap: 3px;
 }
 
-.gh-weekdays span {
-  padding-right: 4px;
-  font: 400 10px/var(--cell) var(--font-mono);
+.gh-weekday,
+.gh-month {
+  font: 400 10px/1 var(--font-mono);
   color: var(--faint);
+  white-space: nowrap;
+  align-self: center;
 }
 
 .gh-month {
-  font: 400 10px/16px var(--font-mono);
-  color: var(--faint);
-  white-space: nowrap;
-  width: var(--cell);
+  /* Подпись месяца шире клетки — свободно заходит на соседние колонки. */
+  width: 0;
   overflow: visible;
 }
 
 .gh-day {
   display: block;
-  width: var(--cell, 16px);
-  height: var(--cell, 16px);
-  border-radius: 5px;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 3px;
   background: rgb(255 255 255 / 0.1);
   transition: transform 0.12s ease;
 }
@@ -1109,32 +1245,38 @@ ul {
 .gh-day.l2 { background: rgb(255 255 255 / 0.5); }
 .gh-day.l3 { background: rgb(255 255 255 / 0.75); }
 .gh-day.l4 { background: #fff; box-shadow: 0 0 8px rgb(255 255 255 / 0.9); }
-.gh-day.is-hovered { transform: scale(1.3); box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px #fff; }
-.gh-pad { visibility: hidden; }
+.gh-day.is-hovered { transform: scale(1.35); box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px #fff; }
+
+.gh-caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 16px;
+  margin-top: 10px;
+  max-width: calc(33px + var(--weeks) * (var(--cell) + 3px));
+}
+
+.gh-hover {
+  font: 400 12px/1.4 var(--font-mono);
+  color: var(--faint);
+}
 
 .gh-legend {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 4px;
-  margin-top: 8px;
   font: 400 11px/1 var(--font-mono);
   color: var(--faint);
 }
 
 .gh-legend i {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  width: 11px;
+  height: 11px;
+  margin: 0 1px;
 }
 
-.gh-legend span {
-  margin: 0 4px;
-}
-
-.gh-subtitle {
-  margin-bottom: 10px;
-  font-weight: 600;
+.gh-langs > * + * {
+  margin-top: 12px;
 }
 
 .gh-lang-bar {
@@ -1146,7 +1288,6 @@ ul {
 }
 
 .gh-lang-list {
-  margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px 16px;
@@ -1166,13 +1307,19 @@ ul {
   color: var(--faint);
 }
 
-.gh-profile {
+.gh-profile,
+.gh-fallback {
   display: inline-block;
   font: 500 13px/1 var(--font-mono);
   text-decoration: none;
 }
 
-.gh-profile:hover {
+.gh-fallback {
+  font-size: 18px;
+}
+
+.gh-profile:hover,
+.gh-fallback:hover {
   text-decoration: underline;
 }
 
@@ -1203,13 +1350,6 @@ ul {
     from { transform: translateY(40%); opacity: 0; }
   }
 
-  .gh-tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .gh-heatmap {
-    --cell: 20px;
-  }
 
   .skills > div,
   .awards li {

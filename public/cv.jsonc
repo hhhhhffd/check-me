@@ -19,16 +19,18 @@
     // Строка под именем на главной карточке и плашка с главной наградой.
     "headline": { "en": "Backend Engineer · Rust / Python", "ru": "Backend-инженер · Rust / Python" },
     "badge": { "en": "1st place · Decentrathon 5.0", "ru": "1-е место · Decentrathon 5.0" },
+    // Статус поиска работы под плашкой. Уберите поле, если не ищете.
+    "status": { "en": "Open to work · remote / Oskemen", "ru": "Открыт к работе · удалённо / Усть-Каменогорск" },
     "languages": ["Rust", "Python", "TypeScript"],
     "summary": {
       "en": "Backend engineer (Rust, Python) who designs and ships complete systems solo — API, database, frontend and deployment.",
       "ru": "Backend-инженер (Rust, Python): в одиночку проектирую и довожу до продакшена системы целиком — API, база данных, фронтенд и деплой."
     },
     "highlights": [
-      { "value": "237", "label": { "en": "API endpoints in one Rust platform", "ru": "эндпоинтов API в одной Rust-платформе" } },
-      { "value": "1,000+", "label": { "en": "automated tests on the same platform", "ru": "автотестов на той же платформе" } },
-      { "value": { "en": "1st", "ru": "1-е" }, "label": { "en": "place at Decentrathon 5.0 as sole developer", "ru": "место на Decentrathon 5.0 — единственный разработчик команды" } },
-      { "value": "100+", "label": { "en": "defect reports filed as QA at APARU", "ru": "баг-репортов в QA в APARU" } }
+      // link — куда ведёт клик: "projects/<slug>" или id раздела.
+      { "value": "237", "label": { "en": "API endpoints in Discord Bot Control Plane", "ru": "эндпоинтов API в Discord Bot Control Plane" }, "link": "projects/discord-control-plane" },
+      { "value": "1,000+", "label": { "en": "automated tests in the same project", "ru": "автотестов в том же проекте" }, "link": "projects/discord-control-plane" },
+      { "value": "100+", "label": { "en": "defect reports filed as QA at APARU", "ru": "баг-репортов в QA в APARU" }, "link": "experience" }
     ],
     "location": { "en": "Oskemen, Kazakhstan", "ru": "Усть-Каменогорск, Казахстан" },
     "timezone": "UTC+5",
@@ -55,7 +57,10 @@
     {
       "slug": "discord-control-plane",
       "title": "Discord Bot Control Plane",
+      "subtitle": { "en": "Multi-tenant Discord bot hosting", "ru": "Мультитенантный хостинг Discord-ботов" },
       "private": true,
+      // Схема из шагов: как данные или запросы проходят через систему.
+      "architecture": ["React admin console & dashboards", "REST/SSE API · Rust", "PostgreSQL · 45 migrations", "Rust control plane", "systemd-isolated bot workers"],
       "stack": ["Rust", "PostgreSQL", "React", "systemd"],
       "summary": {
         "en": "Multi-tenant platform that runs isolated Discord bots with a full ticket/support system, admin console, user dashboard and Discord Activity.",
@@ -79,6 +84,7 @@
     {
       "slug": "ratscan",
       "title": "RatScan",
+      "architecture": [".jar upload", "JVM class-file parser", "Control-flow + taint tracking", "81 YAML rules", "Verdict + VirusTotal cache in PostgreSQL", "Telegram bot"],
       "subtitle": { "en": "Static malware analysis for Minecraft mods", "ru": "Статический анализ вредоносных Minecraft-модов" },
       "private": true,
       "stack": ["Rust", "PostgreSQL", "VirusTotal API", "Telegram Bot"],
@@ -108,6 +114,7 @@
       "title": "k0t1k",
       "subtitle": { "en": "Agricultural subsidy scoring", "ru": "Скоринг заявок на агросубсидии" },
       "award": { "en": "1st place · Decentrathon 5.0", "ru": "1-е место · Decentrathon 5.0" },
+      "role": { "en": "Sole developer of the team", "ru": "Единственный разработчик в команде" },
       "stack": ["Python", "FastAPI", "LightGBM", "SHAP", "PostgreSQL", "Redis", "Docker"],
       "summary": {
         "en": "Explainable merit-based scoring of agricultural subsidy applications for review committees.",
@@ -147,6 +154,7 @@
       "title": "Pulse 109",
       "subtitle": { "en": "AI triage for public services", "ru": "AI-маршрутизация обращений граждан" },
       "context": "GovTech Camp 2026 · BAITC / inDrive / Astana Hub",
+      "role": { "en": "Architecture & ML lead, team of 2", "ru": "Архитектура и ML, команда из 2 человек" },
       "stack": ["Python", "Prophet", "PostgreSQL", "Qdrant"],
       "summary": {
         "en": "Suggests topic, priority and recipient for citizen requests to the 109 service; analytics and forecasting for managers.",
@@ -192,7 +200,9 @@
     {
       "slug": "dales-portal",
       "title": "DALES Student Portal",
+      "subtitle": { "en": "College LMS replacement", "ru": "Замена колледжской LMS" },
       "private": true,
+      "architecture": ["College LMS", "6 typed HTML parsers", "Resilient gateway · queue, retries, circuit breaker", "~70 REST endpoints", "Telegram bot · webhooks · iCalendar"],
       "stack": ["Telegram Bot", "iCalendar", "systemd"],
       "summary": {
         "en": "Standalone replacement for a college LMS: scrapes schedule, grades, exams and forum into a fast web app with notifications.",
@@ -299,8 +309,8 @@
   ],
 
   "languages": [
-    { "name": { "en": "Russian", "ru": "Русский" }, "level": { "en": "Native", "ru": "Родной" } },
-    { "name": { "en": "Kazakh", "ru": "Казахский" }, "level": { "en": "Intermediate (B1)", "ru": "Средний (B1)" } },
-    { "name": { "en": "English", "ru": "Английский" }, "level": { "en": "Pre-intermediate (A2–B1)", "ru": "Ниже среднего (A2–B1)" } }
+    { "code": "RU", "name": { "en": "Russian", "ru": "Русский" }, "level": { "en": "Native", "ru": "Родной" } },
+    { "code": "KZ", "name": { "en": "Kazakh", "ru": "Казахский" }, "level": { "en": "Intermediate (B1)", "ru": "Средний (B1)" } },
+    { "code": "EN", "name": { "en": "English", "ru": "Английский" }, "level": { "en": "Pre-intermediate (A2–B1)", "ru": "Ниже среднего (A2–B1)" } }
   ]
 }
