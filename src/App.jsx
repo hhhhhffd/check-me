@@ -7,7 +7,7 @@ import GithubActivity from './components/GithubActivity'
 import Gallery from './components/Gallery'
 import Modal from './components/Modal'
 import { ExternalLink, WithMetrics } from './components/Text'
-import { BriefcaseIcon, CapIcon, FolderIcon, GithubIcon, LayersIcon, MailIcon, TrophyIcon, UserIcon } from './components/Icons'
+import { BriefcaseIcon, CapIcon, FolderIcon, GithubIcon, GlobeIcon, LayersIcon, TrophyIcon, UserIcon } from './components/Icons'
 
 const LANGS = ['en', 'ru']
 const LANG_STORAGE_KEY = 'portfolio:lang'
@@ -32,10 +32,7 @@ const UI = {
     back: 'Back to projects',
     close: 'Close',
     projectsCount: (count) => `${count} projects`,
-    sections: { about: 'About', projects: 'Projects', experience: 'Experience', awards: 'Awards', skills: 'Skills', github: 'GitHub', education: 'Education', contact: 'Contact' },
-    languages: 'Languages',
-    contactLead: 'Reach me by email or Telegram.',
-    phone: 'Phone',
+    sections: { about: 'About', projects: 'Projects', experience: 'Experience', awards: 'Awards', skills: 'Skills', github: 'GitHub', education: 'Education', languages: 'Languages' },
     loadError: 'The site content failed to load.',
   },
   ru: {
@@ -57,10 +54,7 @@ const UI = {
     back: 'Назад к проектам',
     close: 'Закрыть',
     projectsCount: (count) => `${count} проектов`,
-    sections: { about: 'Обо мне', projects: 'Проекты', experience: 'Опыт', awards: 'Награды', skills: 'Стек', github: 'GitHub', education: 'Образование', contact: 'Контакты' },
-    languages: 'Языки',
-    contactLead: 'Связаться со мной можно по почте или в Telegram.',
-    phone: 'Телефон',
+    sections: { about: 'Обо мне', projects: 'Проекты', experience: 'Опыт', awards: 'Награды', skills: 'Стек', github: 'GitHub', education: 'Образование', languages: 'Языки' },
     loadError: 'Не удалось загрузить содержимое сайта.',
   },
 }
@@ -185,8 +179,8 @@ function App() {
     cv.awards.length > 0 && { id: 'awards', Icon: TrophyIcon, hint: t(cv.awards[0].place) + ' · ' + cv.awards[0].event.split(',')[0] },
     cv.skillGroups.length > 0 && { id: 'skills', Icon: LayersIcon, hint: profile.languages?.join(' · ') },
     profile.githubUsername && { id: 'github', Icon: GithubIcon, hint: '@' + profile.githubUsername },
-    (cv.education.length > 0 || cv.languages.length > 0) && { id: 'education', Icon: CapIcon, hint: cv.languages.map((item) => t(item.name)).join(' · ') },
-    { id: 'contact', Icon: MailIcon, hint: profile.email },
+    cv.education.length > 0 && { id: 'education', Icon: CapIcon, hint: formatPeriod(cv.education[0].start, cv.education[0].end, lang) },
+    cv.languages.length > 0 && { id: 'languages', Icon: GlobeIcon, hint: cv.languages.map((item) => t(item.name)).join(' · ') },
   ].filter(Boolean)
 
   function renderSection() {
@@ -267,41 +261,21 @@ function App() {
         return <GithubActivity username={profile.githubUsername} apiBaseUrl={profile.githubActivityApiUrl} lang={lang} />
 
       case 'education':
-        return (
-          <>
-            {cv.education.map((item) => (
-              <article className="entry" key={item.start}>
-                <p className="mono-faint">{formatPeriod(item.start, item.end, lang)}</p>
-                <h3>{t(item.school)}</h3>
-                <p className="muted">{t(item.degree)}</p>
-              </article>
-            ))}
-            {cv.languages.length > 0 && (
-              <>
-                <h3 className="subheading">{ui.languages}</h3>
-                <dl className="spoken">
-                  {cv.languages.map((item) => (
-                    <div key={t(item.name)}><dt>{t(item.name)}</dt><dd>{t(item.level)}</dd></div>
-                  ))}
-                </dl>
-              </>
-            )}
-          </>
-        )
+        return cv.education.map((item) => (
+          <article className="entry" key={item.start}>
+            <p className="mono-faint">{formatPeriod(item.start, item.end, lang)}</p>
+            <h3>{t(item.school)}</h3>
+            <p className="muted">{t(item.degree)}</p>
+          </article>
+        ))
 
-      case 'contact':
+      case 'languages':
         return (
-          <>
-            <p className="muted">{ui.contactLead}</p>
-            {profile.email && <a className="contact-email" href={'mailto:' + profile.email}>{profile.email}</a>}
-            <ul className="contact-list">
-              {profile.links?.map((link) => (
-                <li key={link.url}><span>{link.label}</span><ExternalLink href={link.url}>{link.handle}</ExternalLink></li>
-              ))}
-              {profile.phone && <li><span>{ui.phone}</span><a href={'tel:' + profile.phone.replace(/\s/g, '')}>{profile.phone}</a></li>}
-              {cvHref && <li><span>PDF</span><a href={cvHref} download>{ui.downloadCv}</a></li>}
-            </ul>
-          </>
+          <dl className="spoken">
+            {cv.languages.map((item) => (
+              <div key={t(item.name)}><dt>{t(item.name)}</dt><dd>{t(item.level)}</dd></div>
+            ))}
+          </dl>
         )
 
       default:

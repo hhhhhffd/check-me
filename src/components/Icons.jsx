@@ -139,3 +139,10 @@ export const CloseIcon = (props) => (
     <path d="M6 6l12 12M18 6 6 18" />
   </Svg>
 )
+
+export const GlobeIcon = (props) => (
+  <Svg {...props}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+  </Svg>
+)
