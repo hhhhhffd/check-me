@@ -164,6 +164,10 @@
           "Собрал бэктестинг прогнозов на 83K реальных обращений: Prophet снизил WAPE на 30 дней с 0.474 до 0.457, а promotion gate оставлял сезонный baseline на горизонтах, где тот точнее."
         ]
       },
+      "proof": {
+        "en": "Backtested on 83K real requests · 30-day WAPE 0.474 → 0.457",
+        "ru": "Бэктест на 83K реальных обращений · WAPE на 30 дней 0.474 → 0.457"
+      },
       "links": [{ "label": "GitHub", "url": "https://github.com/hhhhhffd/pulse109" }]
     },
     {

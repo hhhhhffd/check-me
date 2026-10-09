@@ -86,8 +86,56 @@ export const MuteIcon = (props) => (
   </Svg>
 )
 
-export const ArrowDownIcon = (props) => (
+export const UserIcon = (props) => (
   <Svg {...props}>
-    <path d="M12 5v14M6 13l6 6 6-6" />
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </Svg>
+)
+
+export const FolderIcon = (props) => (
+  <Svg {...props}>
+    <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <path d="m10 11-2 2 2 2M14 11l2 2-2 2" />
+  </Svg>
+)
+
+export const BriefcaseIcon = (props) => (
+  <Svg {...props}>
+    <rect x="3" y="7" width="18" height="13" rx="2.5" />
+    <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18" />
+  </Svg>
+)
+
+export const TrophyIcon = (props) => (
+  <Svg {...props}>
+    <path d="M7 4h10v5a5 5 0 0 1-10 0z" />
+    <path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8M9 18h6" />
+  </Svg>
+)
+
+export const LayersIcon = (props) => (
+  <Svg {...props}>
+    <path d="m12 3 9 5-9 5-9-5z" />
+    <path d="m3 13 9 5 9-5" />
+  </Svg>
+)
+
+export const CapIcon = (props) => (
+  <Svg {...props}>
+    <path d="m2 9 10-5 10 5-10 5z" />
+    <path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5M22 9v6" />
+  </Svg>
+)
+
+export const ArrowLeftIcon = (props) => (
+  <Svg {...props}>
+    <path d="M19 12H5M11 6l-6 6 6 6" />
+  </Svg>
+)
+
+export const CloseIcon = (props) => (
+  <Svg {...props}>
+    <path d="M6 6l12 12M18 6 6 18" />
   </Svg>
 )

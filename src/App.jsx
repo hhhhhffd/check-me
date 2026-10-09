@@ -5,7 +5,9 @@ import ProfileCard from './components/ProfileCard'
 import MusicPlayer from './components/MusicPlayer'
 import GithubActivity from './components/GithubActivity'
 import Gallery from './components/Gallery'
-import { ArrowDownIcon, PauseIcon, PlayIcon } from './components/Icons'
+import Modal from './components/Modal'
+import { ExternalLink, WithMetrics } from './components/Text'
+import { BriefcaseIcon, CapIcon, FolderIcon, GithubIcon, LayersIcon, MailIcon, TrophyIcon, UserIcon } from './components/Icons'
 
 const LANGS = ['en', 'ru']
 const LANG_STORAGE_KEY = 'portfolio:lang'
@@ -24,11 +26,14 @@ const UI = {
     unmute: 'Unmute',
     seek: 'Track position',
     playbackError: 'The track failed to play. Press play to try again.',
-    scroll: 'CV below',
-    sectionsNav: 'Sections',
+    sectionsNav: 'CV sections',
     private: 'Private',
-    nav: { about: 'About', projects: 'Projects', experience: 'Experience', skills: 'Skills', contact: 'Contact' },
-    sections: { about: 'About', projects: 'Projects', experience: 'Experience', awards: 'Awards', skills: 'Skills', education: 'Education', languages: 'Languages', contact: 'Contact' },
+    details: 'Details',
+    back: 'Back to projects',
+    close: 'Close',
+    projectsCount: (count) => `${count} projects`,
+    sections: { about: 'About', projects: 'Projects', experience: 'Experience', awards: 'Awards', skills: 'Skills', github: 'GitHub', education: 'Education', contact: 'Contact' },
+    languages: 'Languages',
     contactLead: 'Reach me by email or Telegram.',
     phone: 'Phone',
     loadError: 'The site content failed to load.',
@@ -46,20 +51,19 @@ const UI = {
     unmute: 'Включить звук',
     seek: 'Позиция трека',
     playbackError: 'Трек не воспроизвёлся. Нажми play, чтобы попробовать ещё раз.',
-    scroll: 'Резюме ниже',
-    sectionsNav: 'Разделы',
+    sectionsNav: 'Разделы резюме',
     private: 'Закрытый',
-    nav: { about: 'Обо мне', projects: 'Проекты', experience: 'Опыт', skills: 'Стек', contact: 'Контакты' },
-    sections: { about: 'Обо мне', projects: 'Проекты', experience: 'Опыт', awards: 'Награды', skills: 'Стек', education: 'Образование', languages: 'Языки', contact: 'Контакты' },
+    details: 'Подробнее',
+    back: 'Назад к проектам',
+    close: 'Закрыть',
+    projectsCount: (count) => `${count} проектов`,
+    sections: { about: 'Обо мне', projects: 'Проекты', experience: 'Опыт', awards: 'Награды', skills: 'Стек', github: 'GitHub', education: 'Образование', contact: 'Контакты' },
+    languages: 'Языки',
     contactLead: 'Связаться со мной можно по почте или в Telegram.',
     phone: 'Телефон',
     loadError: 'Не удалось загрузить содержимое сайта.',
   },
 }
-
-// Цифры-метрики (237, 83K, 1,000+, 0.474) выделяются моноширинным шрифтом.
-// Числа внутри идентификаторов (AES-256, v3, B1) и коды вроде HTTP 500 не трогаем.
-const METRIC_PATTERN = /(?<![\w.-])(?<!HTTP )\d+(?:[.,]\d+)*(?:K|\+)?/g
 
 function getInitialLang() {
   try {
@@ -93,32 +97,23 @@ function formatPeriod(start, end, lang) {
   return end ? from + ' – ' + formatMonth(end, lang) : from
 }
 
-function WithMetrics({ text }) {
-  const parts = []
-  let lastIndex = 0
-  for (const match of text.matchAll(METRIC_PATTERN)) {
-    parts.push(text.slice(lastIndex, match.index))
-    parts.push(<b className="metric" key={match.index}>{match[0]}</b>)
-    lastIndex = match.index + match[0].length
-  }
-  parts.push(text.slice(lastIndex))
-  return parts
-}
-
-function ExternalLink({ href, children, className }) {
+function Bullets({ items }) {
+  if (!items?.length) return null
   return (
-    <a className={className} href={href} target="_blank" rel="noopener noreferrer">
-      {children} <span aria-hidden="true">↗</span>
-    </a>
+    <ul className="bullets">
+      {items.map((bullet) => <li key={bullet}><WithMetrics text={bullet} /></li>)}
+    </ul>
   )
 }
 
-function Section({ id, title, children }) {
+function ProjectBadges({ project, t, ui }) {
+  if (!project.award && !project.private && !project.context) return null
   return (
-    <section id={id} className="section" aria-labelledby={id + '-title'}>
-      <h2 id={id + '-title'} className="section-title">{title}</h2>
-      {children}
-    </section>
+    <div className="badges">
+      {project.award && <span className="badge badge-award">{t(project.award)}</span>}
+      {project.private && <span className="badge">{ui.private}</span>}
+      {project.context && <span className="badge">{project.context}</span>}
+    </div>
   )
 }
 
@@ -127,7 +122,8 @@ function App() {
   const [loadError, setLoadError] = useState('')
   const [lang, setLang] = useState(getInitialLang)
   const [entered, setEntered] = useState(false)
-  const [docked, setDocked] = useState(false)
+  const [section, setSection] = useState(null)
+  const [project, setProject] = useState(null)
   const audio = useAudio(cv?.music?.src ? assetUrl(cv.music.src) : '')
 
   useEffect(() => {
@@ -146,16 +142,6 @@ function App() {
     document.querySelector('meta[name="description"]')?.setAttribute('content', pick(cv.meta?.siteDescription, lang) || '')
   }, [cv, lang])
 
-  // Док-панель появляется, когда главная карточка ушла за экран.
-  useEffect(() => {
-    if (!entered) return undefined
-    const hero = document.getElementById('top')
-    if (!hero) return undefined
-    const observer = new IntersectionObserver(([entry]) => setDocked(!entry.isIntersecting), { threshold: 0.15 })
-    observer.observe(hero)
-    return () => observer.disconnect()
-  }, [entered])
-
   function chooseLang(nextLang) {
     setLang(nextLang)
     try {
@@ -168,6 +154,11 @@ function App() {
   function enter(withSound) {
     setEntered(true)
     if (withSound) audio.play()
+  }
+
+  function closeModal() {
+    setSection(null)
+    setProject(null)
   }
 
   const ui = UI[lang]
@@ -186,19 +177,162 @@ function App() {
 
   const { profile } = cv
   const cvHref = assetUrl(profile.cvPdf)
-  const navItems = [
-    'about',
-    cv.projects.length > 0 && 'projects',
-    cv.experience.length > 0 && 'experience',
-    cv.skillGroups.length > 0 && 'skills',
-    'contact',
+
+  const tiles = [
+    { id: 'about', Icon: UserIcon, hint: profile.title },
+    cv.projects.length > 0 && { id: 'projects', Icon: FolderIcon, hint: ui.projectsCount(cv.projects.length) },
+    cv.experience.length > 0 && { id: 'experience', Icon: BriefcaseIcon, hint: cv.experience[0].company },
+    cv.awards.length > 0 && { id: 'awards', Icon: TrophyIcon, hint: t(cv.awards[0].place) + ' · ' + cv.awards[0].event.split(',')[0] },
+    cv.skillGroups.length > 0 && { id: 'skills', Icon: LayersIcon, hint: profile.languages?.join(' · ') },
+    profile.githubUsername && { id: 'github', Icon: GithubIcon, hint: '@' + profile.githubUsername },
+    (cv.education.length > 0 || cv.languages.length > 0) && { id: 'education', Icon: CapIcon, hint: cv.languages.map((item) => t(item.name)).join(' · ') },
+    { id: 'contact', Icon: MailIcon, hint: profile.email },
   ].filter(Boolean)
+
+  function renderSection() {
+    switch (section) {
+      case 'about':
+        return (
+          <>
+            <p className="lead">{t(profile.summary)}</p>
+            {profile.highlights?.length > 0 && (
+              <ul className="highlights">
+                {profile.highlights.map((item) => (
+                  <li key={t(item.label)}><b>{t(item.value)}</b><span>{t(item.label)}</span></li>
+                ))}
+              </ul>
+            )}
+          </>
+        )
+
+      case 'projects':
+        return (
+          <ul className="project-list">
+            {cv.projects.map((item) => (
+              <li key={item.slug}>
+                <button type="button" className="project-card" onClick={() => setProject(item)}>
+                  <span className="project-card-head">
+                    <strong>{item.title}</strong>
+                    <span className="project-card-arrow" aria-hidden="true">→</span>
+                  </span>
+                  {item.subtitle && <span className="muted">{t(item.subtitle)}</span>}
+                  <ProjectBadges project={item} t={t} ui={ui} />
+                  <span className="project-card-summary">{t(item.summary)}</span>
+                  {item.stack?.length > 0 && <span className="mono-faint">{item.stack.join(' · ')}</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )
+
+      case 'experience':
+        return cv.experience.map((job) => (
+          <article className="entry" key={job.company + job.start}>
+            <p className="mono-faint">{formatPeriod(job.start, job.end, lang)}</p>
+            <h3>{t(job.role)} <span className="muted">· {job.company}</span></h3>
+            {job.summary && <p className="muted">{t(job.summary)}</p>}
+            <Bullets items={t(job.bullets)} />
+          </article>
+        ))
+
+      case 'awards':
+        return (
+          <ul className="awards">
+            {cv.awards.map((award) => (
+              <li key={award.event}>
+                <span className="award-place">{t(award.place)}</span>
+                <div>
+                  <h3>{award.event}</h3>
+                  <p className="muted">{award.organizer} · {formatMonth(award.date, lang)}</p>
+                  <p>{t(award.note)}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )
+
+      case 'skills':
+        return (
+          <dl className="skills">
+            {cv.skillGroups.map((group) => (
+              <div key={t(group.name)}>
+                <dt>{t(group.name)}</dt>
+                <dd>{group.skills.map((skill) => <span className="chip" key={skill}>{skill}</span>)}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+
+      case 'github':
+        return <GithubActivity username={profile.githubUsername} apiBaseUrl={profile.githubActivityApiUrl} lang={lang} />
+
+      case 'education':
+        return (
+          <>
+            {cv.education.map((item) => (
+              <article className="entry" key={item.start}>
+                <p className="mono-faint">{formatPeriod(item.start, item.end, lang)}</p>
+                <h3>{t(item.school)}</h3>
+                <p className="muted">{t(item.degree)}</p>
+              </article>
+            ))}
+            {cv.languages.length > 0 && (
+              <>
+                <h3 className="subheading">{ui.languages}</h3>
+                <dl className="spoken">
+                  {cv.languages.map((item) => (
+                    <div key={t(item.name)}><dt>{t(item.name)}</dt><dd>{t(item.level)}</dd></div>
+                  ))}
+                </dl>
+              </>
+            )}
+          </>
+        )
+
+      case 'contact':
+        return (
+          <>
+            <p className="muted">{ui.contactLead}</p>
+            {profile.email && <a className="contact-email" href={'mailto:' + profile.email}>{profile.email}</a>}
+            <ul className="contact-list">
+              {profile.links?.map((link) => (
+                <li key={link.url}><span>{link.label}</span><ExternalLink href={link.url}>{link.handle}</ExternalLink></li>
+              ))}
+              {profile.phone && <li><span>{ui.phone}</span><a href={'tel:' + profile.phone.replace(/\s/g, '')}>{profile.phone}</a></li>}
+              {cvHref && <li><span>PDF</span><a href={cvHref} download>{ui.downloadCv}</a></li>}
+            </ul>
+          </>
+        )
+
+      default:
+        return null
+    }
+  }
+
+  function renderProject() {
+    return (
+      <>
+        {project.subtitle && <p className="muted">{t(project.subtitle)}</p>}
+        <ProjectBadges project={project} t={t} ui={ui} />
+        <p className="lead">{t(project.summary)}</p>
+        <Bullets items={t(project.bullets)} />
+        {project.proof && <p className="proof"><span aria-hidden="true">✓</span> {t(project.proof)}</p>}
+        {project.gallery?.length > 0 && <Gallery images={project.gallery.map(assetUrl)} title={project.title} lang={lang} />}
+        <footer className="project-foot">
+          {project.stack?.length > 0 && <p className="mono-faint">{project.stack.join(' · ')}</p>}
+          {project.links?.length > 0 && (
+            <p className="project-links">
+              {project.links.map((link) => <ExternalLink key={link.url} href={link.url}>{t(link.label)}</ExternalLink>)}
+            </p>
+          )}
+        </footer>
+      </>
+    )
+  }
 
   return (
     <>
-      <div className="backdrop" aria-hidden="true">
-        <i className="blob blob-a" /><i className="blob blob-b" /><i className="blob blob-c" /><i className="blob blob-d" />
-      </div>
+      <div className="backdrop" aria-hidden="true" />
 
       {!entered && (
         <div className="gate">
@@ -209,176 +343,41 @@ function App() {
         </div>
       )}
 
-      <div className={'site' + (entered ? ' is-entered' : '')} inert={entered ? undefined : ''}>
-        <header id="top" className="hero">
-          <ProfileCard
-            profile={profile}
-            lang={lang}
-            langs={LANGS}
-            t={t}
-            ui={ui}
-            active={entered}
-            onLangChange={chooseLang}
-            cvHref={cvHref}
-            avatarSrc={assetUrl(profile.avatar)}
-          />
-          {cv.music?.src && <MusicPlayer music={cv.music} audio={audio} ui={ui} />}
-          <a className="hero-scroll" href="#about"><ArrowDownIcon size={16} /> {ui.scroll}</a>
-        </header>
+      <main className={'site' + (entered ? ' is-entered' : '')} inert={entered ? undefined : ''}>
+        <ProfileCard
+          profile={profile}
+          lang={lang}
+          langs={LANGS}
+          t={t}
+          ui={ui}
+          active={entered}
+          onLangChange={chooseLang}
+          cvHref={cvHref}
+          avatarSrc={assetUrl(profile.avatar)}
+        />
+        {cv.music?.src && <MusicPlayer music={cv.music} audio={audio} ui={ui} />}
 
-        <main className="content">
-          <Section id="about" title={ui.sections.about}>
-            <div className="glass card">
-              <p className="about-summary">{t(profile.summary)}</p>
-              {profile.highlights?.length > 0 && (
-                <ul className="highlights">
-                  {profile.highlights.map((item) => (
-                    <li key={t(item.label)}><b>{t(item.value)}</b><span>{t(item.label)}</span></li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </Section>
-
-          {cv.projects.length > 0 && (
-            <Section id="projects" title={ui.sections.projects}>
-              {cv.projects.map((project) => (
-                <article id={project.slug} className="glass card project" key={project.slug}>
-                  <header className="project-head">
-                    <h3>{project.title}</h3>
-                    {project.subtitle && <p className="project-subtitle">{t(project.subtitle)}</p>}
-                    <div className="project-badges">
-                      {project.award && <span className="badge badge-award">{t(project.award)}</span>}
-                      {project.private && <span className="badge">{ui.private}</span>}
-                      {project.context && <span className="badge">{project.context}</span>}
-                    </div>
-                  </header>
-                  <p className="project-summary">{t(project.summary)}</p>
-                  {t(project.bullets)?.length > 0 && (
-                    <ul className="bullets">
-                      {t(project.bullets).map((bullet) => <li key={bullet}><WithMetrics text={bullet} /></li>)}
-                    </ul>
-                  )}
-                  {project.proof && <p className="proof"><span aria-hidden="true">✓</span> {t(project.proof)}</p>}
-                  {project.gallery?.length > 0 && <Gallery images={project.gallery.map(assetUrl)} title={project.title} lang={lang} />}
-                  <footer className="project-foot">
-                    {project.stack?.length > 0 && <p className="project-stack">{project.stack.join(' · ')}</p>}
-                    {project.links?.length > 0 && (
-                      <p className="project-links">
-                        {project.links.map((link) => <ExternalLink key={link.url} href={link.url}>{t(link.label)}</ExternalLink>)}
-                      </p>
-                    )}
-                  </footer>
-                </article>
-              ))}
-            </Section>
-          )}
-
-          {profile.githubUsername && (
-            <Section id="github" title="GitHub">
-              <div className="glass card">
-                <GithubActivity username={profile.githubUsername} apiBaseUrl={profile.githubActivityApiUrl} lang={lang} />
-              </div>
-            </Section>
-          )}
-
-          {cv.experience.length > 0 && (
-            <Section id="experience" title={ui.sections.experience}>
-              {cv.experience.map((job) => (
-                <article className="glass card" key={job.company + job.start}>
-                  <p className="card-date">{formatPeriod(job.start, job.end, lang)}</p>
-                  <h3 className="card-title">{t(job.role)} <span>· {job.company}</span></h3>
-                  {job.summary && <p className="card-note">{t(job.summary)}</p>}
-                  {t(job.bullets)?.length > 0 && (
-                    <ul className="bullets">
-                      {t(job.bullets).map((bullet) => <li key={bullet}><WithMetrics text={bullet} /></li>)}
-                    </ul>
-                  )}
-                </article>
-              ))}
-            </Section>
-          )}
-
-          {cv.awards.length > 0 && (
-            <Section id="awards" title={ui.sections.awards}>
-              <ul className="glass card awards">
-                {cv.awards.map((award) => (
-                  <li key={award.event}>
-                    <span className="award-place">{t(award.place)}</span>
-                    <div>
-                      <h3 className="card-title">{award.event}</h3>
-                      <p className="card-note">{award.organizer} · {formatMonth(award.date, lang)} — {t(award.note)}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {cv.skillGroups.length > 0 && (
-            <Section id="skills" title={ui.sections.skills}>
-              <div className="glass card">
-                <dl className="skills">
-                  {cv.skillGroups.map((group) => (
-                    <div key={t(group.name)}>
-                      <dt>{t(group.name)}</dt>
-                      <dd>{group.skills.map((skill) => <span className="chip" key={skill}>{skill}</span>)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            </Section>
-          )}
-
-          {(cv.education.length > 0 || cv.languages.length > 0) && (
-            <div className="split">
-              {cv.education.length > 0 && (
-                <Section id="education" title={ui.sections.education}>
-                  {cv.education.map((item) => (
-                    <div className="glass card" key={item.start}>
-                      <p className="card-date">{formatPeriod(item.start, item.end, lang)}</p>
-                      <h3 className="card-title">{t(item.school)}</h3>
-                      <p className="card-note">{t(item.degree)}</p>
-                    </div>
-                  ))}
-                </Section>
-              )}
-              {cv.languages.length > 0 && (
-                <Section id="languages" title={ui.sections.languages}>
-                  <dl className="glass card spoken">
-                    {cv.languages.map((item) => (
-                      <div key={t(item.name)}><dt>{t(item.name)}</dt><dd>{t(item.level)}</dd></div>
-                    ))}
-                  </dl>
-                </Section>
-              )}
-            </div>
-          )}
-
-          <Section id="contact" title={ui.sections.contact}>
-            <div className="glass card contact">
-              <p className="card-note">{ui.contactLead}</p>
-              {profile.email && <a className="contact-email" href={'mailto:' + profile.email}>{profile.email}</a>}
-              <ul className="contact-list">
-                {profile.links?.map((link) => (
-                  <li key={link.url}><span>{link.label}</span><ExternalLink href={link.url}>{link.handle}</ExternalLink></li>
-                ))}
-                {profile.phone && <li><span>{ui.phone}</span><a href={'tel:' + profile.phone.replace(/\s/g, '')}>{profile.phone}</a></li>}
-                {cvHref && <li><span>PDF</span><a href={cvHref} download>{ui.downloadCv}</a></li>}
-              </ul>
-            </div>
-          </Section>
-        </main>
-
-        <nav className={'glass dock' + (docked ? ' is-visible' : '')} aria-label={ui.sectionsNav}>
-          {navItems.map((id) => <a key={id} href={'#' + id} className={'dock-' + id}>{ui.nav[id]}</a>)}
-          {cv.music?.src && (
-            <button type="button" className="dock-music" onClick={audio.toggle} aria-label={audio.playing ? ui.pause : ui.play}>
-              {audio.playing ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
+        <nav className="tiles" aria-label={ui.sectionsNav}>
+          {tiles.map(({ id, Icon, hint }) => (
+            <button type="button" key={id} className="tile" onClick={() => setSection(id)}>
+              <Icon size={22} />
+              <span className="tile-name">{ui.sections[id]}</span>
+              {hint && <span className="tile-hint">{hint}</span>}
             </button>
-          )}
+          ))}
         </nav>
-      </div>
+      </main>
+
+      <Modal
+        open={section !== null}
+        title={project ? project.title : section && ui.sections[section]}
+        eyebrow={project ? ui.sections.projects : null}
+        onBack={project ? () => setProject(null) : null}
+        onClose={closeModal}
+        ui={ui}
+      >
+        {project ? renderProject() : renderSection()}
+      </Modal>
     </>
   )
 }
