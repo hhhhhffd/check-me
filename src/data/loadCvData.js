@@ -111,22 +111,16 @@ export function validateCvData(data) {
     throw new Error('Заполните profile.name и profile.title.')
   }
 
-  const collectionNames = ['experience', 'projects', 'achievements', 'skillGroups', 'education', 'languages']
+  const collectionNames = ['projects', 'experience', 'awards', 'skillGroups', 'education', 'languages']
+  const collections = {}
   for (const collectionName of collectionNames) {
     if (data[collectionName] !== undefined && !Array.isArray(data[collectionName])) {
       throw new Error(`${collectionName} должен быть массивом.`)
     }
+    collections[collectionName] = data[collectionName] || []
   }
 
-  return {
-    ...data,
-    experience: data.experience || [],
-    projects: data.projects || [],
-    achievements: data.achievements || [],
-    skillGroups: data.skillGroups || [],
-    education: data.education || [],
-    languages: data.languages || [],
-  }
+  return { ...data, ...collections }
 }
 
 export async function loadCvData() {
@@ -134,7 +128,7 @@ export async function loadCvData() {
   const response = await fetch(`${baseUrl}cv.jsonc`, { cache: 'no-store' })
 
   if (response.status === 404) {
-    return { status: 'missing' }
+    throw new Error('Файл public/cv.jsonc не найден.')
   }
 
   if (!response.ok) {
@@ -142,5 +136,5 @@ export async function loadCvData() {
   }
 
   const source = await response.text()
-  return { status: 'ready', data: validateCvData(parseJsonc(source)) }
+  return validateCvData(parseJsonc(source))
 }

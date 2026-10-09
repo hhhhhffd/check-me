@@ -1,104 +1,159 @@
-import { motion } from 'framer-motion'
-import { Download, Mail, MapPin } from 'lucide-react'
-import TerminalCard from './TerminalCard'
-import { GithubIcon } from './icons'
+import { useEffect, useRef, useState } from 'react'
+import { getWorkerApiUrl } from '../utils/apiUrl'
+import { EyeIcon, FileIcon, GithubIcon, LinkedinIcon, MailIcon, TelegramIcon } from './Icons'
 
-const LINKEDIN_ICON = (
-  <svg aria-hidden="true" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M19 0H5C2.24 0 0 2.24 0 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5V5c0-2.76-2.24-5-5-5ZM8 19H5V8h3v11ZM6.5 6.73A1.73 1.73 0 1 1 6.5 3a1.73 1.73 0 0 1 0 3.46ZM20 19h-3v-5.6c0-3.37-4-3.11-4 0V19h-3V8h3v1.77c1.4-2.59 7-2.78 7 2.48V19Z" />
-  </svg>
-)
+const VIEWS_API_PATH = '/api/v1/views'
+const VIEWS_SESSION_KEY = 'portfolio:view-counted'
+const LINK_ICONS = { GitHub: GithubIcon, Telegram: TelegramIcon, LinkedIn: LinkedinIcon }
+const TYPE_DELAY = 55
+const ERASE_DELAY = 28
+const HOLD_DELAY = 2200
 
-const TELEGRAM_ICON = (
-  <svg aria-hidden="true" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M21.4 4.6 18.2 20c-.24 1.08-.87 1.35-1.76.84l-4.86-3.58-2.34 2.25c-.26.26-.48.48-.98.48l.35-4.95 9-8.13c.39-.35-.09-.55-.61-.2L6.1 13.57l-4.69-1.47c-1.02-.32-1.04-1.02.21-1.51L20 3.5c.85-.32 1.6.2 1.4 1.1Z" />
-  </svg>
-)
+function useTypewriter(lines, enabled) {
+  const [text, setText] = useState(lines[0] || '')
+  // Зависимость по содержимому, а не по ссылке: массив может пересоздаваться на каждом рендере.
+  const linesKey = lines.join('\n')
 
-function getContactLinks(profile) {
-  const email = profile.email?.replace(/^mailto:/, '')
+  useEffect(() => {
+    if (!enabled || lines.length === 0) {
+      setText(lines[0] || '')
+      return undefined
+    }
 
-  return [
-    { href: profile.github, label: 'GitHub', icon: <GithubIcon className="h-4 w-4" /> },
-    { href: profile.telegram, label: 'Telegram', icon: TELEGRAM_ICON },
-    { href: profile.linkedin, label: 'LinkedIn', icon: LINKEDIN_ICON },
-    { href: email ? `mailto:${email}` : '', label: 'Email', icon: <Mail className="h-4 w-4" /> },
-  ].filter((link) => Boolean(link.href))
+    let lineIndex = 0
+    let length = 0
+    let erasing = false
+    let timer
+
+    function step() {
+      const line = lines[lineIndex]
+      if (!erasing && length < line.length) {
+        length += 1
+        timer = window.setTimeout(step, TYPE_DELAY)
+      } else if (!erasing) {
+        erasing = true
+        timer = window.setTimeout(step, HOLD_DELAY)
+      } else if (length > 0) {
+        length -= 1
+        timer = window.setTimeout(step, ERASE_DELAY)
+      } else {
+        erasing = false
+        lineIndex = (lineIndex + 1) % lines.length
+        timer = window.setTimeout(step, TYPE_DELAY * 4)
+      }
+      setText(lines[lineIndex].slice(0, length))
+    }
+
+    setText('')
+    timer = window.setTimeout(step, 400)
+    return () => window.clearTimeout(timer)
+  }, [linesKey, enabled])
+
+  return text
 }
 
-export default function ProfileCard({ profile }) {
-  const contactLinks = getContactLinks(profile)
-  const location = [profile.location?.city, profile.location?.country].filter(Boolean).join(', ')
-  const availability = profile.workPreference?.status
-  const cvUrl = profile.cvUrl || profile.cv_url
-  const handle = profile.handle || profile.name
+function useViewCount(apiBaseUrl) {
+  const [count, setCount] = useState(null)
+
+  useEffect(() => {
+    const endpoint = getWorkerApiUrl(apiBaseUrl, VIEWS_API_PATH)
+    if (!endpoint) return undefined
+
+    let counted = false
+    try {
+      counted = window.sessionStorage.getItem(VIEWS_SESSION_KEY) === '1'
+      // Отмечаем до запроса, чтобы StrictMode в dev не засчитал просмотр дважды.
+      if (!counted) window.sessionStorage.setItem(VIEWS_SESSION_KEY, '1')
+    } catch (error) {
+      console.warn('sessionStorage недоступен, просмотр может засчитаться повторно:', error)
+    }
+
+    const url = new URL(endpoint)
+    if (counted) url.searchParams.set('increment', '0')
+    const controller = new AbortController()
+
+    fetch(url, { signal: controller.signal, cache: 'no-store' })
+      .then((response) => {
+        if (!response.ok) throw new Error('Views request failed: HTTP ' + response.status)
+        return response.json()
+      })
+      .then((payload) => {
+        const views = Number(payload.views)
+        if (Number.isFinite(views) && views >= 0) setCount(Math.floor(views))
+      })
+      .catch((error) => {
+        if (error.name !== 'AbortError') console.error(error)
+      })
+
+    return () => controller.abort()
+  }, [apiBaseUrl])
+
+  return count
+}
+
+function ProfileCard({ profile, lang, t, ui, active, onLangChange, langs, cvHref, avatarSrc }) {
+  const cardRef = useRef(null)
+  const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const taglines = t(profile.taglines) || [profile.title]
+  const tagline = useTypewriter(taglines, active && !reducedMotion)
+  const views = useViewCount(profile.githubActivityApiUrl)
+  const initials = (profile.name?.en || profile.name || '').split(/\s+/).map((word) => word[0]).join('').slice(0, 2)
+
+  // Блик на стекле следует за курсором.
+  function handlePointerMove(event) {
+    const rect = cardRef.current.getBoundingClientRect()
+    cardRef.current.style.setProperty('--mx', ((event.clientX - rect.left) / rect.width) * 100 + '%')
+    cardRef.current.style.setProperty('--my', ((event.clientY - rect.top) / rect.height) * 100 + '%')
+  }
+
+  const links = [
+    ...(profile.links || []).map((link) => ({ label: link.label, href: link.url, Icon: LINK_ICONS[link.label], external: true })),
+    profile.email && { label: profile.email, href: 'mailto:' + profile.email, Icon: MailIcon },
+    cvHref && { label: ui.downloadCv, href: cvHref, Icon: FileIcon, download: true },
+  ].filter((link) => link && link.Icon)
 
   return (
-    <TerminalCard staticCard className="flex min-h-[360px] flex-col justify-between md:col-span-2 lg:col-span-6 lg:row-span-2">
-      <div>
-        <p className="terminal-prompt">~/system $ whoami</p>
-        <p className="profile-real-name">{profile.name}</p>
-        <motion.h1
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-          className="mt-8 max-w-xl text-4xl font-semibold leading-[0.98] tracking-[-0.045em] text-[#ede9f5] sm:text-6xl md:text-7xl"
-        >
-          {handle}
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.08, ease: 'easeOut' }}
-          className="mt-5 text-lg text-[#b7aed0] md:text-xl"
-        >
-          {profile.title}
-        </motion.p>
-        {(profile.bio || profile.headline) && (
-          <p className="profile-bio">
-            {profile.bio || profile.headline}
-          </p>
-        )}
+    <article className="glass profile-card" ref={cardRef} onPointerMove={handlePointerMove}>
+      <div className="lang-switch" role="group" aria-label={ui.language}>
+        {langs.map((item) => (
+          <button type="button" key={item} aria-pressed={lang === item} onClick={() => onLangChange(item)}>{item.toUpperCase()}</button>
+        ))}
       </div>
 
-      <div className="mt-10 space-y-5">
-        {(availability || location) && (
-          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#8f88a8]">
-            {availability && (
-              <span className="inline-flex items-center gap-2">
-                <span className="availability-dot h-2 w-2 rounded-full bg-[#5eead4]" />
-                {availability}
-              </span>
-            )}
-            {location && (
-              <span className="inline-flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                {location}
-              </span>
-            )}
-          </div>
-        )}
-        <div className="flex flex-wrap gap-2">
-          {contactLinks.map((link) => (
+      {profile.avatar
+        ? <img className="avatar" src={avatarSrc} alt="" width="120" height="120" />
+        : <span className="avatar avatar-initials" aria-hidden="true">{initials}</span>}
+      <h1 className="profile-name">{t(profile.name)}</h1>
+      <p className="profile-tagline" aria-label={taglines.join(', ')}>
+        <span aria-hidden="true">{tagline}</span><i className="caret" aria-hidden="true" />
+      </p>
+      <p className="profile-location">{t(profile.location)} · {profile.timezone}</p>
+
+      <ul className="profile-links">
+        {links.map(({ label, href, Icon, external, download }) => (
+          <li key={href}>
             <a
-              key={link.label}
-              href={link.href}
-              target={link.label === 'Email' ? undefined : '_blank'}
-              rel={link.label === 'Email' ? undefined : 'noopener noreferrer'}
-              className="terminal-button"
+              href={href}
+              title={label}
+              aria-label={label}
+              target={external ? '_blank' : undefined}
+              rel={external ? 'noopener noreferrer' : undefined}
+              download={download || undefined}
             >
-              {link.icon}
-              {link.label}
+              <Icon size={28} />
             </a>
-          ))}
-          {cvUrl && (
-            <a href={cvUrl} target="_blank" rel="noopener noreferrer" className="terminal-button terminal-button-muted">
-              <Download className="h-4 w-4" />
-              Скачать CV
-            </a>
-          )}
-        </div>
-      </div>
-    </TerminalCard>
+          </li>
+        ))}
+      </ul>
+
+      {views !== null && (
+        <p className="profile-views" title={ui.views}>
+          <EyeIcon size={16} /> <span>{new Intl.NumberFormat(lang === 'ru' ? 'ru-RU' : 'en-US').format(views)}</span>
+          <span className="visually-hidden"> {ui.views}</span>
+        </p>
+      )}
+    </article>
   )
 }
+
+export default ProfileCard

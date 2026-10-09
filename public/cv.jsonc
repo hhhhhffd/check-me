@@ -1,175 +1,304 @@
+// Единственный источник контента сайта.
+// Текст, который отличается по языкам, задаётся объектом { "en": ..., "ru": ... }.
+// Всё остальное (ссылки, названия технологий) — обычной строкой.
+// Даты — в формате "YYYY-MM", сайт сам отформатирует их под язык.
 {
   "meta": {
-    "locale": "ru",
-    "siteTitle": "san4ezka — personal.system",
-    "siteDescription": "Фёдор Винокуров — developer / builder. Веб-сервисы, backend, автоматизация и AI-инструменты."
-  },
-
-  "profile": {
-    "handle": "san4ezka",
-    "name": "Фёдор Винокуров",
-    "title": "developer / builder",
-    "headline": "backend · AI · real-time",
-    "bio": "Строю веб-сервисы, backend-системы, автоматизацию и AI-инструменты. От идеи до работающего продукта.",
-    "image": "",
-    "email": "",
-    "telegram": "https://t.me/top_k0te1ka193",
-    "github": "https://github.com/hhhhhffd",
-    "githubActivityApiUrl": "https://github-api.datanomads.cc",
-    "linkedin": "https://www.linkedin.com/in/винокуров-фёдор-1822ab3bb/",
-    "cvUrl": null,
-    "instagram": null,
-    "facebook": null,
-    "youtube": null,
-
-    "location": {
-      "city": "Алматы",
-      "country": "Казахстан",
-      "timezone": "UTC+5"
-    },
-
-    "workPreference": {
-      "status": "coding / building",
-      "formats": ["remote", "hybrid"],
-      "relocation": false
+    "siteTitle": "Fyodor Vinokurov — Backend / Full-Stack Engineer",
+    "siteDescription": {
+      "en": "Backend engineer (Rust, Python) who designs and ships complete systems solo — API, database, frontend and deployment.",
+      "ru": "Backend-инженер (Rust, Python): в одиночку проектирую и довожу до продакшена системы целиком — API, база данных, фронтенд и деплой."
     }
   },
 
-  "about": "Проектирую и поднимаю бэкенд с нуля до продакшена. Люблю системы, где сложная архитектура остаётся за кулисами, а пользователь получает простой и предсказуемый интерфейс.",
+  "profile": {
+    "name": { "en": "Fyodor Vinokurov", "ru": "Фёдор Винокуров" },
+    "title": "Backend / Full-Stack Engineer",
+    // Путь к фото, например "/images/avatar.jpg". Пусто — показываются инициалы.
+    "avatar": "",
+    // Строки, которые по очереди печатаются под именем на главной карточке.
+    "taglines": {
+      "en": ["Backend / Full-Stack Engineer", "Rust · Python · TypeScript", "1st place · Decentrathon 5.0", "237 endpoints · 1,000+ tests"],
+      "ru": ["Backend / Full-Stack инженер", "Rust · Python · TypeScript", "1-е место · Decentrathon 5.0", "237 эндпоинтов · 1 000+ тестов"]
+    },
+    "languages": ["Rust", "Python", "TypeScript"],
+    "summary": {
+      "en": "Backend engineer (Rust, Python) who designs and ships complete systems solo — API, database, frontend and deployment.",
+      "ru": "Backend-инженер (Rust, Python): в одиночку проектирую и довожу до продакшена системы целиком — API, база данных, фронтенд и деплой."
+    },
+    "highlights": [
+      { "value": "237", "label": { "en": "API endpoints in one Rust platform", "ru": "эндпоинтов API в одной Rust-платформе" } },
+      { "value": "1,000+", "label": { "en": "automated tests on the same platform", "ru": "автотестов на той же платформе" } },
+      { "value": { "en": "1st", "ru": "1-е" }, "label": { "en": "place at Decentrathon 5.0 as sole developer", "ru": "место на Decentrathon 5.0 — единственный разработчик команды" } },
+      { "value": "100+", "label": { "en": "defect reports filed as QA at APARU", "ru": "баг-репортов в QA в APARU" } }
+    ],
+    "location": { "en": "Oskemen, Kazakhstan", "ru": "Усть-Каменогорск, Казахстан" },
+    "timezone": "UTC+5",
+    "email": "feder80136@gmail.com",
+    "phone": "+7 708 627 8612",
+    "cvPdf": "/Fyodor-Vinokurov-CV.pdf",
+    "links": [
+      { "label": "GitHub", "handle": "hhhhhffd", "url": "https://github.com/hhhhhffd" },
+      { "label": "Telegram", "handle": "@tovarish_sanechka", "url": "https://t.me/tovarish_sanechka" },
+      { "label": "LinkedIn", "handle": "Fyodor Vinokurov", "url": "https://www.linkedin.com/in/винокуров-фёдор-1822ab3bb/" }
+    ],
+    "githubUsername": "hhhhhffd",
+    "githubActivityApiUrl": "https://github-api.datanomads.cc"
+  },
 
+  // Трек включается по клику на экране входа. Свет за стеклом реагирует на его громкость.
   "music": {
     "title": "Meditating Beat",
-    "artist": "FreePD",
+    "artist": "FreePD (CC0)",
     "src": "/audio/meditating-beat.mp3"
   },
 
-  "now": {
-    "building": ["AI / real-time products"],
-    "learning": ["system design", "reliable infrastructure"],
-    "available": ["interesting collaborations"]
-  },
-
-  "experience": [],
-
   "projects": [
     {
-      "id": 1,
-      "title": "_k0t1k Project",
-      "slug": "k0t1k-project",
-      "date": "2026-04-14",
-      "status": "GOVTECH / AI",
-      "thumbnail": "/images/k0t1k/4.jpg",
+      "slug": "discord-control-plane",
+      "title": "Discord Bot Control Plane",
+      "private": true,
+      "stack": ["Rust", "PostgreSQL", "React", "systemd"],
+      "summary": {
+        "en": "Multi-tenant platform that runs isolated Discord bots with a full ticket/support system, admin console, user dashboard and Discord Activity.",
+        "ru": "Мультитенантная платформа, которая запускает изолированных Discord-ботов: полноценная тикет-система поддержки, админ-консоль, личный кабинет и Discord Activity."
+      },
+      "bullets": {
+        "en": [
+          "Architected a Rust control plane that runs each bot as a systemd-isolated worker, reconciles desired runtime state and hands off secrets over a Unix socket authenticated with HKDF/HMAC, peer credentials and cgroup checks.",
+          "Built a 237-endpoint REST/SSE API on 45 PostgreSQL migrations with Argon2 + TOTP + WebAuthn auth, AES-256-GCM secret storage and row/advisory locking for idempotent Discord side effects."
+        ],
+        "ru": [
+          "Спроектировал control plane на Rust: каждый бот — отдельный воркер в изоляции systemd, система сводит фактическое состояние к желаемому и передаёт секреты через Unix-сокет с аутентификацией HKDF/HMAC, peer credentials и проверкой cgroup.",
+          "Сделал REST/SSE API на 237 эндпоинтов поверх 45 миграций PostgreSQL: аутентификация Argon2 + TOTP + WebAuthn, хранение секретов в AES-256-GCM, row/advisory-блокировки для идемпотентных действий в Discord."
+        ]
+      },
+      "proof": {
+        "en": "794 Rust tests (356 against real PostgreSQL) · 226 Vitest tests across 3 React apps · CI: fmt, lint, clippy -D warnings, test, build",
+        "ru": "794 Rust-теста (356 на реальном PostgreSQL) · 226 Vitest-тестов в 3 React-приложениях · CI: fmt, lint, clippy -D warnings, test, build"
+      }
+    },
+    {
+      "slug": "ratscan",
+      "title": "RatScan",
+      "subtitle": { "en": "Static malware analysis for Minecraft mods", "ru": "Статический анализ вредоносных Minecraft-модов" },
+      "private": true,
+      "stack": ["Rust", "PostgreSQL", "VirusTotal API", "Telegram Bot"],
+      "summary": {
+        "en": "Rust API that statically analyses .jar mods for credential theft, download-and-execute chains and obfuscated loaders without executing them.",
+        "ru": "API на Rust, который статически, без запуска, проверяет .jar-моды на кражу учётных данных, цепочки download-and-execute и обфусцированные загрузчики."
+      },
+      "bullets": {
+        "en": [
+          "Wrote a custom JVM class-file and bytecode parser with control-flow graphs and cross-method taint tracking, so a “malicious” verdict requires a proven chain (e.g. credential read → network send).",
+          "Designed a detection engine with 81 YAML rules in 18 categories, dependency-scope classification and archive-bomb limits.",
+          "Shipped async scan workers with SHA-256 deduplication, VirusTotal v3 enrichment cached in PostgreSQL and a supervised Telegram bot worker."
+        ],
+        "ru": [
+          "Написал собственный парсер class-файлов и байткода JVM с графами потока управления и межметодным taint-анализом: вердикт «вредонос» выносится только при доказанной цепочке (например, чтение учётных данных → отправка по сети).",
+          "Спроектировал движок детекта: 81 YAML-правило в 18 категориях, классификация по области зависимостей, защита от архивных бомб.",
+          "Запустил асинхронные воркеры сканирования с дедупликацией по SHA-256, обогащением через VirusTotal v3 с кэшем в PostgreSQL и Telegram-ботом под супервизором."
+        ]
+      },
+      "proof": {
+        "en": "76 unit tests · 22-fixture regression corpus",
+        "ru": "76 юнит-тестов · регрессионный корпус из 22 образцов"
+      }
+    },
+    {
+      "slug": "k0t1k",
+      "title": "k0t1k",
+      "subtitle": { "en": "Agricultural subsidy scoring", "ru": "Скоринг заявок на агросубсидии" },
+      "award": { "en": "1st place · Decentrathon 5.0", "ru": "1-е место · Decentrathon 5.0" },
+      "stack": ["Python", "FastAPI", "LightGBM", "SHAP", "PostgreSQL", "Redis", "Docker"],
+      "summary": {
+        "en": "Explainable merit-based scoring of agricultural subsidy applications for review committees.",
+        "ru": "Объяснимый скоринг заявок на сельхозсубсидии по заслугам, а не по очереди подачи — в помощь комиссии."
+      },
+      "bullets": {
+        "en": [
+          "Built a 20-feature LightGBM model with per-applicant SHAP explanations and a weight-simulation tool, keeping final decisions with human reviewers; Russian/Kazakh outputs.",
+          "Delivered a 38-endpoint FastAPI backend and 5-service Docker stack (PostgreSQL, Redis, Nginx, Cloudflare Tunnel) with JWT auth and rate limiting."
+        ],
+        "ru": [
+          "Построил модель LightGBM на 20 признаках с SHAP-объяснением для каждого заявителя и симулятором весов; финальное решение остаётся за людьми, объяснения — на русском и казахском.",
+          "Сделал backend на FastAPI с 38 эндпоинтами и Docker-стек из 5 сервисов (PostgreSQL, Redis, Nginx, Cloudflare Tunnel) с JWT-аутентификацией и rate limiting."
+        ]
+      },
+      "proof": { "en": "85 pytest tests", "ru": "85 pytest-тестов" },
+      "links": [
+        { "label": "GitHub", "url": "https://github.com/hhhhhffd/dc-5.0-win-project" },
+        { "label": { "en": "Presentation", "ru": "Презентация" }, "url": "https://hhhhhffd.github.io/dc-5.0-win-project/preza/" },
+        { "label": { "en": "Pitch video", "ru": "Видео питча" }, "url": "https://youtu.be/yAVp_S-rzCY" }
+      ],
       "gallery": [
+        "/images/k0t1k/4.jpg",
         "/images/k0t1k/1.jpg",
         "/images/k0t1k/2.jpg",
         "/images/k0t1k/3.jpg",
-        "/images/k0t1k/4.jpg",
         "/images/k0t1k/5.jpg",
         "/images/k0t1k/6.jpg",
         "/images/k0t1k/7.jpg",
         "/images/k0t1k/8.jpg",
         "/images/k0t1k/9.jpg",
         "/images/k0t1k/10.jpg"
-      ],
-      "tech_stack": ["FastAPI", "React", "TailwindCSS", "LightGBM", "Pandas"],
-      "tags": ["AI", "Machine Learning", "Fullstack", "GovTech", "Hackathon"],
-      "presentation_url": "https://hhhhhffd.github.io/dc-5.0-win-project/preza/",
-      "youtube_pitch_url": "https://youtu.be/yAVp_S-rzCY",
-      "github_url": "https://github.com/hhhhhffd/dc-5.0-win-project",
-      "content-on-card": "Госсубсидии в Казахстане раздавались по принципу «кто первый встал». Мы заменили FIFO на ML-скоринг с объяснимым AI и anti-fraud прямо на хакатоне.",
-      "content": "## Контекст\nГосударственные субсидии фермерам в Казахстане распределялись по принципу first-come-first-served: получает тот, кто раньше подал заявку, а не тот, кто эффективнее использует деньги. Мы пришли на хакатон **Decentrathon 5.0** с идеей это сломать.\n\n## Что построили\nПолноценная система оценки заявок с двухэтапной логикой: сначала жёсткие фильтры отсекают нерелевантные заявки, потом **LightGBM** ранжирует оставшихся по 20 признакам — эффективность хозяйства, история использования средств, потенциал роста.\n\nКаждое решение модели объясняется через **SHAP** — комиссия видит не просто score, а конкретные факторы. Текстовое объяснение генерирует **Qwen LLM** на русском и казахском.\n\nОтдельный блок — **anti-fraud**: аномальные суммы, ночные подачи, паттерны потенциального сговора.\n\n## Стек\n- **ML:** LightGBM, SHAP, scikit-learn, pandas — 5-fold CV валидация\n- **Backend:** FastAPI, PostgreSQL, Redis\n- **Frontend:** React, TailwindCSS\n- **Infra:** Docker Compose, Nginx, Cloudflare Tunnel\n\n## Итог\nПрототип GovTech-системы, где AI помогает комиссии принять обоснованное решение, а не заменяет её. Бюджет распределяется не по скорости подачи, а по реальным данным."
+      ]
     },
     {
-      "id": 2,
-      "title": "QR Taxi miniApps",
-      "slug": "aparu-qr",
-      "date": "2026-04-14",
-      "status": "REAL-TIME / FULLSTACK",
-      "thumbnail": "/images/aparu/1.jpg",
-      "gallery": [
-        "/images/aparu/1.jpg",
-        "/images/aparu/2.png",
-        "/images/aparu/3.png",
-        "/images/aparu/4.png",
-        "/images/aparu/5.jpg",
-        "/images/aparu/6.png",
-        "/images/aparu/7.png"
-      ],
-      "tech_stack": ["FastAPI", "React", "TypeScript", "TailwindCSS", "PostgreSQL", "Redis", "Docker Compose"],
-      "tags": ["Fullstack", "Real-time", "System Design", "Telegram Mini App", "Production-ready"],
-      "presentation_url": "",
-      "youtube_pitch_url": "",
-      "github_url": "https://github.com/hhhhhffd/qr-taxi",
-      "content-on-card": "Сканируешь QR в машине — и ты уже в интерфейсе заказа. Без установки приложения. Web, Telegram Mini App и WeChat H5 работают на одной архитектуре.",
-      "content": "## Идея\nПуть от «хочу такси» до «машина едет» должен быть максимально коротким. Никакой установки, никакой регистрации с нуля — отсканировал QR на стекле и сразу попал в нужный интерфейс на той платформе, которую уже используешь.\n\n## Архитектура\nТри клиентские точки входа — **web, Telegram Mini App, WeChat H5** — подключены к единому backend. Состояние поездки управляется через **детерминированную state machine**: каждый переход явный, никаких «а вдруг». Real-time обновления идут через **WebSocket + Redis Pub/Sub**.\n\nАвторизация адаптируется под платформу: **JWT + Phone OTP** для web, **Telegram initData** для Mini App. Карты через **Aparu Maps API**, интерфейс на двух языках через **i18next**.\n\n## Стек\n- **Backend:** FastAPI, PostgreSQL, Redis, SQLAlchemy Async, Alembic\n- **Frontend:** React, TypeScript, Vite, TailwindCSS\n- **Infra:** Docker Compose, Nginx, Cloudflare Tunnel\n\n## Итог\nСервис, где сложность архитектуры — мультиплатформенность, real-time и несколько схем авторизации — полностью скрыта за простым UX. Пользователь этого не видит — и это правильно."
+      "slug": "pulse-109",
+      "title": "Pulse 109",
+      "subtitle": { "en": "AI triage for public services", "ru": "AI-маршрутизация обращений граждан" },
+      "context": "GovTech Camp 2026 · BAITC / inDrive / Astana Hub",
+      "stack": ["Python", "Prophet", "PostgreSQL", "Qdrant"],
+      "summary": {
+        "en": "Suggests topic, priority and recipient for citizen requests to the 109 service; analytics and forecasting for managers.",
+        "ru": "Подсказывает тему, приоритет и исполнителя для обращений граждан в службу 109; аналитика и прогнозы для руководителей."
+      },
+      "bullets": {
+        "en": [
+          "Led architecture and ML for a 2-person team: defined Core/ML service boundaries and the PostgreSQL + Qdrant design for an 8-service stack.",
+          "Built forecast backtesting on 83K real requests: Prophet reduced 30-day WAPE from 0.474 to 0.457, and a promotion gate kept the seasonal baseline at horizons where it performed better."
+        ],
+        "ru": [
+          "Отвечал за архитектуру и ML в команде из 2 человек: разделил сервисы Core и ML, спроектировал схему PostgreSQL + Qdrant для стека из 8 сервисов.",
+          "Собрал бэктестинг прогнозов на 83K реальных обращений: Prophet снизил WAPE на 30 дней с 0.474 до 0.457, а promotion gate оставлял сезонный baseline на горизонтах, где тот точнее."
+        ]
+      },
+      "links": [{ "label": "GitHub", "url": "https://github.com/hhhhhffd/pulse109" }]
     },
     {
-      "id": 3,
-      "title": "Tinder для стримеров",
-      "slug": "tinder-for-streamer",
-      "date": "2026-04-14",
-      "status": "MATCHING ENGINE",
-      "thumbnail": "/images/tinder-streamer/1.png",
-      "gallery": [
-        "/images/tinder-streamer/1.png",
-        "/images/tinder-streamer/2.png",
-        "/images/tinder-streamer/3.png",
-        "/images/tinder-streamer/4.png",
-        "/images/tinder-streamer/5.png",
-        "/images/tinder-streamer/6.png",
-        "/images/tinder-streamer/7.png",
-        "/images/tinder-streamer/8.png",
-        "/images/tinder-streamer/9.png",
-        "/images/tinder-streamer/10.png"
-      ],
-      "tech_stack": ["FastAPI", "React", "TypeScript", "PostgreSQL", "Redis", "Celery"],
-      "tags": ["Fullstack", "Real-time", "System Design", "Twitch", "Matching Engine"],
-      "presentation_url": "",
-      "youtube_pitch_url": "",
-      "github_url": "https://github.com/hhhhhffd/tinder-for-streamer",
-      "content-on-card": "Twitch-стримеры ищут коллабы в Discord и Twitter. Я сделал Tinder: свайпаешь стримеров своего уровня, матчишься — и сразу в чат.",
-      "content": "## Проблема\nНайти партнёра для совместного стрима — боль. Хаотичный поиск в Discord, холодные DM в Twitter, и всё равно непонятно, совпадаете ли вы по масштабу аудитории. Стример с 10 зрителями и стример с 50k — разные лиги.\n\n## Решение\nМатчинг внутри лиг на основе среднего количества зрителей. Механика Tinder: свайп, матч, real-time чат. Feed приоритизирует тех, кто уже лайкнул тебя, плюс кросс-лиг логика для роста.\n\nДневные лимиты на лайки, super-like и кросс-лиг свайпы — через **атомарные Lua-скрипты в Redis**, без гонок. Twitch-статистика обновляется в фоне через **Celery**.\n\n## Стек\n- **Backend:** FastAPI, PostgreSQL, Redis, SQLAlchemy Async, Alembic, Celery\n- **Frontend:** React, TypeScript, Vite, TailwindCSS, Zustand, TanStack Query\n- **Infra:** Docker Compose, Nginx, Cloudflare Tunnel\n- **Integrations:** Twitch OAuth 2.0, Twitch Helix API, Web Push API\n\n## Итог\nSocial-платформа, где механика честная: ты матчишься с равными по уровню, а не случайными людьми. Под простым UX — конкурентный доступ, асинхронные процессы и интеграция с внешним API."
+      "slug": "linkwatch",
+      "title": "LINKWATCH",
+      "subtitle": { "en": "Network quality monitoring", "ru": "Мониторинг качества интернета" },
+      "stack": ["Rust", "Go", "PostgreSQL"],
+      "summary": {
+        "en": "School internet-line monitoring: edge measurements feed incidents, provider tickets and verified restorations.",
+        "ru": "Мониторинг интернет-каналов в школах: замеры на местах превращаются в инциденты, заявки провайдеру и подтверждённые восстановления."
+      },
+      "bullets": {
+        "en": [
+          "Built a cross-platform (Windows/Linux) Rust edge agent with offline measurement buffering and retries.",
+          "Developed the Go + PostgreSQL server with idempotent ingestion, incident tracking and provider-case workflows over 9 SQL migrations."
+        ],
+        "ru": [
+          "Написал кроссплатформенный (Windows/Linux) агент на Rust с офлайн-буферизацией замеров и повторными отправками.",
+          "Разработал сервер на Go + PostgreSQL: идемпотентный приём данных, учёт инцидентов и работа с заявками провайдеру, 9 SQL-миграций."
+        ]
+      },
+      "links": [{ "label": "GitHub", "url": "https://github.com/hhhhhffd/gov-ethernet-controller" }]
     },
     {
-      "id": 4,
-      "title": "AI-платформа психоэмоционального здоровья",
-      "slug": "psycho-health-platform",
-      "date": "2026-04-14",
-      "status": "HEALTHTECH / AI",
-      "thumbnail": "/images/psyplatform/1.png",
-      "gallery": [
-        "/images/psyplatform/1.png",
-        "/images/psyplatform/2.png",
-        "/images/psyplatform/3.png",
-        "/images/psyplatform/4.png",
-        "/images/psyplatform/5.png",
-        "/images/psyplatform/6.png",
-        "/images/psyplatform/7.png",
-        "/images/psyplatform/8.png",
-        "/images/psyplatform/9.png",
-        "/images/psyplatform/10.png",
-        "/images/psyplatform/11.png"
-      ],
-      "tech_stack": ["FastAPI", "React", "TypeScript", "PostgreSQL", "WebSocket", "TailwindCSS"],
-      "tags": ["Fullstack", "AI", "HealthTech", "Real-time", "Role-based Access"],
-      "presentation_url": "",
-      "youtube_pitch_url": "",
-      "github_url": "https://github.com/hhhhhffd/psycho-health-platform",
-      "content-on-card": "Платформа мониторинга ментального здоровья: тесты → AI-анализ → живой психолог если нужно. LLM-пайплайн отвечает даже когда провайдер лежит.",
-      "content": "## Контекст\nБольшинство HR-инструментов для ментального здоровья — это опросник раз в квартал и PDF с результатами. Хотелось сделать иначе: непрерывный мониторинг, понятная аналитика, и живой психолог доступен без разрыва сценария.\n\n## Что внутри\nПользователь проходит стандартизированные тесты, получает **AI-анализ с персональными рекомендациями** и подборкой курсов. Если ситуация требует — эскалация к психологу прямо в интерфейсе, через **WebSocket** без перезагрузки страницы.\n\nТри роли с разными правами: **user / psychologist / admin**. Психолог видит свою очередь и аналитику, admin — агрегированные данные по организации.\n\nLLM-пайплайн построен с двойным fallback: основной **Groq / LLaMA 3.3 70B**, резервный **Gemini 2.5 Flash**, детерминированный ответ если оба недоступны. Система не ломается от сбоя провайдера.\n\n## Стек\n- **Backend:** FastAPI, PostgreSQL, SQLAlchemy Async, Alembic\n- **Frontend:** React, TypeScript, Vite, TailwindCSS, Zustand\n- **AI / Real-time:** Groq API, Gemini, WebSocket\n- **Infra:** Docker Compose, Nginx, Cloudflare Tunnel\n\n## Итог\nHealthtech-продукт, где AI не заменяет специалиста, а берёт на себя рутину — тесты, первичный анализ, рекомендации. Психолог подключается там, где это действительно нужно."
+      "slug": "dales-portal",
+      "title": "DALES Student Portal",
+      "private": true,
+      "stack": ["Telegram Bot", "iCalendar", "systemd"],
+      "summary": {
+        "en": "Standalone replacement for a college LMS: scrapes schedule, grades, exams and forum into a fast web app with notifications.",
+        "ru": "Самостоятельная замена колледжской LMS: собирает расписание, оценки, экзамены и форум в быстрое веб-приложение с уведомлениями."
+      },
+      "bullets": {
+        "en": [
+          "Built 6 typed HTML parsers behind a resilient upstream gateway (priority queue, single-flight, retries, circuit breaker, stale-cache fallback) and ~70 REST endpoints.",
+          "Implemented an event store with outbox delivery to a Telegram bot (11 commands), HMAC-signed webhooks and iCalendar feeds; per-user credentials encrypted with AES-256-GCM.",
+          "Deployed as a static musl binary under a hardened systemd unit."
+        ],
+        "ru": [
+          "Сделал 6 типизированных HTML-парсеров за отказоустойчивым шлюзом к исходной системе (очередь с приоритетами, single-flight, повторы, circuit breaker, откат на устаревший кэш) и ~70 REST-эндпоинтов.",
+          "Реализовал event store с доставкой через outbox в Telegram-бота (11 команд), вебхуки с HMAC-подписью и iCalendar-ленты; учётные данные пользователей шифруются AES-256-GCM.",
+          "Развёрнут как статический musl-бинарник под защищённым systemd-юнитом."
+        ]
+      },
+      "proof": {
+        "en": "102 automated tests on sanitized HAR-derived fixtures",
+        "ru": "102 автотеста на обезличенных фикстурах из HAR"
+      }
+    }
+  ],
+
+  "experience": [
+    {
+      "company": "APARU LLP",
+      "role": { "en": "QA Engineer & Technical Support", "ru": "QA-инженер и техподдержка" },
+      "start": "2026-07",
+      "end": "2026-08",
+      "summary": {
+        "en": "Manual QA and technical support for the APARU ride-hailing mobile app; data preparation for the ML team.",
+        "ru": "Ручное тестирование и техподдержка мобильного приложения такси APARU; подготовка данных для ML-команды."
+      },
+      "bullets": {
+        "en": [
+          "Performed manual testing of the mobile app and filed 100+ defect reports covering UX/UI issues and backend failures (HTTP 500 errors, e.g. in the payment flow).",
+          "Prepared datasets for the ML team and evaluated AI-powered feature outputs for incorrect or unreliable results.",
+          "Provided technical support, reproducing and triaging user-reported issues."
+        ],
+        "ru": [
+          "Тестировал мобильное приложение вручную и завёл 100+ баг-репортов: проблемы UX/UI и сбои бэкенда (HTTP 500, в том числе в сценарии оплаты).",
+          "Готовил датасеты для ML-команды и проверял ответы AI-функций на ошибки и ненадёжные результаты.",
+          "Вёл техподдержку: воспроизводил и разбирал проблемы, о которых сообщали пользователи."
+        ]
+      }
+    }
+  ],
+
+  "awards": [
+    {
+      "place": { "en": "1st place", "ru": "1-е место" },
+      "event": "Decentrathon 5.0, GOV Case 2",
+      "organizer": "BAITC",
+      "date": "2026-04",
+      "note": {
+        "en": "KZT 2M team prize. Sole developer of the winning subsidy-scoring system.",
+        "ru": "Командный приз 2 млн ₸. Единственный разработчик системы-победителя."
+      }
+    },
+    {
+      "place": { "en": "2nd place", "ru": "2-е место" },
+      "event": "Code Masters Hackathon 4.0",
+      "organizer": "Oskemen HUB",
+      "date": "2025-10",
+      "note": { "en": "Team DataNomads.", "ru": "Команда DataNomads." }
+    },
+    {
+      "place": { "en": "3rd place ×3", "ru": "3-е место ×3" },
+      "event": "Pizza Pitch · Idea Battle · DemoDay",
+      "organizer": "Oskemen HUB",
+      "date": "2025-11",
+      "note": {
+        "en": "Startup pitch competitions, team DataNomads.",
+        "ru": "Питч-конкурсы стартапов, команда DataNomads."
+      }
     }
   ],
 
   "skillGroups": [
-    { "name": "LANGUAGES", "skills": ["Python", "TypeScript", "JavaScript", "SQL"] },
-    { "name": "BACKEND", "skills": ["FastAPI", "REST API", "WebSocket", "Celery"] },
-    { "name": "DATA / AI", "skills": ["PostgreSQL", "Redis", "LightGBM", "SHAP"] },
-    { "name": "FRONTEND", "skills": ["React", "Vite", "TailwindCSS", "Zustand"] },
-    { "name": "INFRA", "skills": ["Docker", "Nginx", "Cloudflare Tunnel", "Git"] }
+    { "name": { "en": "Languages", "ru": "Языки" }, "skills": ["Rust", "Python", "TypeScript", "Go", "SQL"] },
+    { "name": "Backend", "skills": ["Axum", "Tokio", "SQLx", "FastAPI", "SQLAlchemy", "Alembic", "Pydantic", "WebSocket / SSE"] },
+    { "name": "Frontend", "skills": ["React 19", "Vite", "Tailwind CSS", "TanStack Query"] },
+    { "name": { "en": "Data", "ru": "Данные" }, "skills": ["PostgreSQL", "Redis", "SQLite", "Qdrant"] },
+    { "name": { "en": "Security", "ru": "Безопасность" }, "skills": ["Argon2", "TOTP / WebAuthn", "AES-GCM", "HMAC", "Rate limiting"] },
+    { "name": "ML & AI", "skills": ["LightGBM", "SHAP", "Prophet", "NetworkX", "OCR (RapidOCR / ONNX)", "LLM APIs"] },
+    { "name": { "en": "Testing & quality", "ru": "Тесты и качество" }, "skills": ["pytest", "cargo test", "Vitest", "Playwright", "clippy", "mypy"] },
+    { "name": { "en": "Infrastructure", "ru": "Инфраструктура" }, "skills": ["Nginx", "systemd", "Cloudflare Tunnel", "GitHub Actions", "Docker Compose", "Linux"] }
   ],
 
-  "education": [],
-  "achievements": [],
-  "languages": [],
-  "interests": ["backend architecture", "AI", "real-time systems", "automation"]
+  "education": [
+    {
+      "school": {
+        "en": "Higher IT College, D. Serikbayev East Kazakhstan Technical University",
+        "ru": "Высший IT-колледж ВКТУ им. Д. Серикбаева"
+      },
+      "degree": {
+        "en": "Technical college diploma in Software Development",
+        "ru": "Диплом колледжа по специальности «Разработка программного обеспечения»"
+      },
+      "start": "2024-09",
+      "end": "2028-06"
+    }
+  ],
+
+  "languages": [
+    { "name": { "en": "Russian", "ru": "Русский" }, "level": { "en": "Native", "ru": "Родной" } },
+    { "name": { "en": "Kazakh", "ru": "Казахский" }, "level": { "en": "Intermediate (B1)", "ru": "Средний (B1)" } },
+    { "name": { "en": "English", "ru": "Английский" }, "level": { "en": "Pre-intermediate (A2–B1)", "ru": "Ниже среднего (A2–B1)" } }
+  ]
 }
