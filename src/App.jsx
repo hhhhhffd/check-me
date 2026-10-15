@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { loadCvData } from './data/loadCvData'
 import { useAudio } from './useAudio'
+import { prefersReducedMotion } from './utils/motion'
+import Aurora from './components/Aurora'
 import ProfileCard from './components/ProfileCard'
 import MusicPlayer from './components/MusicPlayer'
-import GithubActivity from './components/GithubActivity'
+import GithubActivity, { GithubPreview, useGithubData } from './components/GithubActivity'
 import Gallery from './components/Gallery'
 import Modal from './components/Modal'
-import { ExternalLink, WithMetrics } from './components/Text'
+import { CountUp, ExternalLink, WithMetrics } from './components/Text'
 import { BriefcaseIcon, CapIcon, FolderIcon, GithubIcon, GlobeIcon, LayersIcon, TrophyIcon, UserIcon } from './components/Icons'
 
 const LANGS = ['en', 'ru']
@@ -31,8 +34,8 @@ const UI = {
     details: 'Details',
     back: 'Back to projects',
     close: 'Close',
-    projectsCount: (count) => `${count} projects`,
-    awardsCount: (count) => `${count} awards`,
+    projectsLabel: 'projects',
+    awardsLabel: 'awards',
     aboutHint: 'Summary',
     role: 'My role',
     architecture: 'How it works',
@@ -59,8 +62,8 @@ const UI = {
     details: 'Подробнее',
     back: 'Назад к проектам',
     close: 'Закрыть',
-    projectsCount: (count) => `${count} проектов`,
-    awardsCount: (count) => `${count} награды`,
+    projectsLabel: 'проектов',
+    awardsLabel: 'награды',
     aboutHint: 'Коротко',
     role: 'Моя роль',
     architecture: 'Как устроено',
@@ -148,6 +151,37 @@ function findProjectsUsing(skill, projects) {
   })
 }
 
+// Плитка «перетекает» в модалку и обратно: у плитки и панели модалки по очереди одно и то же
+// view-transition-name, промежуточные кадры браузер строит сам. Без поддержки API — обычная смена.
+function morph(tileId, opening, update) {
+  const tile = document.querySelector(`[data-tile="${tileId}"]`)
+  if (!document.startViewTransition || prefersReducedMotion() || !tile) {
+    update()
+    return
+  }
+  const root = document.documentElement
+  // has-morphed отключает «всплытие» панели: дальше её появление анимирует переход.
+  root.classList.add('is-morphing', 'has-morphed')
+  if (opening) tile.style.viewTransitionName = 'morph'
+  const transition = document.startViewTransition(() => {
+    tile.style.viewTransitionName = opening ? '' : 'morph'
+    flushSync(update)
+  })
+  transition.finished.finally(() => {
+    root.classList.remove('is-morphing')
+    tile.style.viewTransitionName = ''
+  })
+}
+
+// Подсветка рамок следует за курсором по всей сетке, поэтому соседние карточки тоже «ловят» свет.
+function moveSpotlight(event) {
+  for (const card of event.currentTarget.querySelectorAll('.card')) {
+    const rect = card.getBoundingClientRect()
+    card.style.setProperty('--mx', event.clientX - rect.left + 'px')
+    card.style.setProperty('--my', event.clientY - rect.top + 'px')
+  }
+}
+
 function App() {
   const [cv, setCv] = useState(null)
   const [loadError, setLoadError] = useState('')
@@ -156,6 +190,7 @@ function App() {
   const [route, setRoute] = useState(() => parseRoute(window.location.hash))
   const [skill, setSkill] = useState(null)
   const audio = useAudio(cv?.music?.src ? assetUrl(cv.music.src) : '')
+  const github = useGithubData(cv?.profile.githubActivityApiUrl, Boolean(cv?.profile.githubUsername))
 
   useEffect(() => {
     loadCvData()
@@ -187,11 +222,21 @@ function App() {
     if (withSound) audio.play()
   }
 
+  function changeRoute(next) {
+    const update = () => {
+      setSkill(null)
+      setRoute(next)
+    }
+    if (!route.section && next.section) morph(next.section, true, update)
+    else if (route.section && !next.section) morph(route.section, false, update)
+    else update()
+  }
+
   useEffect(() => {
-    const onPopState = () => setRoute(parseRoute(window.location.hash))
+    const onPopState = () => changeRoute(parseRoute(window.location.hash))
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
-  }, [])
+  })
 
   // Открытие модалки добавляет запись в историю — кнопка «назад» в браузере её закрывает.
   // Переходы внутри модалки (список → проект) заменяют запись, а не плодят новые.
@@ -199,8 +244,7 @@ function App() {
     const next = parseRoute('#' + path)
     if (route.section) window.history.replaceState(window.history.state, '', routeHash(next))
     else window.history.pushState({ modal: true }, '', routeHash(next))
-    setSkill(null)
-    setRoute(next)
+    changeRoute(next)
   }
 
   function closeModal() {
@@ -211,7 +255,7 @@ function App() {
     }
     // Модалку открыли по прямой ссылке — возвращаться некуда, просто убираем hash.
     window.history.replaceState(null, '', window.location.pathname + window.location.search)
-    setRoute({ section: null, slug: null })
+    changeRoute({ section: null, slug: null })
   }
 
   const ui = UI[lang]
@@ -233,13 +277,31 @@ function App() {
   const section = route.section
   const project = section === 'projects' && route.slug ? cv.projects.find((item) => item.slug === route.slug) || null : null
 
+  // Порядок плиток — порядок на телефоне. На десктопе места задаёт grid-template-areas в CSS.
   const tiles = [
+    profile.githubUsername && {
+      id: 'github',
+      Icon: GithubIcon,
+      hint: '@' + profile.githubUsername,
+      preview: <GithubPreview state={github} lang={lang} active={entered} />,
+    },
+    cv.projects.length > 0 && {
+      id: 'projects',
+      Icon: FolderIcon,
+      stat: cv.projects.length,
+      caption: ui.projectsLabel,
+      hint: cv.projects.slice(0, 3).map((item) => item.title).join(' · '),
+    },
+    cv.awards.length > 0 && {
+      id: 'awards',
+      Icon: TrophyIcon,
+      stat: cv.awards.length,
+      caption: ui.awardsLabel,
+      hint: t(cv.awards[0].place) + ' · ' + cv.awards[0].event,
+    },
+    cv.experience.length > 0 && { id: 'experience', Icon: BriefcaseIcon, caption: t(cv.experience[0].role), hint: cv.experience[0].company },
+    cv.skillGroups.length > 0 && { id: 'skills', Icon: LayersIcon, hint: profile.languages?.slice(0, 3).join(' · ') },
     { id: 'about', Icon: UserIcon, hint: ui.aboutHint },
-    cv.projects.length > 0 && { id: 'projects', Icon: FolderIcon, hint: ui.projectsCount(cv.projects.length) },
-    cv.experience.length > 0 && { id: 'experience', Icon: BriefcaseIcon, hint: cv.experience[0].company },
-    cv.awards.length > 0 && { id: 'awards', Icon: TrophyIcon, hint: ui.awardsCount(cv.awards.length) },
-    cv.skillGroups.length > 0 && { id: 'skills', Icon: LayersIcon, hint: profile.languages?.slice(0, 2).join(' · ') },
-    profile.githubUsername && { id: 'github', Icon: GithubIcon, hint: '@' + profile.githubUsername },
     cv.education.length > 0 && { id: 'education', Icon: CapIcon, hint: cv.education[0].start.slice(0, 4) + ' – ' + (cv.education[0].end || '').slice(0, 4) },
     cv.languages.length > 0 && { id: 'languages', Icon: GlobeIcon, hint: cv.languages.map((item) => item.code || t(item.name)).join(' · ') },
   ].filter(Boolean)
@@ -255,8 +317,8 @@ function App() {
                 {profile.highlights.map((item) => (
                   <li key={t(item.label)}>
                     {item.link
-                      ? <button type="button" onClick={() => openRoute(item.link)}><b>{t(item.value)}</b><span>{t(item.label)} <span aria-hidden="true">→</span></span></button>
-                      : <><b>{t(item.value)}</b><span>{t(item.label)}</span></>}
+                      ? <button type="button" onClick={() => openRoute(item.link)}><b><CountUp text={t(item.value)} /></b><span>{t(item.label)} <span aria-hidden="true">→</span></span></button>
+                      : <><b><CountUp text={t(item.value)} /></b><span>{t(item.label)}</span></>}
                   </li>
                 ))}
               </ul>
@@ -345,7 +407,7 @@ function App() {
       }
 
       case 'github':
-        return <GithubActivity username={profile.githubUsername} apiBaseUrl={profile.githubActivityApiUrl} lang={lang} />
+        return <GithubActivity username={profile.githubUsername} state={github} lang={lang} />
 
       case 'education':
         return cv.education.map((item) => (
@@ -403,6 +465,7 @@ function App() {
   return (
     <>
       <div className="backdrop" aria-hidden="true" />
+      <Aurora levelRef={audio.levelRef} />
 
       {!entered && (
         <div className="gate">
@@ -413,7 +476,7 @@ function App() {
         </div>
       )}
 
-      <main className={'site' + (entered ? ' is-entered' : '')} inert={entered ? undefined : ''}>
+      <main className={'site' + (entered ? ' is-entered' : '')} inert={entered ? undefined : ''} onPointerMove={moveSpotlight}>
         <ProfileCard
           profile={profile}
           lang={lang}
@@ -428,10 +491,16 @@ function App() {
         {cv.music?.src && <MusicPlayer music={cv.music} audio={audio} ui={ui} />}
 
         <nav className="tiles" aria-label={ui.sectionsNav}>
-          {tiles.map(({ id, Icon, hint }) => (
-            <button type="button" key={id} className="tile" onClick={() => openRoute(id)}>
-              <Icon size={22} />
-              <span className="tile-name">{ui.sections[id]}</span>
+          {tiles.map(({ id, Icon, hint, stat, caption, preview }) => (
+            <button type="button" key={id} className={'card tile tile-' + id} data-tile={id} onClick={() => openRoute(id)}>
+              <span className="tile-head">
+                <Icon size={18} />
+                <span className="tile-name">{ui.sections[id]}</span>
+                <span className="tile-arrow" aria-hidden="true">↗</span>
+              </span>
+              {preview}
+              {stat !== undefined && <span className="tile-stat"><CountUp text={stat} active={entered} /></span>}
+              {caption && <span className="tile-caption">{caption}</span>}
               {hint && <span className="tile-hint">{hint}</span>}
             </button>
           ))}

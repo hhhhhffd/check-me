@@ -10,6 +10,8 @@ export function useAudio(src) {
   const contextRef = useRef(null)
   const analyserRef = useRef(null)
   const frameRef = useRef(0)
+  // Та же громкость, что и в --level, но без чтения стилей — её каждый кадр берёт WebGL-фон.
+  const levelRef = useRef(0)
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(false)
   const [time, setTime] = useState(0)
@@ -53,6 +55,7 @@ export function useAudio(src) {
     const root = document.documentElement
     if (!playing || !analyserRef.current) {
       root.style.setProperty('--level', '0')
+      levelRef.current = 0
       return undefined
     }
 
@@ -69,6 +72,7 @@ export function useAudio(src) {
       const level = Math.min(1, sum / range / 180)
       smoothed += (level - smoothed) * 0.18
       root.style.setProperty('--level', smoothed.toFixed(3))
+      levelRef.current = smoothed
       frameRef.current = window.requestAnimationFrame(tick)
     }
 
@@ -118,5 +122,5 @@ export function useAudio(src) {
     setMuted(audioRef.current.muted)
   }
 
-  return { playing, muted, time, duration, error, play, toggle, seek, toggleMute }
+  return { playing, muted, time, duration, error, levelRef, play, toggle, seek, toggleMute }
 }

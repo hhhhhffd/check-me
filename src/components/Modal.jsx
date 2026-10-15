@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { ArrowLeftIcon, CloseIcon } from './Icons'
 
 // Нативный <dialog>: фокус, Esc и блокировка фона — из коробки.
@@ -7,7 +7,9 @@ function Modal({ open, title, eyebrow, onClose, onBack, ui, children }) {
   const bodyRef = useRef(null)
   const titleRef = useRef(null)
 
-  useEffect(() => {
+  // Layout-эффект: диалог открывается и закрывается в том же коммите, что и рендер.
+  // Это нужно View Transition в App — снимок «после» должен уже видеть диалог открытым или закрытым.
+  useLayoutEffect(() => {
     const dialog = dialogRef.current
     if (open && !dialog.open) dialog.showModal()
     if (!open && dialog.open) dialog.close()
@@ -27,7 +29,13 @@ function Modal({ open, title, eyebrow, onClose, onBack, ui, children }) {
       className="modal"
       aria-labelledby="modal-title"
       onClose={onClose}
-      onClick={(event) => { if (event.target === event.currentTarget) dialogRef.current.close() }}
+      // Esc, крестик и клик по фону не закрывают диалог сами, а просят App:
+      // тот закрывает его внутри анимации «панель → плитка».
+      onCancel={(event) => {
+        event.preventDefault()
+        onClose()
+      }}
+      onClick={(event) => { if (event.target === event.currentTarget) onClose() }}
     >
       {open && (
         <div className="modal-panel" ref={bodyRef}>
@@ -41,7 +49,7 @@ function Modal({ open, title, eyebrow, onClose, onBack, ui, children }) {
               {eyebrow && <p className="modal-eyebrow">{eyebrow}</p>}
               <h2 id="modal-title" ref={titleRef} tabIndex={-1}>{title}</h2>
             </div>
-            <button type="button" className="icon-button" onClick={() => dialogRef.current.close()} aria-label={ui.close}>
+            <button type="button" className="icon-button" onClick={onClose} aria-label={ui.close}>
               <CloseIcon size={18} />
             </button>
           </header>

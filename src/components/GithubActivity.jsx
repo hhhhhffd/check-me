@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { getWorkerApiUrl } from '../utils/apiUrl'
+import { CountUp } from './Text'
 
 const GITHUB_API_PATH = '/api/v1/github'
 const SNAPSHOT_URL = import.meta.env.BASE_URL + 'github-snapshot.json'
 const TOP_LANGUAGE_COUNT = 5
 const LEVELS = [0, 1, 2, 3, 4]
 const YEAR_WINDOW_DAYS = 330
+const PREVIEW_WEEKS = 18
 
 const TEXT = {
   en: {
@@ -119,13 +121,12 @@ async function fetchJson(url, signal) {
   return response.json()
 }
 
-function GithubActivity({ username, apiBaseUrl, lang }) {
+// Данные грузятся один раз в App: ими пользуются и превью на плитке, и модалка.
+export function useGithubData(apiBaseUrl, enabled) {
   const [state, setState] = useState({ status: 'loading' })
-  const [hovered, setHovered] = useState(null)
-  const text = TEXT[lang]
-  const profileUrl = 'https://github.com/' + username
 
   useEffect(() => {
+    if (!enabled) return undefined
     const controller = new AbortController()
     const workerUrl = getWorkerApiUrl(apiBaseUrl, GITHUB_API_PATH)
 
@@ -149,7 +150,38 @@ function GithubActivity({ username, apiBaseUrl, lang }) {
         setState({ status: 'failed' })
       })
     return () => controller.abort()
-  }, [apiBaseUrl])
+  }, [apiBaseUrl, enabled])
+
+  return state
+}
+
+// Мини-версия для плитки: число контрибьютов и последние недели тепловой карты.
+export function GithubPreview({ state, lang, active }) {
+  const text = TEXT[lang]
+  const days = state.status === 'ready' ? (state.data.activity?.months || []).flatMap((month) => month.days) : []
+  if (days.length === 0) return null
+
+  const recent = days.slice(-PREVIEW_WEEKS * 7)
+  const { max } = summarize(recent, state.data.activity.to)
+  const total = days.reduce((sum, day) => sum + day.count, 0)
+
+  return (
+    <span className="gh-preview">
+      <span className="tile-stat"><CountUp text={new Intl.NumberFormat(text.locale).format(total)} active={active} /></span>
+      <span className="tile-caption">{text.contributions} · {text.window(days.length).toLowerCase()}</span>
+      <span className="gh-mini" aria-hidden="true">
+        {buildWeeks(recent).flat().map((day, index) => (
+          <i key={day?.date || 'pad' + index} className={day ? 'gh-day l' + getLevel(day.count, max) : 'gh-pad'} />
+        ))}
+      </span>
+    </span>
+  )
+}
+
+function GithubActivity({ username, state, lang }) {
+  const [hovered, setHovered] = useState(null)
+  const text = TEXT[lang]
+  const profileUrl = 'https://github.com/' + username
 
   if (state.status === 'loading') return <p className="muted" aria-busy="true">{text.loading}</p>
 
@@ -186,7 +218,7 @@ function GithubActivity({ username, apiBaseUrl, lang }) {
           </header>
 
           <p className="gh-hero">
-            <b>{number.format(summary.total)}</b>
+            <b><CountUp text={number.format(summary.total)} /></b>
             <span>{text.contributions} · {text.activeDays(summary.active, days.length)}</span>
           </p>
 

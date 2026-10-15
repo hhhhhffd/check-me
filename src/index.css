@@ -1,21 +1,26 @@
 :root {
-  --text: #fbf6ff;
-  --muted: rgb(251 246 255 / 0.84);
-  --faint: rgb(251 246 255 / 0.7);
-  --line: rgb(255 255 255 / 0.16);
-  /* Фирменный фиолетовый — rgb(185 0 255). */
-  --purple: #b900ff;
-  --purple-rgb: 185 0 255;
-  --ink: #1a0030;
-  --ok: #9dffc8;
+  --bg: #09060f;
+  --text: #f4effb;
+  --muted: rgb(244 239 251 / 0.7);
+  --faint: rgb(244 239 251 / 0.56);
+  --line: rgb(255 255 255 / 0.09);
+  /* Фирменный фиолетовый — rgb(185 0 255). На тёмном фоне он только акцент. */
+  --accent: #b900ff;
+  --accent-rgb: 185 0 255;
+  /* Светлый вариант акцента для текста: у чистого #b900ff на чёрном мало контраста. */
+  --accent-soft: #d9a2ff;
+  --ink: #12001f;
+  --ok: #7dffb6;
 
-  /* Матовые панели поверх фиолетового фона: тёмный тон даёт контраст белому тексту. */
-  --panel: linear-gradient(160deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.04) 55%, rgb(255 255 255 / 0.08)), rgb(26 0 48 / 0.32);
-  --panel-blur: blur(24px) saturate(160%);
-  --glow: 0 0 18px rgb(255 255 255 / 0.55), 0 0 2px rgb(255 255 255 / 0.9);
+  --surface: rgb(18 11 28 / 0.58);
+  --surface-hover: rgb(30 18 46 / 0.72);
+  --surface-raised: rgb(255 255 255 / 0.04);
+  --blur: blur(22px) saturate(150%);
+  --radius: 24px;
 
   --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   --level: 0;
   --gutter: clamp(14px, 4vw, 28px);
@@ -32,10 +37,22 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: #2a004d;
+  background: var(--bg);
   color: var(--text);
   font: 400 16px/1.6 var(--font-body);
   -webkit-font-smoothing: antialiased;
+}
+
+body::after {
+  /* Зерно поверх фона: убирает полосы в градиенте и делает тёмный фон «плотным». */
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 a {
@@ -43,11 +60,11 @@ a {
 }
 
 ::selection {
-  background: rgb(255 255 255 / 0.3);
+  background: rgb(var(--accent-rgb) / 0.45);
 }
 
 :focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--accent-soft);
   outline-offset: 3px;
   border-radius: 8px;
 }
@@ -100,46 +117,34 @@ ul {
   color: var(--faint);
 }
 
-/* ---------- фон: фиолетовый mesh-градиент, светлеет в такт музыке ---------- */
+.count-up {
+  font-variant-numeric: tabular-nums;
+}
 
-.backdrop {
+/* ---------- фон: WebGL-аура, под ней CSS-градиент на случай без WebGL ---------- */
+
+.backdrop,
+.aurora {
   position: fixed;
   inset: 0;
   z-index: -1;
+  width: 100%;
+  height: 100%;
+}
+
+.backdrop {
   background:
-    radial-gradient(55% 45% at 18% 18%, #e070ff 0%, transparent 70%),
-    radial-gradient(50% 55% at 88% 22%, #5a00e6 0%, transparent 70%),
-    radial-gradient(55% 50% at 70% 92%, #ff3dcf 0%, transparent 70%),
-    radial-gradient(60% 60% at 8% 95%, #3b0090 0%, transparent 70%),
-    linear-gradient(135deg, #4a0080 0%, #b900ff 48%, #6200d6 100%);
-  background-size: 180% 180%;
-  filter: brightness(calc(0.82 + var(--level) * 0.3)) saturate(calc(1 + var(--level) * 0.25));
-  transition: filter 0.1s linear;
-  animation: mesh 22s ease-in-out infinite alternate;
+    radial-gradient(60% 45% at 25% 30%, rgb(var(--accent-rgb) / 0.28), transparent 70%),
+    radial-gradient(50% 40% at 80% 75%, rgb(90 30 235 / 0.25), transparent 70%),
+    var(--bg);
 }
 
-.backdrop::before {
-  /* Виньетка: глушит насыщенность по краям, центр остаётся ярким. */
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 35%, rgb(20 0 40 / 0.55) 100%);
+.aurora {
+  display: block;
 }
 
-.backdrop::after {
-  /* Зерно, чтобы градиент не полосил. */
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.09;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-@keyframes mesh {
-  0% { background-position: 0% 0%; }
-  50% { background-position: 100% 40%; }
-  100% { background-position: 30% 100%; }
+.aurora[hidden] {
+  display: none;
 }
 
 /* ---------- gate ---------- */
@@ -148,9 +153,9 @@ ul {
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgb(26 0 48 / 0.35);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background: rgb(9 6 15 / 0.55);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
 }
 
 .gate-enter {
@@ -158,9 +163,13 @@ ul {
   inset: 0;
   border: 0;
   background: none;
-  font: 600 clamp(22px, 3vw, 30px)/1 var(--font-body);
-  letter-spacing: -0.01em;
-  text-shadow: var(--glow);
+  font: 500 clamp(18px, 2.4vw, 24px)/1 var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.gate-enter::before {
+  content: '> ';
+  color: var(--accent-soft);
 }
 
 .gate-enter:focus-visible {
@@ -198,32 +207,66 @@ ul {
   color: var(--text);
 }
 
-/* ---------- панели ---------- */
+/* ---------- карточки: тёмное стекло, рамка подсвечивается под курсором ---------- */
 
-.profile-card,
-.player,
-.tile,
-.modal-panel {
+.card {
   position: relative;
-  background: var(--panel);
-  backdrop-filter: var(--panel-blur);
-  -webkit-backdrop-filter: var(--panel-blur);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.35),
-    inset 0 0 0 1px rgb(255 255 255 / 0.1),
-    0 20px 50px rgb(30 0 60 / 0.35);
+  isolation: isolate;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 30px 60px -30px rgb(0 0 0 / 0.8);
 }
 
-/* ---------- главный экран ---------- */
+.card::before {
+  /* Кольцо толщиной в рамку: маска вырезает середину, остаётся только край. */
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(240px circle at var(--mx, -999px) var(--my, -999px), rgb(var(--accent-rgb) / 0.95), rgb(var(--accent-rgb) / 0.25) 45%, transparent 70%);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.card::after {
+  /* Мягкий свет внутри карточки под курсором; лежит под содержимым. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(380px circle at var(--mx, -999px) var(--my, -999px), rgb(var(--accent-rgb) / 0.1), transparent 65%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+@media (hover: hover) {
+  .site:hover .card::before,
+  .site:hover .card::after {
+    opacity: 1;
+  }
+}
+
+/* ---------- главный экран: bento-сетка ---------- */
 
 .site {
-  width: min(100%, 620px);
+  width: min(100%, 1120px);
   min-height: 100svh;
   margin: 0 auto;
   padding: 40px var(--gutter);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: center;
   gap: 12px;
   opacity: 0;
   filter: blur(8px);
@@ -235,23 +278,51 @@ ul {
   filter: none;
 }
 
+.tiles {
+  /* Плитки встают в общую сетку вместе с профилем и плеером. */
+  display: contents;
+}
+
+.profile-card,
+.player,
+.tile-github,
+.tile-projects {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 960px) {
+  .site {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-areas:
+      'profile profile github github github'
+      'profile profile projects projects awards'
+      'profile profile experience experience skills'
+      'player player about education languages';
+  }
+
+  .profile-card { grid-area: profile; }
+  .player { grid-area: player; }
+  .tile-github { grid-area: github; }
+  .tile-projects { grid-area: projects; }
+  .tile-awards { grid-area: awards; }
+  .tile-experience { grid-area: experience; }
+  .tile-skills { grid-area: skills; }
+  .tile-about { grid-area: about; }
+  .tile-education { grid-area: education; }
+  .tile-languages { grid-area: languages; }
+}
+
 /* профиль */
 
 .profile-card {
-  padding: 40px 28px 36px;
-  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 28px 44px;
   text-align: center;
-  overflow: hidden;
-}
-
-.profile-card::after {
-  /* Отражение под курсором. */
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(400px circle at var(--mx, 30%) var(--my, 0%), rgb(255 255 255 / 0.12), transparent 45%);
-  pointer-events: none;
+  transform: perspective(1100px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transition: transform 0.5s var(--ease-out);
 }
 
 .lang-switch {
@@ -262,7 +333,7 @@ ul {
   display: flex;
   padding: 3px;
   border-radius: 999px;
-  background: rgb(26 0 48 / 0.35);
+  background: rgb(0 0 0 / 0.3);
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
@@ -276,42 +347,43 @@ ul {
 }
 
 .lang-switch button[aria-pressed='true'] {
-  background: #fff;
+  background: var(--text);
   color: var(--ink);
 }
 
 .avatar {
   display: block;
-  width: 112px;
-  height: 112px;
-  margin: 0 auto;
+  width: 104px;
+  height: 104px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow:
-    0 0 0 4px rgb(255 255 255 / 0.14),
-    0 0 calc(20px + var(--level) * 50px) rgb(255 255 255 / calc(0.25 + var(--level) * 0.45));
+    0 0 0 1px rgb(255 255 255 / 0.18),
+    0 0 0 6px rgb(var(--accent-rgb) / 0.12),
+    0 0 calc(24px + var(--level) * 60px) rgb(var(--accent-rgb) / calc(0.35 + var(--level) * 0.5));
 }
 
 .avatar-initials {
   display: grid;
   place-items: center;
-  background: linear-gradient(160deg, rgb(255 255 255 / 0.35), rgb(255 255 255 / 0.06));
-  font: 700 38px/1 var(--font-body);
+  background: linear-gradient(145deg, #c93dff, #5a1ee6 70%, #2b0b66);
+  font: 600 34px/1 var(--font-body);
   letter-spacing: -0.02em;
-  text-shadow: var(--glow);
 }
 
 .profile-name {
-  margin-top: 18px;
-  font: 700 clamp(30px, 6vw, 40px)/1.1 var(--font-body);
-  letter-spacing: -0.02em;
-  text-shadow: var(--glow);
+  margin-top: 22px;
+  font: 600 clamp(32px, 4.2vw, 44px)/1.08 var(--font-body);
+  letter-spacing: -0.035em;
+  background: linear-gradient(180deg, #fff 35%, #d6bfff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .profile-headline {
-  margin-top: 8px;
-  font-size: 17px;
-  font-weight: 500;
+  margin-top: 10px;
+  font-size: 16px;
   color: var(--muted);
 }
 
@@ -320,13 +392,26 @@ ul {
   width: fit-content;
   align-items: center;
   gap: 7px;
-  margin: 16px auto 0;
+  margin-top: 18px;
   padding: 6px 14px;
   border-radius: 999px;
-  background: #fff;
-  color: var(--ink);
-  font: 600 13px/1.2 var(--font-mono);
-  box-shadow: 0 0 calc(18px + var(--level) * 24px) rgb(255 255 255 / 0.55);
+  border: 1px solid rgb(var(--accent-rgb) / 0.5);
+  /* Блик пробегает по плашке, как по металлу. */
+  background:
+    linear-gradient(110deg, transparent 35%, rgb(255 255 255 / 0.2) 50%, transparent 65%) 0 0 / 250% 100%,
+    rgb(var(--accent-rgb) / 0.16);
+  color: #f0dcff;
+  font: 500 12.5px/1.2 var(--font-mono);
+  animation: shine 5s ease-in-out infinite;
+}
+
+.profile-badge svg {
+  color: #ffd66b;
+}
+
+@keyframes shine {
+  0%, 60% { background-position: 150% 0, 0 0; }
+  100% { background-position: -50% 0, 0 0; }
 }
 
 .profile-status {
@@ -334,7 +419,7 @@ ul {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 14px;
   font-size: 14px;
   color: var(--muted);
 }
@@ -344,43 +429,67 @@ ul {
   height: 8px;
   border-radius: 50%;
   background: var(--ok);
-  box-shadow: 0 0 0 3px rgb(157 255 200 / 0.25), 0 0 10px var(--ok);
+  box-shadow: 0 0 10px var(--ok);
+  animation: pulse 2.4s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgb(125 255 182 / 0.55), 0 0 10px var(--ok); }
+  100% { box-shadow: 0 0 0 9px rgb(125 255 182 / 0), 0 0 10px var(--ok); }
 }
 
 .profile-links {
-  margin-top: 22px;
+  margin-top: 26px;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .profile-links a {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   border-radius: 14px;
-  filter: drop-shadow(0 0 8px rgb(255 255 255 / 0.6));
-  transition: transform 0.2s ease, background 0.2s ease, filter 0.2s ease;
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--muted);
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-links svg {
+  width: 22px;
+  height: 22px;
+}
+
+.profile-links a:hover {
+  transform: translateY(-2px);
+  color: var(--text);
+  background: rgb(var(--accent-rgb) / 0.16);
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.5);
 }
 
 .profile-links .profile-cv {
   width: auto;
   display: flex;
   gap: 6px;
-  padding: 0 14px;
-  border-radius: 14px;
-  background: rgb(255 255 255 / 0.12);
-  box-shadow: inset 0 0 0 1px var(--line);
+  padding: 0 16px;
+  background: var(--accent);
+  box-shadow: 0 8px 24px -8px rgb(var(--accent-rgb) / 0.8);
+  color: #fff;
   font: 600 14px/1 var(--font-mono);
   text-decoration: none;
 }
 
-.profile-links a:hover {
-  transform: translateY(-2px);
-  background: rgb(255 255 255 / 0.12);
-  filter: drop-shadow(0 0 14px rgb(255 255 255 / 0.9));
+.profile-links .profile-cv svg {
+  width: 18px;
+  height: 18px;
+}
+
+.profile-links .profile-cv:hover {
+  background: #c62bff;
+  box-shadow: 0 10px 30px -8px rgb(var(--accent-rgb) / 1);
 }
 
 .profile-views {
@@ -391,7 +500,7 @@ ul {
   align-items: center;
   gap: 6px;
   font: 500 12px/1 var(--font-mono);
-  color: var(--muted);
+  color: var(--faint);
 }
 
 /* плеер */
@@ -400,9 +509,9 @@ ul {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   padding: 12px 14px;
-  border-radius: 22px;
+  border-radius: 20px;
 }
 
 .player-cover {
@@ -410,11 +519,12 @@ ul {
   align-items: flex-end;
   justify-content: center;
   gap: 3px;
-  width: 50px;
-  height: 50px;
-  padding: 13px 11px;
-  border-radius: 14px;
-  background: rgb(255 255 255 / 0.16);
+  width: 46px;
+  height: 46px;
+  padding: 12px 10px;
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgb(var(--accent-rgb) / 0.35), rgb(90 30 235 / 0.25));
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.35);
 }
 
 .player-cover i {
@@ -422,7 +532,6 @@ ul {
   height: 30%;
   border-radius: 2px;
   background: #fff;
-  box-shadow: 0 0 8px rgb(255 255 255 / 0.7);
   transition: height 0.3s ease;
 }
 
@@ -454,8 +563,8 @@ ul {
   display: flex;
   align-items: center;
   gap: 10px;
-  font: 400 12px/1 var(--font-mono);
-  color: var(--muted);
+  font: 400 11.5px/1 var(--font-mono);
+  color: var(--faint);
 }
 
 .player-progress input {
@@ -465,7 +574,7 @@ ul {
   appearance: none;
   -webkit-appearance: none;
   border-radius: 2px;
-  background: linear-gradient(to right, #fff var(--progress), rgb(255 255 255 / 0.25) var(--progress));
+  background: linear-gradient(to right, var(--accent-soft) var(--progress), rgb(255 255 255 / 0.15) var(--progress));
   cursor: pointer;
 }
 
@@ -475,7 +584,7 @@ ul {
   height: 12px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 8px rgb(255 255 255 / 0.8);
+  box-shadow: 0 0 0 3px rgb(var(--accent-rgb) / 0.35);
 }
 
 .player-progress input::-moz-range-thumb {
@@ -489,7 +598,7 @@ ul {
 .player-error {
   margin-top: 6px;
   font-size: 12px;
-  color: #ffd1ec;
+  color: #ffb3dc;
 }
 
 .player-controls {
@@ -510,66 +619,130 @@ ul {
 
 .player-controls button:hover {
   color: var(--text);
-  background: rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.08);
 }
 
 .player-controls .player-play {
-  color: var(--text);
-  filter: drop-shadow(0 0 6px rgb(255 255 255 / 0.7));
+  background: var(--text);
+  color: var(--ink);
 }
 
-/* плитки-кнопки */
-
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+.player-controls .player-play:hover {
+  background: #fff;
+  color: var(--ink);
 }
+
+/* плитки */
 
 .tile {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 4px;
   min-width: 0;
-  padding: 14px;
-  border: 0;
-  border-radius: 20px;
+  min-height: 128px;
+  padding: 16px 18px 18px;
   text-align: left;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.tile svg {
-  margin-bottom: 6px;
-  filter: drop-shadow(0 0 6px rgb(255 255 255 / 0.6));
+  transition: transform 0.25s var(--ease-out), background 0.25s ease;
 }
 
 .tile:hover {
-  transform: translateY(-3px);
-  background: linear-gradient(160deg, rgb(255 255 255 / 0.28), rgb(255 255 255 / 0.1)), rgb(26 0 48 / 0.25);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.5),
-    inset 0 0 0 1px rgb(255 255 255 / 0.25),
-    0 0 30px rgb(255 255 255 / 0.25),
-    0 20px 50px rgb(30 0 60 / 0.35);
+  transform: translateY(-2px);
+  background: var(--surface-hover);
 }
 
 .tile:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(0) scale(0.985);
+}
+
+.tile-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tile-head svg {
+  flex: none;
+  color: var(--accent-soft);
 }
 
 .tile-name {
+  flex: 1;
+  min-width: 0;
   font-size: 15px;
   font-weight: 600;
 }
 
+.tile-arrow {
+  color: var(--faint);
+  transition: transform 0.25s var(--ease-out), color 0.25s ease;
+}
+
+.tile:hover .tile-arrow {
+  color: var(--accent-soft);
+  transform: translate(2px, -2px);
+}
+
+/* Всё, что ниже заголовка, прижимается к низу плитки. */
+.tile > :nth-child(2) {
+  margin-top: auto;
+}
+
+.tile-stat {
+  font: 600 clamp(34px, 3.6vw, 46px)/1 var(--font-body);
+  letter-spacing: -0.04em;
+}
+
+.tile-caption {
+  font-size: 14px;
+  color: var(--muted);
+}
+
 .tile-hint {
   max-width: 100%;
-  font: 400 11px/1.4 var(--font-mono);
+  font: 400 11.5px/1.5 var(--font-mono);
   color: var(--faint);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.tile-stat + .tile-caption,
+.tile-caption + .tile-hint {
+  margin-top: 2px;
+}
+
+/* превью GitHub на плитке */
+
+.gh-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'stat map'
+    'caption map';
+  align-items: end;
+  column-gap: 20px;
+  row-gap: 4px;
+}
+
+.gh-preview .tile-stat { grid-area: stat; }
+.gh-preview .tile-caption { grid-area: caption; }
+
+.gh-mini {
+  grid-area: map;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, 11px);
+  grid-auto-columns: 11px;
+  gap: 3px;
+}
+
+.gh-mini .gh-day {
+  border-radius: 2px;
+}
+
+.gh-pad {
+  visibility: hidden;
 }
 
 /* ---------- модалка ---------- */
@@ -586,19 +759,20 @@ ul {
 }
 
 .modal::backdrop {
-  background: rgb(26 0 48 / 0.45);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgb(5 3 8 / 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
-.modal[open] .modal-panel {
-  animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.1);
+/* Без View Transitions (и при открытии по прямой ссылке) панель просто всплывает. */
+:root:not(.has-morphed) .modal[open] .modal-panel {
+  animation: pop 0.35s var(--ease-out);
 }
 
 @keyframes pop {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(14px);
+    transform: scale(0.96) translateY(14px);
   }
 }
 
@@ -606,10 +780,12 @@ ul {
   max-height: calc(100dvh - 48px);
   overflow-y: auto;
   overscroll-behavior: contain;
+  border: 1px solid var(--line);
   border-radius: 28px;
-  background: linear-gradient(160deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.04) 50%), rgb(30 0 56 / 0.62);
-  backdrop-filter: blur(36px) saturate(170%);
-  -webkit-backdrop-filter: blur(36px) saturate(170%);
+  background: rgb(16 10 24 / 0.9);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 40px 100px -20px rgb(0 0 0 / 0.9), 0 0 0 1px rgb(var(--accent-rgb) / 0.08);
 }
 
 .modal-head {
@@ -620,7 +796,7 @@ ul {
   align-items: center;
   gap: 12px;
   padding: 20px clamp(20px, 4vw, 32px) 16px;
-  background: linear-gradient(rgb(40 0 72 / 0.92), rgb(40 0 72 / 0.6) 75%, transparent);
+  background: linear-gradient(rgb(16 10 24 / 0.97), rgb(16 10 24 / 0.75) 75%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
@@ -634,7 +810,7 @@ ul {
   font: 500 11px/1.4 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--faint);
+  color: var(--accent-soft);
 }
 
 .modal-head h2:focus {
@@ -643,10 +819,9 @@ ul {
 
 .modal-head h2 {
   font-size: clamp(24px, 4vw, 30px);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.15;
-  letter-spacing: -0.02em;
-  text-shadow: var(--glow);
+  letter-spacing: -0.03em;
 }
 
 .icon-button {
@@ -657,12 +832,12 @@ ul {
   height: 40px;
   border: 0;
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.06);
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
 .icon-button:hover {
-  background: rgb(255 255 255 / 0.24);
+  background: rgb(255 255 255 / 0.14);
 }
 
 .modal-body {
@@ -686,11 +861,10 @@ ul {
 
 .metric {
   font: 600 0.9em/1 var(--font-mono);
-  color: #fff;
+  color: var(--accent-soft);
   padding: 0 0.25em;
   border-radius: 5px;
-  background: rgb(var(--purple-rgb) / 0.55);
-  box-shadow: 0 0 12px rgb(var(--purple-rgb) / 0.7);
+  background: rgb(var(--accent-rgb) / 0.14);
 }
 
 .bullets {
@@ -712,8 +886,7 @@ ul {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 8px #fff;
+  background: var(--accent-soft);
 }
 
 .badges {
@@ -725,23 +898,23 @@ ul {
 .badge {
   padding: 5px 10px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.1);
+  background: var(--surface-raised);
   box-shadow: inset 0 0 0 1px var(--line);
   font: 500 12px/1.2 var(--font-mono);
   color: var(--muted);
 }
 
 .badge-award {
-  background: #fff;
-  color: var(--ink);
-  box-shadow: 0 0 18px rgb(255 255 255 / 0.5);
+  background: rgb(var(--accent-rgb) / 0.16);
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.5);
+  color: #f0dcff;
 }
 
 .proof {
   padding: 10px 14px;
   border-radius: 12px;
-  background: rgb(157 255 200 / 0.1);
-  box-shadow: inset 0 0 0 1px rgb(157 255 200 / 0.3);
+  background: rgb(125 255 182 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(125 255 182 / 0.22);
   font: 400 13px/1.6 var(--font-mono);
   color: var(--muted);
 }
@@ -764,7 +937,7 @@ ul {
   gap: 4px;
   padding: 16px;
   border-radius: 18px;
-  background: rgb(255 255 255 / 0.08);
+  background: var(--surface-raised);
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
@@ -783,19 +956,20 @@ ul {
   border-radius: inherit;
   background: none;
   text-align: left;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .highlights button:hover {
-  background: rgb(255 255 255 / 0.1);
+  background: rgb(var(--accent-rgb) / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.4);
 }
 
 .highlights b {
-  font: 700 30px/1.1 var(--font-body);
-  text-shadow: var(--glow);
+  font: 600 32px/1.1 var(--font-body);
+  letter-spacing: -0.03em;
 }
 
-.highlights span {
+.highlights b + span {
   font-size: 13px;
   line-height: 1.4;
   color: var(--muted);
@@ -817,15 +991,15 @@ ul {
   border: 0;
   border-radius: 20px;
   text-align: left;
-  background: rgb(255 255 255 / 0.07);
+  background: var(--surface-raised);
   box-shadow: inset 0 0 0 1px var(--line);
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .project-card:hover {
-  background: rgb(255 255 255 / 0.14);
+  background: rgb(var(--accent-rgb) / 0.07);
   transform: translateY(-2px);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3), 0 0 24px rgb(255 255 255 / 0.15);
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.45);
 }
 
 .project-card-head {
@@ -836,13 +1010,16 @@ ul {
 
 .project-card-head strong {
   font-size: 18px;
+  font-weight: 600;
 }
 
 .project-card-arrow {
-  transition: transform 0.2s ease;
+  color: var(--faint);
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .project-card:hover .project-card-arrow {
+  color: var(--accent-soft);
   transform: translateX(4px);
 }
 
@@ -868,8 +1045,8 @@ ul {
 }
 
 .project-links a {
+  color: var(--accent-soft);
   text-decoration: none;
-  text-shadow: 0 0 10px rgb(255 255 255 / 0.5);
 }
 
 .project-links a:hover {
@@ -910,7 +1087,7 @@ ul {
 .arch-flow li::before {
   content: '→';
   margin: 0 8px;
-  color: var(--faint);
+  color: var(--accent-soft);
 }
 
 .arch-flow li:first-child::before {
@@ -961,13 +1138,13 @@ ul {
   border: 0;
   border-radius: 20px;
   overflow: hidden;
-  background: rgb(30 0 56 / 0.9);
+  background: rgb(16 10 24 / 0.95);
   color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--line), 0 30px 80px rgb(0 0 0 / 0.5);
+  box-shadow: inset 0 0 0 1px var(--line), 0 30px 80px rgb(0 0 0 / 0.6);
 }
 
 .lightbox::backdrop {
-  background: rgb(10 0 20 / 0.6);
+  background: rgb(5 3 8 / 0.75);
 }
 
 .lightbox img {
@@ -991,7 +1168,7 @@ ul {
   padding: 8px 12px;
   border: 0;
   border-radius: 10px;
-  background: rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.08);
 }
 
 .lightbox-close {
@@ -1034,10 +1211,10 @@ ul {
   justify-self: start;
   padding: 4px 10px;
   border-radius: 999px;
-  background: #fff;
-  color: var(--ink);
+  background: rgb(var(--accent-rgb) / 0.16);
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.5);
+  color: #f0dcff;
   font: 600 12px/1.4 var(--font-mono);
-  box-shadow: 0 0 16px rgb(255 255 255 / 0.4);
 }
 
 /* skills */
@@ -1071,23 +1248,26 @@ ul {
 .chip {
   padding: 5px 11px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.1);
+  background: var(--surface-raised);
   box-shadow: inset 0 0 0 1px var(--line);
   font-size: 14px;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .chip-button {
   border: 0;
   cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.4);
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.45);
 }
 
-.chip-button:hover,
+.chip-button:hover {
+  background: rgb(var(--accent-rgb) / 0.16);
+}
+
 .chip-button[aria-pressed='true'] {
-  background: #fff;
-  color: var(--ink);
-  box-shadow: 0 0 14px rgb(255 255 255 / 0.5);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 6px 20px -6px rgb(var(--accent-rgb) / 0.9);
 }
 
 .skill-usage {
@@ -1098,7 +1278,7 @@ ul {
   min-height: 44px;
   padding: 10px 14px;
   border-radius: 14px;
-  background: rgb(255 255 255 / 0.08);
+  background: var(--surface-raised);
   box-shadow: inset 0 0 0 1px var(--line);
   font-size: 14px;
 }
@@ -1114,8 +1294,8 @@ ul {
 }
 
 .badge-link:hover {
-  background: #fff;
-  color: var(--ink);
+  background: rgb(var(--accent-rgb) / 0.2);
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.6);
 }
 
 /* languages */
@@ -1171,10 +1351,9 @@ ul {
 }
 
 .gh-hero b {
-  font: 700 clamp(40px, 8vw, 56px)/1 var(--font-body);
-  letter-spacing: -0.03em;
+  font: 600 clamp(40px, 8vw, 56px)/1 var(--font-body);
+  letter-spacing: -0.04em;
   color: var(--text);
-  text-shadow: var(--glow);
 }
 
 .gh-tiles {
@@ -1190,12 +1369,12 @@ ul {
   min-width: 0;
   padding: 12px 14px;
   border-radius: 16px;
-  background: rgb(255 255 255 / 0.08);
+  background: var(--surface-raised);
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
 .gh-tiles b {
-  font: 700 20px/1.2 var(--font-body);
+  font: 600 20px/1.2 var(--font-body);
 }
 
 .gh-tiles span {
@@ -1237,15 +1416,15 @@ ul {
   width: 100%;
   aspect-ratio: 1;
   border-radius: 3px;
-  background: rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.06);
   transition: transform 0.12s ease;
 }
 
-.gh-day.l1 { background: rgb(255 255 255 / 0.3); }
-.gh-day.l2 { background: rgb(255 255 255 / 0.5); }
-.gh-day.l3 { background: rgb(255 255 255 / 0.75); }
-.gh-day.l4 { background: #fff; box-shadow: 0 0 8px rgb(255 255 255 / 0.9); }
-.gh-day.is-hovered { transform: scale(1.35); box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px #fff; }
+.gh-day.l1 { background: rgb(var(--accent-rgb) / 0.3); }
+.gh-day.l2 { background: rgb(var(--accent-rgb) / 0.55); }
+.gh-day.l3 { background: rgb(var(--accent-rgb) / 0.85); }
+.gh-day.l4 { background: var(--accent-soft); box-shadow: 0 0 8px rgb(var(--accent-rgb) / 0.9); }
+.gh-day.is-hovered { transform: scale(1.35); box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px #fff; }
 
 .gh-caption {
   display: flex;
@@ -1311,6 +1490,7 @@ ul {
 .gh-fallback {
   display: inline-block;
   font: 500 13px/1 var(--font-mono);
+  color: var(--accent-soft);
   text-decoration: none;
 }
 
@@ -1323,13 +1503,50 @@ ul {
   text-decoration: underline;
 }
 
+/* ---------- переход «плитка → модалка» (View Transitions) ---------- */
+
+.is-morphing .modal-panel {
+  view-transition-name: morph;
+}
+
+::view-transition-group(morph) {
+  animation-duration: 0.5s;
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-image-pair(morph) {
+  /* Содержимое не растягивается: окно-рамка растёт и открывает панель в натуральном размере. */
+  overflow: clip;
+  border-radius: var(--radius);
+}
+
+::view-transition-old(morph),
+::view-transition-new(morph) {
+  width: 100%;
+  height: 100%;
+  object-fit: none;
+  object-position: 50% 0;
+}
+
+::view-transition-old(morph) {
+  animation: 0.2s ease both vt-fade-out;
+}
+
+::view-transition-new(morph) {
+  animation: 0.35s ease both vt-fade-in;
+}
+
+@keyframes vt-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+}
+
 /* ---------- responsive ---------- */
 
 @media (max-width: 560px) {
-  .tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   /* На телефоне модалка выезжает снизу шторкой. */
   .modal {
     width: 100vw;
@@ -1339,10 +1556,11 @@ ul {
   .modal-panel {
     max-height: 88dvh;
     border-radius: 28px 28px 0 0;
+    border-bottom: 0;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  .modal[open] .modal-panel {
+  :root:not(.has-morphed) .modal[open] .modal-panel {
     animation-name: sheet;
   }
 
@@ -1350,17 +1568,29 @@ ul {
     from { transform: translateY(40%); opacity: 0; }
   }
 
-
   .skills > div,
   .awards li {
     grid-template-columns: minmax(0, 1fr);
     gap: 8px;
   }
+
+  .gh-preview {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'stat'
+      'caption'
+      'map';
+  }
+
+  .gh-mini {
+    margin-top: 12px;
+    justify-content: start;
+  }
 }
 
 @media (max-width: 420px) {
   .profile-card {
-    padding: 52px 18px 40px;
+    padding: 56px 18px 44px;
   }
 
   .player {
@@ -1368,23 +1598,23 @@ ul {
     padding: 12px;
   }
 
-  .player-cover {
-    width: 44px;
-    height: 44px;
-    padding: 11px 9px;
-  }
-
   .player-controls button {
     width: 36px;
+  }
+
+  .tile {
+    min-height: 112px;
+    padding: 14px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .backdrop,
   .gate-dots,
   .player-cover.is-playing i,
+  .profile-badge,
+  .profile-status i,
   .modal[open] .modal-panel {
-    animation: none;
+    animation: none !important;
   }
 
   .gate-dots {
@@ -1393,12 +1623,17 @@ ul {
 
   .site,
   .tile,
-  .project-card {
+  .project-card,
+  .profile-card {
     transition: none;
   }
 
   .tile:hover,
   .project-card:hover {
+    transform: none;
+  }
+
+  .profile-card {
     transform: none;
   }
 }

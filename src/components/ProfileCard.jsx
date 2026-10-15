@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { getWorkerApiUrl } from '../utils/apiUrl'
+import { ScrambleText } from './Text'
 import { EyeIcon, FileIcon, GithubIcon, LinkedinIcon, MailIcon, TelegramIcon, TrophyIcon } from './Icons'
 
 const VIEWS_API_PATH = '/api/v1/views'
 const VIEWS_SESSION_KEY = 'portfolio:view-counted'
 const LINK_ICONS = { GitHub: GithubIcon, Telegram: TelegramIcon, LinkedIn: LinkedinIcon }
+const MAX_TILT_DEG = 5
+
 function useViewCount(apiBaseUrl) {
   const [count, setCount] = useState(null)
 
@@ -44,16 +47,24 @@ function useViewCount(apiBaseUrl) {
   return count
 }
 
-function ProfileCard({ profile, lang, t, ui, onLangChange, langs, cvHref, avatarSrc }) {
+function ProfileCard({ profile, lang, t, ui, active, onLangChange, langs, cvHref, avatarSrc }) {
   const cardRef = useRef(null)
   const views = useViewCount(profile.githubActivityApiUrl)
   const initials = (profile.name?.en || profile.name || '').split(/\s+/).map((word) => word[0]).join('').slice(0, 2)
 
-  // Блик на стекле следует за курсором.
+  // Карточка слегка наклоняется к курсору. На тач-экранах наклон не нужен — палец его не «ведёт».
   function handlePointerMove(event) {
+    if (event.pointerType !== 'mouse') return
     const rect = cardRef.current.getBoundingClientRect()
-    cardRef.current.style.setProperty('--mx', ((event.clientX - rect.left) / rect.width) * 100 + '%')
-    cardRef.current.style.setProperty('--my', ((event.clientY - rect.top) / rect.height) * 100 + '%')
+    const x = (event.clientX - rect.left) / rect.width - 0.5
+    const y = (event.clientY - rect.top) / rect.height - 0.5
+    cardRef.current.style.setProperty('--tilt-x', (-y * MAX_TILT_DEG * 2).toFixed(2) + 'deg')
+    cardRef.current.style.setProperty('--tilt-y', (x * MAX_TILT_DEG * 2).toFixed(2) + 'deg')
+  }
+
+  function handlePointerLeave() {
+    cardRef.current.style.setProperty('--tilt-x', '0deg')
+    cardRef.current.style.setProperty('--tilt-y', '0deg')
   }
 
   const links = [
@@ -62,7 +73,7 @@ function ProfileCard({ profile, lang, t, ui, onLangChange, langs, cvHref, avatar
   ].filter((link) => link && link.Icon)
 
   return (
-    <article className="glass profile-card" ref={cardRef} onPointerMove={handlePointerMove}>
+    <article className="card profile-card" ref={cardRef} onPointerMove={handlePointerMove} onPointerLeave={handlePointerLeave}>
       <div className="lang-switch" role="group" aria-label={ui.language}>
         {langs.map((item) => (
           <button type="button" key={item} aria-pressed={lang === item} onClick={() => onLangChange(item)}>{item.toUpperCase()}</button>
@@ -72,7 +83,7 @@ function ProfileCard({ profile, lang, t, ui, onLangChange, langs, cvHref, avatar
       {profile.avatar
         ? <img className="avatar" src={avatarSrc} alt="" width="120" height="120" />
         : <span className="avatar avatar-initials" aria-hidden="true">{initials}</span>}
-      <h1 className="profile-name">{t(profile.name)}</h1>
+      <h1 className="profile-name"><ScrambleText text={t(profile.name)} active={active} /></h1>
       <p className="profile-headline">{t(profile.headline) || profile.title}</p>
       {profile.badge && <p className="profile-badge"><TrophyIcon size={15} /> {t(profile.badge)}</p>}
       {profile.status

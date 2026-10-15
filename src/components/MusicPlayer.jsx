@@ -9,7 +9,7 @@ function MusicPlayer({ music, audio, ui }) {
   const progress = audio.duration ? (audio.time / audio.duration) * 100 : 0
 
   return (
-    <section className="glass player" aria-label={ui.player}>
+    <section className="card player" aria-label={ui.player}>
       <div className={'player-cover' + (audio.playing ? ' is-playing' : '')} aria-hidden="true">
         <i /><i /><i /><i />
       </div>
