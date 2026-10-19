@@ -146,3 +146,66 @@ export const GlobeIcon = (props) => (
     <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
   </Svg>
 )
+
+export const PrevIcon = (props) => (
+  <Svg filled {...props}>
+    <rect x="5" y="5" width="2.4" height="14" rx="1" />
+    <path d="M19 6.2v11.6a.8.8 0 0 1-1.25.66l-8.3-5.8a.8.8 0 0 1 0-1.32l8.3-5.8A.8.8 0 0 1 19 6.2z" />
+  </Svg>
+)
+
+export const NextIcon = (props) => (
+  <Svg filled {...props}>
+    <rect x="16.6" y="5" width="2.4" height="14" rx="1" />
+    <path d="M5 6.2v11.6a.8.8 0 0 0 1.25.66l8.3-5.8a.8.8 0 0 0 0-1.32l-8.3-5.8A.8.8 0 0 0 5 6.2z" />
+  </Svg>
+)
+
+export const HeartIcon = ({ filled, ...props }) => (
+  <Svg filled={filled} {...props}>
+    <path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z" />
+  </Svg>
+)
+
+export const ListIcon = (props) => (
+  <Svg {...props}>
+    <path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" />
+  </Svg>
+)
+
+export const ShuffleIcon = (props) => (
+  <Svg {...props}>
+    <path d="M3 7h3.5a4 4 0 0 1 3.2 1.6l4.6 6.8a4 4 0 0 0 3.2 1.6H21M3 17h3.5a4 4 0 0 0 3.2-1.6M14.3 8.6A4 4 0 0 1 17.5 7H21M18 4l3 3-3 3M18 14l3 3-3 3" />
+  </Svg>
+)
+
+export const RepeatIcon = (props) => (
+  <Svg {...props}>
+    <path d="M4 11V9a3 3 0 0 1 3-3h13M16 2.5 20 6l-4 3.5M20 13v2a3 3 0 0 1-3 3H4M8 14.5 4 18l4 3.5" />
+  </Svg>
+)
+
+export const SpeedIcon = (props) => (
+  <Svg {...props}>
+    <path d="M4.5 18a8.5 8.5 0 1 1 15 0M12 13.5l4-4" />
+  </Svg>
+)
+
+export const WaveIcon = (props) => (
+  <Svg {...props}>
+    <path d="M3 12h2l2-6 3 12 3-14 3 10 2-4h3" />
+  </Svg>
+)
+
+export const MoonIcon = (props) => (
+  <Svg {...props}>
+    <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
+  </Svg>
+)
+
+export const SearchIcon = (props) => (
+  <Svg {...props}>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="m20 20-4.2-4.2" />
+  </Svg>
+)

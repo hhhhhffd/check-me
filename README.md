@@ -1,6 +1,6 @@
 # Fyodor Vinokurov — CV
 
-Сайт-резюме на React + Vite в стиле bio-страниц: [datanomads.cc](https://datanomads.cc). Экран «click to enter» запускает музыку, фиолетовая WebGL-аура на тёмном фоне разгорается в такт её громкости (без WebGL остаётся CSS-градиент). Один экран: bento-сетка из карточки профиля, плеера и плиток-разделов резюме с превью (GitHub, проекты, награды) — каждая плитка «перетекает» в модальное окно с содержимым (View Transitions API; без его поддержки окно просто всплывает). У модалок есть адреса: `#projects`, `#projects/ratscan`, `#github` — ссылку можно отправить напрямую. Два языка (EN по умолчанию, RU переключателем).
+Сайт-резюме на React + Vite в стиле bio-страниц: [datanomads.cc](https://datanomads.cc). Экран «click to enter» запускает музыку, фон — волна из фиолетовых точек на тёмном градиенте, она вздымается в такт громкости трека. Один экран: bento-сетка из карточки профиля, плеера и плиток-разделов резюме с превью (GitHub, проекты, награды) — каждая плитка «перетекает» в модальное окно с содержимым (View Transitions API; без его поддержки окно просто всплывает). У модалок есть адреса: `#projects`, `#projects/ratscan`, `#github` — ссылку можно отправить напрямую. Два языка (EN по умолчанию, RU переключателем).
 
 Весь контент лежит в `public/cv.jsonc`: профиль, проекты, опыт, награды, стек, образование и языки. Текст, который отличается по языкам, задаётся объектом `{ "en": "...", "ru": "..." }`, даты — строкой `"YYYY-MM"`. Цифры в буллетах проектов и опыта (237, 83K, 1,000+) подсвечиваются автоматически. PDF-версия резюме — `public/Fyodor-Vinokurov-CV.pdf`; при обновлении CV замените и её.
 
@@ -9,7 +9,7 @@
 - `profile.headline` — строка под именем, `profile.badge` — плашка с главной наградой;
 - счётчик просмотров берётся из того же Worker (`/api/v1/views`).
 
-Трек задаётся в блоке `music` (`title`, `artist`, `src`). Текущий — [Meditating Beat из FreePD](https://github.com/0lhi/FreePD/blob/stream/Electronic/Meditating%20Beat.mp3), лицензия [CC0](https://github.com/0lhi/FreePD/blob/stream/LICENSE). Если поставить свой трек, у него должна быть лицензия на публичное использование.
+Плейлист задаётся в блоке `music.tracks` (`title`, `artist`, `src`); громкость по умолчанию -45 дБ, меняется ползунком. Плеер — адаптация [modern-html5-music-player](https://github.com/Pekly/modern-html5-music-player) (MIT). Второй трек — [Meditating Beat из FreePD](https://github.com/0lhi/FreePD/blob/stream/Electronic/Meditating%20Beat.mp3), лицензия [CC0](https://github.com/0lhi/FreePD/blob/stream/LICENSE). Фон-волна повторяет [personal-portfolio-website-v3](https://github.com/albertodrake/personal-portfolio-website-v3). Если поставить свой трек, у него должна быть лицензия на публичное использование.
 
 ```bash
 npm install

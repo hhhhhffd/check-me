@@ -46,11 +46,12 @@
     "githubActivityApiUrl": "https://github-api.datanomads.cc"
   },
 
-  // Трек включается по клику на экране входа. Свет за стеклом реагирует на его громкость.
+  // Плейлист. Первый трек включается по клику на экране входа. Свет и фон реагируют на громкость трека.
   "music": {
-    "title": "Meditating Beat",
-    "artist": "FreePD (CC0)",
-    "src": "/audio/meditating-beat.mp3"
+    "tracks": [
+      { "title": "Futuristic Neon", "artist": "vaitsez", "src": "/audio/futuristic-neon.mp3" },
+      { "title": "Meditating Beat", "artist": "FreePD (CC0)", "src": "/audio/meditating-beat.mp3" }
+    ]
   },
 
   "projects": [
