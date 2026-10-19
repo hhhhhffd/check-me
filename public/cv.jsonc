@@ -46,13 +46,8 @@
     "githubActivityApiUrl": "https://github-api.datanomads.cc"
   },
 
-  // Плейлист. Первый трек включается по клику на экране входа. Свет и фон реагируют на громкость трека.
-  "music": {
-    "tracks": [
-      { "title": "Futuristic Neon", "artist": "vaitsez", "src": "/audio/futuristic-neon.mp3" },
-      { "title": "Meditating Beat", "artist": "FreePD (CC0)", "src": "/audio/meditating-beat.mp3" }
-    ]
-  },
+  // Трек включается по клику на экране входа и крутится по кругу. Свет и фон реагируют на его громкость.
+  "music": { "title": "Futuristic Neon", "artist": "vaitsez", "src": "/audio/futuristic-neon.mp3" },
 
   "projects": [
     {

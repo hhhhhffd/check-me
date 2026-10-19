@@ -29,20 +29,7 @@ const UI = {
     unmute: 'Unmute',
     seek: 'Track position',
     playbackError: 'The track failed to play. Press play to try again.',
-    previous: 'Previous track',
-    next: 'Next track',
-    like: 'Add to favorites',
-    unlike: 'Remove from favorites',
-    playlist: 'Playlist',
-    search: 'Search',
-    favoritesOnly: 'Favorites only',
-    shuffle: 'Shuffle',
-    repeat: 'Repeat',
-    reverb: 'Reverb',
-    sleep: 'Sleep timer',
-    minutes: 'min',
     volume: 'Volume',
-    nothingFound: 'Nothing found',
     sectionsNav: 'CV sections',
     private: 'Private',
     details: 'Details',
@@ -71,20 +58,7 @@ const UI = {
     unmute: 'Включить звук',
     seek: 'Позиция трека',
     playbackError: 'Трек не воспроизвёлся. Нажми play, чтобы попробовать ещё раз.',
-    previous: 'Предыдущий трек',
-    next: 'Следующий трек',
-    like: 'В избранное',
-    unlike: 'Убрать из избранного',
-    playlist: 'Плейлист',
-    search: 'Поиск',
-    favoritesOnly: 'Только избранное',
-    shuffle: 'Вперемешку',
-    repeat: 'Повтор',
-    reverb: 'Реверб',
-    sleep: 'Таймер сна',
-    minutes: 'мин',
     volume: 'Громкость',
-    nothingFound: 'Ничего не найдено',
     sectionsNav: 'Разделы резюме',
     private: 'Закрытый',
     details: 'Подробнее',
@@ -217,8 +191,8 @@ function App() {
   const [entered, setEntered] = useState(false)
   const [route, setRoute] = useState(() => parseRoute(window.location.hash))
   const [skill, setSkill] = useState(null)
-  const tracks = useMemo(() => (cv?.music?.tracks ?? []).map((item) => ({ ...item, src: assetUrl(item.src) })), [cv])
-  const audio = useAudio(tracks)
+  const track = useMemo(() => (cv?.music ? { ...cv.music, src: assetUrl(cv.music.src) } : null), [cv])
+  const audio = useAudio(track)
   const github = useGithubData(cv?.profile.githubActivityApiUrl, Boolean(cv?.profile.githubUsername))
 
   useEffect(() => {

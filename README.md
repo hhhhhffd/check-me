@@ -9,7 +9,7 @@
 - `profile.headline` — строка под именем, `profile.badge` — плашка с главной наградой;
 - счётчик просмотров берётся из того же Worker (`/api/v1/views`).
 
-Плейлист задаётся в блоке `music.tracks` (`title`, `artist`, `src`); громкость по умолчанию -45 дБ, меняется ползунком. Плеер — адаптация [modern-html5-music-player](https://github.com/Pekly/modern-html5-music-player) (MIT). Второй трек — [Meditating Beat из FreePD](https://github.com/0lhi/FreePD/blob/stream/Electronic/Meditating%20Beat.mp3), лицензия [CC0](https://github.com/0lhi/FreePD/blob/stream/LICENSE). Фон-волна повторяет [personal-portfolio-website-v3](https://github.com/albertodrake/personal-portfolio-website-v3). Если поставить свой трек, у него должна быть лицензия на публичное использование.
+Трек задаётся в блоке `music` (`title`, `artist`, `src`) и крутится по кругу; громкость по умолчанию -45 дБ, меняется ползунком. Плеер — адаптация [modern-html5-music-player](https://github.com/Pekly/modern-html5-music-player) (MIT). Фон-волна повторяет [personal-portfolio-website-v3](https://github.com/albertodrake/personal-portfolio-website-v3). Если поставить свой трек, у него должна быть лицензия на публичное использование.
 
 ```bash
 npm install
