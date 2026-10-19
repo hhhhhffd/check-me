@@ -175,15 +175,6 @@ function morph(tileId, opening, update) {
   })
 }
 
-// Подсветка рамок следует за курсором по всей сетке, поэтому соседние карточки тоже «ловят» свет.
-function moveSpotlight(event) {
-  for (const card of event.currentTarget.querySelectorAll('.card')) {
-    const rect = card.getBoundingClientRect()
-    card.style.setProperty('--mx', event.clientX - rect.left + 'px')
-    card.style.setProperty('--my', event.clientY - rect.top + 'px')
-  }
-}
-
 function App() {
   const [cv, setCv] = useState(null)
   const [loadError, setLoadError] = useState('')
@@ -479,7 +470,7 @@ function App() {
         </div>
       )}
 
-      <main className={'site' + (entered ? ' is-entered' : '')} inert={entered ? undefined : ''} onPointerMove={moveSpotlight}>
+      <main className={'site' + (entered ? ' is-entered' : '')} inert={entered ? undefined : ''}>
         <ProfileCard
           profile={profile}
           lang={lang}

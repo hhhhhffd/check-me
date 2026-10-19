@@ -203,7 +203,7 @@ ul {
   color: var(--text);
 }
 
-/* ---------- карточки: тёмное стекло, рамка подсвечивается под курсором ---------- */
+/* ---------- карточки: тёмное стекло ---------- */
 
 .card {
   position: relative;
@@ -214,43 +214,6 @@ ul {
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 30px 60px -30px rgb(0 0 0 / 0.8);
-}
-
-.card::before {
-  /* Кольцо толщиной в рамку: маска вырезает середину, остаётся только край. */
-  content: '';
-  position: absolute;
-  inset: -1px;
-  padding: 1px;
-  border-radius: inherit;
-  background: radial-gradient(240px circle at var(--mx, -999px) var(--my, -999px), rgb(var(--accent-rgb) / 0.95), rgb(var(--accent-rgb) / 0.25) 45%, transparent 70%);
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-.card::after {
-  /* Мягкий свет внутри карточки под курсором; лежит под содержимым. */
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: radial-gradient(380px circle at var(--mx, -999px) var(--my, -999px), rgb(var(--accent-rgb) / 0.1), transparent 65%);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-@media (hover: hover) {
-  .site:hover .card::before,
-  .site:hover .card::after {
-    opacity: 1;
-  }
 }
 
 /* ---------- главный экран: bento-сетка ---------- */
