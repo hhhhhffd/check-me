@@ -1,83 +1,74 @@
-# Fyodor Vinokurov — CV
+<div align="center">
 
-Сайт-резюме на React + Vite в стиле bio-страниц: [datanomads.cc](https://datanomads.cc). Экран «click to enter» запускает музыку, фон — волна из фиолетовых точек на тёмном градиенте, она вздымается в такт громкости трека. Один экран: bento-сетка из карточки профиля, плеера и плиток-разделов резюме с превью (GitHub, проекты, награды) — каждая плитка «перетекает» в модальное окно с содержимым (View Transitions API; без его поддержки окно просто всплывает). У модалок есть адреса: `#projects`, `#projects/ratscan`, `#github` — ссылку можно отправить напрямую. Два языка (EN по умолчанию, RU переключателем).
+<h1>check-me</h1>
+<hr>
 
-Весь контент лежит в `public/cv.jsonc`: профиль, проекты, опыт, награды, стек, образование и языки. Текст, который отличается по языкам, задаётся объектом `{ "en": "...", "ru": "..." }`, даты — строкой `"YYYY-MM"`. Цифры в буллетах проектов и опыта (237, 83K, 1,000+) подсвечиваются автоматически. PDF-версия резюме — `public/Fyodor-Vinokurov-CV.pdf`; при обновлении CV замените и её.
+**Bio page and CV in one place: bilingual content, live GitHub stats, one JSONC file**
 
-На главной карточке:
-- `profile.avatar` — путь к фото (например, `/images/avatar.jpg`); если пусто, показываются инициалы;
-- `profile.headline` — строка под именем, `profile.badge` — плашка с главной наградой;
-- счётчик просмотров берётся из того же Worker (`/api/v1/views`).
+![React](https://img.shields.io/badge/REACT-18.3-61DAFB?style=flat-square&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/VITE-6-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Cloudflare Workers](https://img.shields.io/badge/CLOUDFLARE-WORKERS-F38020?style=flat-square&logo=cloudflare&logoColor=white)
+[![Deploy](https://img.shields.io/github/actions/workflow/status/hhhhhffd/check-me/deploy-pages.yml?style=flat-square&label=PAGES)](https://github.com/hhhhhffd/check-me/actions/workflows/deploy-pages.yml)
+[![License](https://img.shields.io/github/license/hhhhhffd/check-me?style=flat-square)](LICENSE)
 
-Трек задаётся в блоке `music` (`title`, `artist`, `src`) и крутится по кругу; громкость по умолчанию -45 дБ, меняется ползунком. Плеер — адаптация [modern-html5-music-player](https://github.com/Pekly/modern-html5-music-player) (MIT). Фон-волна повторяет [personal-portfolio-website-v3](https://github.com/albertodrake/personal-portfolio-website-v3). Если поставить свой трек, у него должна быть лицензия на публичное использование.
+[Website](https://datanomads.cc) · [Stack](#technical-stack) · [Quick start](#quick-start)
+
+</div>
+
+## What it is
+
+Personal bio and CV site of Fyodor Vinokurov. A single-screen bento layout: profile card, a music player and tiles for the CV sections (projects, awards, GitHub activity). Each tile opens as a modal with a deep-linkable URL (`#projects`, `#projects/ratscan`, `#github`).
+
+All content lives in `public/cv.jsonc` and is available in English and Russian. GitHub statistics come from a small Cloudflare Worker, so the GitHub token never reaches the browser.
+
+## Technical Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, Vite 6, plain CSS |
+| Content | `public/cv.jsonc` parsed and validated by `src/data/loadCvData.js` |
+| API | Cloudflare Worker (`workers/github-activity`), GitHub GraphQL API, Cache API (1 h) |
+| Storage | Cloudflare KV namespace `PORTFOLIO_VIEWS` (view counter) |
+| Hosting | GitHub Pages, deployed by GitHub Actions on every push to `main` |
+
+## Quick start
 
 ```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:5173
+npm run build    # runs the GitHub snapshot script first, then vite build
 ```
 
-## GitHub dashboard
+Edit `public/cv.jsonc` to change the content. Text that differs by language is an object `{ "en": "...", "ru": "..." }`, dates are `"YYYY-MM"`. The PDF version of the CV is `public/Fyodor-Vinokurov-CV.pdf` and must be replaced separately.
 
-Блок GitHub получает через Cloudflare Worker число контрибьютов за год, публичные репозитории, языки и активность за последние три месяца. GitHub-токен хранится только в секрете Worker и не попадает в браузер.
+<details>
+<summary>GitHub activity Worker</summary>
 
-### Развёртывание Worker
+The Worker serves `GET /api/v1/github` (profile, contributions, repositories, languages) and `GET /api/v1/views` (view counter). If it is unreachable, the site falls back to `public/github-snapshot.json`, which `npm run build` or `npm run snapshot` refreshes.
 
-1. В `workers/github-activity/wrangler.jsonc` укажите свой GitHub-логин в `GITHUB_USERNAME` и добавьте продакшен-адрес сайта в `ALLOWED_ORIGINS` через запятую. Например: `http://localhost:5173,https://username.github.io`.
-2. Перейдите в каталог Worker и войдите в Cloudflare:
+1. In `workers/github-activity/wrangler.jsonc` set `GITHUB_USERNAME` and add the site origin to `ALLOWED_ORIGINS`.
+2. Create the KV namespace and put its id into `kv_namespaces`:
 
    ```bash
    cd workers/github-activity
    npx wrangler login
+   npx wrangler kv namespace create PORTFOLIO_VIEWS
    ```
 
-3. Создайте Fine-grained Personal Access Token в GitHub для публичных данных и добавьте его в Cloudflare. Не сохраняйте токен в репозитории или `cv.jsonc`:
+3. Store a fine-grained GitHub token (public data only) as a Worker secret, then deploy:
 
    ```bash
    npx wrangler secret put GITHUB_TOKEN
-   ```
-
-4. Разверните Worker:
-
-   ```bash
    npx wrangler deploy
    ```
 
-5. Настройте DNS `github-api.<домен сайта>` на Worker. Для локальной разработки укажите рабочий адрес API в `public/cv.jsonc`:
+4. Point `github-api.<site domain>` at the Worker. For local development set `githubActivityApiUrl` in `public/cv.jsonc`.
 
-   ```jsonc
-   "githubUsername": "your-login",
-   "githubActivityApiUrl": "https://github-api.datanomads.cc"
-   ```
+> [!WARNING]
+> Never commit `GITHUB_TOKEN`; it must exist only as a Worker secret.
 
-На опубликованном сайте адрес API автоматически строится как `https://github-api.<домен открытой страницы>/api/v1/github` (префикс `www.` отбрасывается). На `localhost` используется адрес из `cv.jsonc`. Worker кэширует данные на один час и обслуживает только `GITHUB_USERNAME`; endpoint вызывается обычным `GET /api/v1/github`, без query-параметра `username`. Добавьте каждый домен сайта в `ALLOWED_ORIGINS` Worker.
+</details>
 
-Если Worker недоступен, показывается снапшот `public/github-snapshot.json` с пометкой, когда он обновлён. Снапшот обновляется автоматически перед каждой сборкой (`prebuild`) или вручную через `npm run snapshot`; если Worker не ответил, остаётся предыдущий файл.
+## License
 
-Worker отдаёт подневный календарь за 12 месяцев. Вся статистика активности в модалке (стрики, активные дни, тепловая карта) считается из этого календаря на клиенте.
-
-В статистику репозиториев входят публичные оригинальные репозитории владельца; forks исключены. Проценты языков считаются по размеру файлов в байтах, как отдаёт GitHub.
-
-### Счётчик просмотров
-
-Тот же Worker обслуживает `GET /api/v1/views`. Первый запрос из браузерной сессии увеличивает ключ `views:total` в KV namespace `PORTFOLIO_VIEWS`; последующие запросы этой сессии только читают текущее значение.
-
-Создайте KV namespace один раз:
-
-```bash
-cd workers/github-activity
-npx wrangler kv namespace create PORTFOLIO_VIEWS
-```
-
-Скопируйте выданный ID в `wrangler.jsonc`:
-
-```jsonc
-"kv_namespaces": [
-  { "binding": "PORTFOLIO_VIEWS", "id": "your-namespace-id" }
-]
-```
-
-После этого задеплойте Worker:
-
-```bash
-npx wrangler deploy
-```
+Source code is licensed under [AGPL-3.0](LICENSE). The audio track, photos and personal content in `public/` are not covered by a separate grant.
